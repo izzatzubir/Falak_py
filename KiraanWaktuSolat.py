@@ -905,13 +905,6 @@ class Takwim:
 
         return takwim_bulanan
 
-Penang = Takwim()
-Penang.month = 6
-x = Penang.moon_distance()
-
-print(x)
-
-#print(Penang.takwim_solat_bulanan())
     
 
 
