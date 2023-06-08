@@ -191,7 +191,7 @@ KiraanWaktuSolat.py ialah sebuah file python yang mengandungi sebuah python Clas
   <h4>topo</h4>
   <p> tetapan topo boleh dirujuk pada method elongasi_moon_sun()</p>
   <hr>
-  <h3>takwim_solat_bulanan(altitud_subuh ='default', altitud_syuruk ='default', altitud_maghrib ='default', altitud_isyak ='default', saat = 'tidak'</h3>
+  <h3>takwim_solat_bulanan(altitud_subuh ='default', altitud_syuruk ='default', altitud_maghrib ='default', altitud_isyak ='default', saat = 'tidak')</h3>
   <p> Metod ini memberikan sebuah takwim solat dalam bentuk pandas.Dataframe</p>
   <p> Jadual ini mengandungi tarikh, mula bayang searah kiblat, tamat bayang searah kiblat, subuh, syuruk, zohor, asar, maghrib, isyak</p>
   <p> Jadual ini bermula pada 1 haribulan bagi bulan dan tahun yang ditetapkan, dan berakhir pada hari akhir bulan </p>
