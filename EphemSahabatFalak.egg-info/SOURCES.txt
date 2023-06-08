@@ -1,0 +1,12 @@
+README.md
+setup.py
+EphemSahabatFalak.egg-info/PKG-INFO
+EphemSahabatFalak.egg-info/SOURCES.txt
+EphemSahabatFalak.egg-info/dependency_links.txt
+EphemSahabatFalak.egg-info/requires.txt
+EphemSahabatFalak.egg-info/top_level.txt
+Falak_Py/Contoh_azimut_kiblat.py
+Falak_Py/Contoh_efemeris_hilal.py
+Falak_Py/Contoh_takwim_solat.py
+Falak_Py/KiraanWaktuSolat.py
+Falak_Py/__init__.py
