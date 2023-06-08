@@ -1,6 +1,10 @@
 # Falak_py
 
-KiraanWaktuSolat.py ialah sebuah file python yang mengandungi sebuah python Class iaitu Takwim() yang mempunyai pelbagai method. 
+<p>KiraanWaktuSolat.py ialah sebuah file python yang mengandungi sebuah python Class iaitu Takwim() yang mempunyai pelbagai method. </p>
+<p> Program ini menggunakan data ephemeris dari JPL Horizon (NASA) iaitu de440s. Pengguna boleh untuk mengubah kepada ephemeris lain </p>
+<p> Program ini menggunapakai pakej Skyfield </p>
+<p> Program ini dihasilkan oleh Izzat Zubir, dengan sokongan dari keluarga, beserta maklum balas dari Dr. Abdul Halim Abdul Aziz, Panel Pakar Falak JAKIM </p>
+
 
 <h1> Parameter </h1>
 <p> Terdapat 13 parameter yang boleh diubah:</p>
@@ -191,13 +195,14 @@ KiraanWaktuSolat.py ialah sebuah file python yang mengandungi sebuah python Clas
   <h4>topo</h4>
   <p> tetapan topo boleh dirujuk pada method elongasi_moon_sun()</p>
   <hr>
-  <h3>takwim_solat_bulanan(altitud_subuh ='default', altitud_syuruk ='default', altitud_maghrib ='default', altitud_isyak ='default'</h3>
+  <h3>takwim_solat_bulanan(altitud_subuh ='default', altitud_syuruk ='default', altitud_maghrib ='default', altitud_isyak ='default', saat = 'tidak')</h3>
   <p> Metod ini memberikan sebuah takwim solat dalam bentuk pandas.Dataframe</p>
   <p> Jadual ini mengandungi tarikh, mula bayang searah kiblat, tamat bayang searah kiblat, subuh, syuruk, zohor, asar, maghrib, isyak</p>
   <p> Jadual ini bermula pada 1 haribulan bagi bulan dan tahun yang ditetapkan, dan berakhir pada hari akhir bulan </p>
-  <h4>tetapan altitud</h4>
+  <h4>tetapan altitud dan saat</h4>
   <p> Tetapan altitud subuh hingga isyak boleh dirujuk pada method waktu solat masing-masing </p>
-  
+  <p> Tetapan saat ialah bagi memilih sama ada mahu bundarkan kepada minit bawah (syuruk dan bayang tamat) atau minit atas (selainnya).</p>
+  <p> Tetapan asal bagi saat ialah bundarkan, namun jika mahu nilai saat, ubah kepada saat = 'ya' </p>
   
   
   
