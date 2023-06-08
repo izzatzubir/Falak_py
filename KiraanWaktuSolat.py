@@ -758,7 +758,7 @@ class Takwim:
         return masa_bayang_searah_kiblat_mula, masa_bayang_searah_kiblat_tamat
 
 
-    def efemeris_hilal(self):
+    def efemeris_hilal(self, topo = 'topo'):
         alt_bulan_list = []
         alt_mat = []
         azm_mat = []
@@ -797,7 +797,7 @@ class Takwim:
             azm_mat.append(azimut_matahari)
 
             #elongasi bulan matahari
-            elongasi_bulan_matahari = self.elongation_moon_sun(angle_format='string', topo = 'topo')
+            elongasi_bulan_matahari = self.elongation_moon_sun(angle_format='string', topo = topo)
             elon_bulanMat.append(elongasi_bulan_matahari)
 
         for i in range (1,60):
@@ -830,7 +830,7 @@ class Takwim:
             azm_mat.append(azimut_matahari)
 
             #elongasi bulan matahari
-            elongasi_bulan_matahari = self.elongation_moon_sun(angle_format='string', topo = 'topo')
+            elongasi_bulan_matahari = self.elongation_moon_sun(angle_format='string', topo = topo)
             elon_bulanMat.append(elongasi_bulan_matahari)
 
         ephem_bulan = pd.DataFrame(list(zip(elon_bulanMat,alt_bulan_list, azm_bul, alt_mat, azm_mat)), 
@@ -840,7 +840,7 @@ class Takwim:
         return ephem_bulan
     
     def takwim_solat_bulanan(self, altitud_subuh ='default', altitud_syuruk ='default', 
-                             altitud_maghrib ='default', altitud_isyak ='default', ):
+                             altitud_maghrib ='default', altitud_isyak ='default' ):
         tarikh = []
         subuh = []
         bayang_kiblat_mula = []
@@ -907,7 +907,7 @@ class Takwim:
 
 Penang = Takwim()
 Penang.month = 6
-x = Penang.waktu_maghrib(time_format='string')
+x = Penang.moon_distance()
 
 print(x)
 
