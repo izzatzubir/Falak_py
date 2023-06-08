@@ -1,1 +1,0 @@
-from KiraanWaktuSolat import Takwim
