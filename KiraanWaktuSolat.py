@@ -12,7 +12,7 @@ class Takwim:
     def __init__(self,latitude=5.41144, longitude=100.19672, elevation=40, 
                  year = datetime.now().year, month = datetime.now().month, day =datetime.now().day,
                  hour =datetime.now().hour, minute = datetime.now().minute, second =datetime.now().second,
-                 zone='Asia/Kuala_Lumpur', temperature = 30, pressure = 0, ephem = 'de440s.bsp'): #set default values
+                 zone='Asia/Kuala_Lumpur', temperature = 27, pressure = 1010, ephem = 'de440s.bsp'): #set default values
         self.latitude = latitude
         self.longitude = longitude
         self.elevation = elevation
@@ -907,8 +907,7 @@ class Takwim:
 
 Penang = Takwim()
 Penang.month = 6
-x = Penang.waktu_asar()
-
+x = Penang.waktu_maghrib(time_format='string')
 
 print(x)
 
