@@ -839,8 +839,17 @@ class Takwim:
 
         return ephem_bulan
     
+    def __round_up(self, waktu):
+        rounded_up_waktu = str((waktu + dt.timedelta(minutes=1.0)).replace(second= 0))[11:16]
+        
+        return rounded_up_waktu
+    def __round_down(self,waktu):
+        rounded_down_waktu = str((waktu - dt.timedelta(minutes=1.0)).replace(second= 0))[11:16]
+        
+        return rounded_down_waktu
+    
     def takwim_solat_bulanan(self, altitud_subuh ='default', altitud_syuruk ='default', 
-                             altitud_maghrib ='default', altitud_isyak ='default' ):
+                             altitud_maghrib ='default', altitud_isyak ='default', saat = 'tidak'):
         tarikh = []
         subuh = []
         bayang_kiblat_mula = []
@@ -865,46 +874,95 @@ class Takwim:
             if errormessage == "triggered":
                 continue
 
-                
+            if altitud_subuh != 'default' and (altitud_subuh > -12 or altitud_subuh) < -24:
+                print("Altitude subuh is below 24 degrees, or above 12 degrees")
+                break
+            if altitud_syuruk != 'default' and (altitud_syuruk > 0 or altitud_subuh) < -4:
+                print("Altitude syuruk is below -4 degrees, or above 0 degrees")
+                break
+            if altitud_maghrib != 'default' and (altitud_maghrib > 0 or altitud_maghrib) < -4:
+                print("Altitude maghrib is below -4 degrees, or above 0 degrees")
+                break
+            if altitud_isyak != 'default' and (altitud_isyak > -12 or altitud_isyak < -24):
+                print("Altitude isyak is below 24 degrees, or above 12 degrees")
+                break
+            
             self.day = i
 
+            
             #masa
             masa = self.current_time(time_format='string')[:11]
             tarikh.append(masa)
 
-            waktu_bayang_searah_kiblat = self.bayang_searah_kiblat(time_format='string')
-            bayang_kiblat_mula.append(waktu_bayang_searah_kiblat[0])
-            bayang_kiblat_tamat.append(waktu_bayang_searah_kiblat[1])
+            if saat == 'tidak' or saat == 'no':
+                waktu_bayang_searah_kiblat = self.bayang_searah_kiblat(time_format='datetime')
+
+                try:
+                    bayang_kiblat_mula.append(self.__round_up(waktu_bayang_searah_kiblat[0]))
+                    bayang_kiblat_tamat.append(self.__round_down(waktu_bayang_searah_kiblat[1]))
+                except TypeError:
+                    bayang_kiblat_mula.append(waktu_bayang_searah_kiblat[0])
+                    bayang_kiblat_tamat.append(waktu_bayang_searah_kiblat[1])
+            
+            else: 
+                waktu_bayang_searah_kiblat = self.bayang_searah_kiblat(time_format='string')
+                bayang_kiblat_mula.append(waktu_bayang_searah_kiblat[0])
+                bayang_kiblat_tamat.append(waktu_bayang_searah_kiblat[1])
+
 
             #subuh
-            waktu_subuh = self.waktu_subuh(time_format='string', altitude=altitud_subuh)
-            subuh.append(waktu_subuh)
+            if saat == 'tidak' or saat == 'no':
+                waktu_subuh = self.waktu_subuh(time_format='datetime', altitude=altitud_subuh)
+                subuh.append(self.__round_up(waktu_subuh))
+
+            else:
+                waktu_subuh = self.waktu_subuh(time_format='string', altitude=altitud_subuh)
+                subuh.append(waktu_subuh)
 
             #syuruk
-            waktu_syuruk = self.waktu_syuruk(time_format = 'string', altitude=altitud_syuruk)
-            syuruk.append(waktu_syuruk)
+            if saat == 'tidak' or saat == 'no':
+                waktu_syuruk = self.waktu_syuruk(time_format='datetime', altitude=altitud_syuruk)
+                syuruk.append(self.__round_down(waktu_syuruk))
+            else:
+                waktu_syuruk = self.waktu_syuruk(time_format = 'string', altitude=altitud_syuruk)
+                syuruk.append(waktu_syuruk)
             
             #zohor
-            waktu_zohor = self.waktu_zohor(time_format = 'string')
-            zohor.append(waktu_zohor)
+            
+            if saat == 'tidak' or saat == 'no':
+                waktu_zohor = self.waktu_zohor(time_format='datetime')
+                zohor.append(self.__round_up(waktu_zohor))
+            else:
+                waktu_zohor = self.waktu_zohor(time_format = 'string')
+                zohor.append(waktu_zohor)
 
             #asar
-            waktu_asar = self.waktu_asar(time_format = 'string')
-            asar.append(waktu_asar)
+            if saat == 'tidak' or saat == 'no':
+                waktu_asar = self.waktu_asar(time_format='datetime')
+                asar.append(self.__round_up(waktu_asar))
+            else:
+                waktu_asar = self.waktu_asar(time_format = 'string')
+                asar.append(waktu_asar)
 
             #maghrib
-            waktu_maghrib = self.waktu_maghrib(time_format='string', altitude=altitud_maghrib)
-            maghrib.append(waktu_maghrib)
-
+            if saat == 'tidak' or saat == 'no':
+                waktu_maghrib = self.waktu_maghrib(time_format='datetime', altitude=altitud_maghrib)
+                maghrib.append(self.__round_down(waktu_maghrib))
+            else:
+                waktu_maghrib = self.waktu_maghrib(time_format='string', altitude=altitud_maghrib)
+                maghrib.append(waktu_maghrib)
             #isyak
-            waktu_isyak = self.waktu_isyak(time_format='string', altitude = altitud_isyak)
-            isyak.append(waktu_isyak)
+            if saat == 'tidak' or saat == 'no':
+                waktu_isyak = self.waktu_isyak(time_format='datetime', altitude=altitud_isyak)
+                isyak.append(self.__round_down(waktu_isyak))
+            else:
+                waktu_isyak = self.waktu_isyak(time_format='string', altitude = altitud_isyak)
+                isyak.append(waktu_isyak)
 
         
         takwim_bulanan = pd.DataFrame(list(zip(bayang_kiblat_mula, bayang_kiblat_tamat, subuh, syuruk, zohor, asar, maghrib, isyak)), index = tarikh, columns=["Bayang mula", "Bayang tamat", "Subuh", "Syuruk", "Zohor", "Asar", "Maghrib", "Isyak"])
 
         return takwim_bulanan
 
-    
 
 

@@ -10,4 +10,5 @@ Penang.longitude = 100.2
 #Cari azimut
 azimut = Penang.azimut_kiblat()
 
-print(azimut)
+
+#print(azimut)
