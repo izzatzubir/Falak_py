@@ -9,12 +9,13 @@ Penang.longitude = 100.2
 
 #Tetapkan bulan dan tahun
 Penang.year = 2023
-Penang.month = 8
+Penang.month = 7
 
 #Hasilkan takwim
 takwim = Penang.takwim_solat_bulanan()
 
 #pindahkan ke dalam excel. pastikan format xlsx
-nama_file = 'Takwim_Solat_Ogos_2023.xlsx'
+nama_file = 'Takwim_Solat_Ogos_2023.xlsx' 
 
-takwim.to_excel(nama_file)
+#takwim.to_excel(nama_file)
+#print(takwim)

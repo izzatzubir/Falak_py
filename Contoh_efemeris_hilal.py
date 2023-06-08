@@ -18,4 +18,4 @@ takwim = Penang.efemeris_hilal()
 #pindahkan ke dalam excel. pastikan format xlsx
 nama_file = 'Efemeris_Hilal_ZulHijjah_1444.xlsx'
 
-takwim.to_excel(nama_file)
+#takwim.to_excel(nama_file) 
