@@ -1,0 +1,6 @@
+setup.py
+EphemSahabatFalak.egg-info
+dist
+build
+EphemSahabatFalak/__pycache__
+EphemSahabatFalak/de440s.bsp
