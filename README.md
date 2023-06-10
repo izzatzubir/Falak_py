@@ -4,6 +4,7 @@
 <p> Program ini menggunakan data ephemeris dari JPL Horizon (NASA) iaitu de440s. Pengguna boleh untuk mengubah kepada ephemeris lain </p>
 <p> Program ini menggunapakai pakej Skyfield </p>
 <p> Program ini dihasilkan oleh Izzat Zubir, dengan sokongan dari keluarga, beserta maklum balas dari Dr. Abdul Halim Abdul Aziz, Panel Pakar Falak JAKIM </p>
+<p> Pengguna boleh melihat contoh dalam directory /EphemSahabatFalak/Contoh </p>
 
 
 <h1> Parameter </h1>
