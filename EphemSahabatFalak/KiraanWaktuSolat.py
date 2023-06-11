@@ -170,11 +170,18 @@ class Takwim:
             return moon_distance
 
         
-    def moon_illumination(self, t = None):
+    def moon_illumination(self, t = None, topo = 'topo'):
         eph = api.load(self.ephem)
         earth, moon, sun = eph['earth'], eph['moon'], eph['sun']
         current_topo = earth + self.location()
-        illumination = current_topo.at(t).observe(moon).apparent().fraction_illuminated(sun)
+
+        if t is None:
+            t = self.current_time()
+        if topo == 'geo' or topo == 'geocentric':
+            illumination = earth.at(t).observe(moon).apparent().fraction_illuminated(sun)
+
+        else:
+            illumination = current_topo.at(t).observe(moon).apparent().fraction_illuminated(sun)
 
         moon_illumination = illumination * 100
         return moon_illumination
@@ -318,7 +325,7 @@ class Takwim:
         first_term = atan(radius_of_the_Moon/earth_moon_distance) #returns the angle of the semi-diameter of the moon
         second_term = atan((radius_of_the_Moon*cos(elon_earth_sun.radians))/earth_moon_distance) #returns the (negative) angle of the semi-ellipse between the inner terminator and center of the moon
 
-        crescent_width = Angle(first_term + second_term) # in radians
+        crescent_width = Angle(radians = (first_term + second_term)) # in radians
         if angle_format != 'skylib':
             crescent_width = crescent_width.dstr(format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
         
