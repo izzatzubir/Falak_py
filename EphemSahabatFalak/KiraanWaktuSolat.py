@@ -1,11 +1,12 @@
 from skyfield import api, almanac
-from skyfield.api import datetime, wgs84, N, E, load
+from skyfield.api import datetime, wgs84, N, E, load, Angle
 from pytz import timezone
 import datetime as dt
 from skyfield.searchlib import find_discrete
 import pandas as pd
-from mpmath import degrees, acot,cot,sin, atan2, sqrt, cos, radians
+from mpmath import degrees, acot,cot,sin, atan2, sqrt, cos, radians, atan
 from datetime import timedelta
+from skyfield.framelib import ecliptic_frame
 
 class Takwim:
     def __init__(self,latitude=5.41144, longitude=100.19672, elevation=40, 
@@ -85,15 +86,27 @@ class Takwim:
         
         return sun_azimuth
     
-    def sun_distance(self, t = None):
+    def sun_distance(self, t = None, topo = 'topo', unit = 'km'):
         eph = api.load(self.ephem)
         earth, sun = eph['earth'], eph['sun']
         current_topo = earth + self.location()
         if t is None:
             t = self.current_time()
        
-        sun_distance = current_topo.at(t).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)   
-        return sun_distance[2]
+        sun_distance = current_topo.at(t).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)  
+        if topo == 'topo' or topo== 'topocentric':
+            if unit == 'km' or unit == 'KM':
+                sun_distance = current_topo.at(t).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure).km
+            else:
+                sun_distance = current_topo.at(t).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)
+            return sun_distance[2]
+        else:
+            if unit == 'km' or unit == 'KM':
+                sun_distance = current_topo.at(t).observe(sun).apparent().distance().km
+            else:
+                sun_distance = current_topo.at(t).observe(sun).apparent().distance()
+            return sun_distance 
+
     
     def moon_altitude(self, t = None, angle_format = 'skylib', temperature = None, pressure = None):
         eph = api.load(self.ephem)
@@ -136,15 +149,35 @@ class Takwim:
             
         return moon_azimuth
     
-    def moon_distance(self, t = None):
+    def moon_distance(self, t = None, topo = 'topo', unit = 'km'):
         eph = api.load(self.ephem)
         earth, moon = eph['earth'], eph['moon']
         current_topo = earth + self.location()
         if t is None:
             t = self.current_time()
        
-        moon_distance = current_topo.at(t).observe(moon).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)   
-        return moon_distance[2]
+        if topo == 'topo' or topo== 'topocentric':
+            if unit == 'km' or unit == 'KM':
+                moon_distance = current_topo.at(t).observe(moon).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure).km
+            else:
+                moon_distance = current_topo.at(t).observe(moon).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)
+            return moon_distance[2]
+        else:
+            if unit == 'km' or unit == 'KM':
+                moon_distance = current_topo.at(t).observe(moon).apparent().distance().km
+            else:
+                moon_distance = current_topo.at(t).observe(moon).apparent().distance()
+            return moon_distance
+
+        
+    def moon_illumination(self, t = None):
+        eph = api.load(self.ephem)
+        earth, moon, sun = eph['earth'], eph['moon'], eph['sun']
+        current_topo = earth + self.location()
+        illumination = current_topo.at(t).observe(moon).apparent().fraction_illuminated(sun)
+
+        moon_illumination = illumination * 100
+        return moon_illumination
     
     def __iteration_moonset(self, t):
         
@@ -236,6 +269,60 @@ class Takwim:
 
 
         return elongation_moon_sun
+    
+    def moon_phase(self,t=None, topo = 'topo'):
+        eph = api.load(self.ephem)
+        earth, moon, sun = eph['earth'], eph['moon'], eph['sun']
+        current_topo = earth + self.location()
+
+        if t is None:
+            t = self.current_time()
+
+        if topo == 'geo' or topo == 'geocentric':
+            e = earth.at(t)
+            s = e.observe(sun).apparent()
+            m = e.observe(moon).apparent()
+
+        else: 
+            e = current_topo.at(t)
+            s = e.observe(sun).apparent()
+            m = e.observe(moon).apparent()
+
+        _, slon, _ = s.frame_latlon(ecliptic_frame) #returns ecliptic latitude, longitude and distance, from the ecliptic reference frame
+        _, mlon, _ = m.frame_latlon(ecliptic_frame)
+        phase = (mlon.degrees - slon.degrees) % 360.0
+
+        return phase
+
+
+    def lunar_crescent_width (self,t=None, topo = 'topo',angle_format = 'skylib'):
+        eph = api.load(self.ephem)
+        earth, moon, sun = eph['earth'], eph['moon'], eph['sun']
+        current_topo = earth + self.location()
+        radius_of_the_Moon = 1738.1 #at equator. In reality, this should be the radius of the moon along the thickest part of the crescent
+
+        if t is None:
+            t = self.current_time()
+
+        m = moon.at(t)
+        s = m.observe(sun).apparent()
+        if topo == 'geo' or topo == 'geocentric':
+            earth_moon_distance = earth.at(t).observe(moon).apparent().distance().km #center of earth - center of moon distance
+            e = m.observe(earth).apparent() #vector from the center of the moon, to the center of the earth
+        
+        else:
+            earth_moon_distance = current_topo.at(t).observe(moon).apparent().distance().km # topo - center of moon distance
+            e = m.observe(current_topo).apparent() #vector from center of the moon, to topo
+
+        elon_earth_sun = e.separation_from(s) #elongation of the earth-sun, as seen from the center of the moon. Not to be confused with phase angle
+        first_term = atan(radius_of_the_Moon/earth_moon_distance) #returns the angle of the semi-diameter of the moon
+        second_term = atan((radius_of_the_Moon*cos(elon_earth_sun.radians))/earth_moon_distance) #returns the (negative) angle of the semi-ellipse between the inner terminator and center of the moon
+
+        crescent_width = Angle(first_term + second_term) # in radians
+        if angle_format != 'skylib':
+            crescent_width = crescent_width.dstr(format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
+        
+        return crescent_width
     
     
     def waktu_zawal(self, time_format = 'default'):
@@ -575,8 +662,6 @@ class Takwim:
         eph = api.load(self.ephem)
         earth, sun = eph['earth'], eph['sun']
         ts = load.timescale()
-        current_topo = earth + self.location()
-        sun_altitude = current_topo.at(self.current_time()).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)
         now = self.current_time().astimezone(self.zone)
         midnight = now.replace(hour = 0, minute = 0, second = 0, microsecond = 0)
         next_midnight = midnight + dt.timedelta(days =1)
