@@ -1,1 +1,1 @@
-from Falak_Py.KiraanWaktuSolat import Takwim
+from EphemSahabatFalak.KiraanWaktuSolat import Takwim

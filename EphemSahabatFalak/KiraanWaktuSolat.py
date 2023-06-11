@@ -855,6 +855,8 @@ class Takwim:
         azm_mat = []
         azm_bul = []
         elon_bulanMat = []
+        illumination_bulan = []
+        lebar_sabit = []
         tarikh = []
         min_in_day = 1/1440
 
@@ -891,6 +893,14 @@ class Takwim:
             elongasi_bulan_matahari = self.elongation_moon_sun(angle_format='string', topo = topo)
             elon_bulanMat.append(elongasi_bulan_matahari)
 
+            #iluminasi bulan
+            illumination = self.moon_illumination(topo= topo)
+            illumination_bulan.append(illumination)
+
+            #lebar sabit
+            sabit = self.lunar_crescent_width(topo=topo, angle_format='string')
+            lebar_sabit.append(sabit)
+
         for i in range (1,60):
             delta_time = self.waktu_maghrib(time_format= 'default') + i*min_in_day
             hour = int(str(delta_time.astimezone(self.zone))[11:13])
@@ -924,9 +934,17 @@ class Takwim:
             elongasi_bulan_matahari = self.elongation_moon_sun(angle_format='string', topo = topo)
             elon_bulanMat.append(elongasi_bulan_matahari)
 
-        ephem_bulan = pd.DataFrame(list(zip(elon_bulanMat,alt_bulan_list, azm_bul, alt_mat, azm_mat)), 
+            #iluminasi bulan
+            illumination = self.moon_illumination(topo= topo)
+            illumination_bulan.append(illumination)
+
+            #lebar sabit
+            sabit = self.lunar_crescent_width(topo=topo, angle_format='string')
+            lebar_sabit.append(sabit)
+
+        ephem_bulan = pd.DataFrame(list(zip(elon_bulanMat,alt_bulan_list, azm_bul, alt_mat, azm_mat, illumination_bulan, lebar_sabit)), 
                            index=tarikh, 
-                           columns=["Elongasi","Alt Bulan", "Az Bulan", "Alt Matahari", "Az Matahari"])
+                           columns=["Elongasi","Alt Bulan", "Az Bulan", "Alt Matahari", "Az Matahari", "illuminasi bulan", "lebar sabit"])
 
         return ephem_bulan
     
