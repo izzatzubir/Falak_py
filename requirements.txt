@@ -1,0 +1,5 @@
+skyfield==1.46
+pytz==2023.3
+DateTime==5.1
+pandas==2.0.1
+mpmath==1.3.0
