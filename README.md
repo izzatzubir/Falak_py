@@ -3,8 +3,11 @@
 <p>EphemSahabatFalak ialah sebuah file python yang mengandungi sebuah python Class iaitu Takwim() yang mempunyai pelbagai method. </p>
 <p> Program ini menggunakan data ephemeris dari JPL Horizon (NASA) iaitu de440s. Pengguna boleh untuk mengubah kepada ephemeris lain </p>
 <p> Program ini menggunapakai pakej Skyfield </p>
-<p> Program ini dihasilkan oleh Izzat Zubir, dengan sokongan dari keluarga, beserta maklum balas dari Dr. Abdul Halim Abdul Aziz, Panel Pakar Falak JAKIM </p>
 <p> Pengguna boleh melihat contoh dalam directory /EphemSahabatFalak/Contoh </p>
+<p> Antara data yang boleh dijana dengan mudah ialah takwim solat bulanan di kawasan pilihan, jadual hilal bagi cerapan, azimut kiblat.</p>
+<p> Pengguna boleh melihat contoh dalam directory /EphemSahabatFalak/Contoh </p>
+<p> Program ini dihasilkan oleh Izzat Zubir, dengan sokongan dari keluarga, beserta maklum balas dari Dr. Abdul Halim Abdul Aziz, Panel Pakar Falak JAKIM </p>
+
 
 
 <h1> Parameter </h1>
@@ -110,9 +113,11 @@
 
 ## Efemeris matahari dan bulan
 
-<h3>moon_altitude(t = current_time, angle_format = 'skylib', temperature = None, pressure = None)</h3>
+<h3>moon_altitude(t = current_time, angle_format = 'skylib',topo = 'topo', temperature = None, pressure = None)</h3>
   <p> Metod ini memberikan altitud bulan pada waktu yang ditetapkan </p>
   <p> Suhu dan Tekanan adalah berdasarkan tetapan yang dibuat </p>
+  <p> Parameter topo boleh dipilih antara topo(centric) dan geo(centric). Nilai default ialah topo</p>
+  <p> Altitud pada tetapan geocentric ialah altitud dari ufuk, yang berkongsi zenith yang sama dengan pemerhati di permukaan. Rujuk Yallop 1998</p>
  <h4>angle_format</h4>
  <p> angle_format = 'skylib' -> format sudut dalam skylib.Angle.radians
  <p> angle_format = 'degree' -> format sudut dalam skylib.Angle.degrees
@@ -130,9 +135,11 @@
 <h3>moon_distance(t = None, angle_format = 'skylib')</h3>
   <p> Metod ini memberikan jarak bulan dalam unit au </p>
   <hr>
-<h3>sun_altitude(t = current_time, angle_format = 'skylib', temperature = None, pressure = None)</h3>
+<h3>sun_altitude(t = current_time, angle_format = 'skylib', topo='topo' temperature = None, pressure = None)</h3>
   <p> Metod ini memberikan altitud matahari pada waktu yang ditetapkan </p>
   <p> Suhu dan Tekanan adalah berdasarkan tetapan yang dibuat </p>
+  <p> Parameter topo boleh dipilih antara topo(centric) dan geo(centric). Nilai default ialah topo</p>
+  <p> Altitud pada tetapan geocentric ialah altitud dari ufuk, yang berkongsi zenith yang sama dengan pemerhati di permukaan. Rujuk Yallop 1998</p>
  <h4>angle_format</h4>
  <p> angle_format = 'skylib' -> format sudut dalam skylib.Angle.radians
  <p> angle_format = 'degree' -> format sudut dalam skylib.Angle.degrees
@@ -172,6 +179,31 @@
 <p> time_format = 'string' -> format waktu subuh dalam string (hh:mm:ss) </p>
 <p> time_format = 'default' -> format waktu subuh dalam skyfield.Time </p>
 <hr>
+
+<h3>moon_phase(topo = 'topo')</h3>
+<p> Metod ini memberikan fasa bulan</p>
+<p> Fasa bulan dihitung berdasarkan longitud ekliptik bulan</p>
+<p> Nilai 0 ialah ketika bulan baru (new moon)</p>
+<p> Nilai 180 ialah ketika bulan purnama</p>
+<p> Parameter topo boleh dipilih antara 'topo' (default) bagi toposentrik dan 'geo' bagi geosentrik</p>
+<hr>
+
+<h3>lunar_crescent_width(topo = 'topo',angle_format = 'skylib', method = 'modern')</h3>
+<p> Metod ini memberikan sudut bagi ketebalan cahaya bulan</p>
+<p> Ketika bulan purnama, nilai ini akan bersamaan dengan saiz sudut bulan (~32') </p>
+<p> Parameter method boleh dipilih antara 'modern' atau 'Bruin'</p>
+<p> Hitungan Bruin boleh dirujuk pada Bruin (1977). Hitungan beliau menggunakan andaian bulan 2-dimensi </p>
+<p> Hitungan moden dirujuk kepada Segura: https://www.researchgate.net/publication/343219170_Moon%27s_crescent_width </p>
+
+<h3>moon_illumination(topo = 'topo')</h3>
+<p> Metod ini memberikan peratusan bulan yang disinari matahari, dari perspektif Bumi</p>
+<p> Parameter topo boleh dipilih antara 'topo' (default) bagi toposentrik dan 'geo' bagi geosentrik</p>
+
+<h3>daz()<h3>
+<p> Metod ini memberikan perbezaan azimut antara bulan dan matahari </p>
+
+<h3>arcv()<h3>
+<p>Metod ini memberikan perbezaan altitud geocentrik antara Bulan dan Matahari</p>
 
 <h3>azimut_kiblat()</h3>
   <p> Metod ini memberikan azimut kiblat bagi kawasan yang ditetapkan (berdasarkan latitud dan longitud) </p>
