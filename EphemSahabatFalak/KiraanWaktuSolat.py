@@ -102,9 +102,9 @@ class Takwim:
             return sun_distance[2]
         else:
             if unit == 'km' or unit == 'KM':
-                sun_distance = current_topo.at(t).observe(sun).apparent().distance().km
+                sun_distance = earth.at(t).observe(sun).apparent().distance().km
             else:
-                sun_distance = current_topo.at(t).observe(sun).apparent().distance()
+                sun_distance = earth.at(t).observe(sun).apparent().distance()
             return sun_distance 
 
     
@@ -164,9 +164,9 @@ class Takwim:
             return moon_distance[2]
         else:
             if unit == 'km' or unit == 'KM':
-                moon_distance = current_topo.at(t).observe(moon).apparent().distance().km
+                moon_distance = earth.at(t).observe(moon).apparent().distance().km
             else:
-                moon_distance = current_topo.at(t).observe(moon).apparent().distance()
+                moon_distance = earth.at(t).observe(moon).apparent().distance()
             return moon_distance
 
         
@@ -185,6 +185,12 @@ class Takwim:
 
         moon_illumination = illumination * 100
         return moon_illumination
+    
+    def daz(self):
+        moon_az = self.moon_azimuth(angle_format='degree')
+        sun_az = self.sun_azimuth(angle_format='degree')
+
+        return abs(moon_az-sun_az)
     
     def __iteration_moonset(self, t):
         
@@ -302,7 +308,7 @@ class Takwim:
         return phase
 
 
-    def lunar_crescent_width (self,t=None, topo = 'topo',angle_format = 'skylib'):
+    def lunar_crescent_width (self,t=None, topo = 'topo',angle_format = 'skylib', method = 'modern'):
         eph = api.load(self.ephem)
         earth, moon, sun = eph['earth'], eph['moon'], eph['sun']
         current_topo = earth + self.location()
@@ -326,6 +332,11 @@ class Takwim:
         second_term = atan((radius_of_the_Moon*cos(elon_earth_sun.radians))/earth_moon_distance) #returns the (negative) angle of the semi-ellipse between the inner terminator and center of the moon
 
         crescent_width = Angle(radians = (first_term + second_term)) # in radians
+
+        if method == 'bruin' or method == 'Bruin':
+            length_crescent_km = 1738.1*(1-cos(self.elongation_moon_sun(topo = topo).radians)) #length of crescent width, in km
+            crescent_width = Angle(degrees = degrees(length_crescent_km/earth_moon_distance)) #in radians
+
         if angle_format != 'skylib':
             crescent_width = crescent_width.dstr(format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
         
@@ -857,6 +868,7 @@ class Takwim:
         elon_bulanMat = []
         illumination_bulan = []
         lebar_sabit = []
+        az_diff = []
         tarikh = []
         min_in_day = 1/1440
 
@@ -901,6 +913,10 @@ class Takwim:
             sabit = self.lunar_crescent_width(topo=topo, angle_format='string')
             lebar_sabit.append(sabit)
 
+            #Azimuth Difference
+            daz = self.daz()
+            az_diff.append(daz)
+
         for i in range (1,60):
             delta_time = self.waktu_maghrib(time_format= 'default') + i*min_in_day
             hour = int(str(delta_time.astimezone(self.zone))[11:13])
@@ -942,9 +958,13 @@ class Takwim:
             sabit = self.lunar_crescent_width(topo=topo, angle_format='string')
             lebar_sabit.append(sabit)
 
-        ephem_bulan = pd.DataFrame(list(zip(elon_bulanMat,alt_bulan_list, azm_bul, alt_mat, azm_mat, illumination_bulan, lebar_sabit)), 
+            #Azimuth Difference
+            daz = self.daz()
+            az_diff.append(daz)
+            
+        ephem_bulan = pd.DataFrame(list(zip(elon_bulanMat,alt_bulan_list, azm_bul, alt_mat, azm_mat, illumination_bulan, lebar_sabit, az_diff)), 
                            index=tarikh, 
-                           columns=["Elongasi","Alt Bulan", "Az Bulan", "Alt Matahari", "Az Matahari", "illuminasi bulan", "lebar sabit"])
+                           columns=["Elongasi","Alt Bulan", "Az Bulan", "Alt Matahari", "Az Matahari", "illuminasi bulan", "lebar sabit", "DAZ"])
 
         return ephem_bulan
     
