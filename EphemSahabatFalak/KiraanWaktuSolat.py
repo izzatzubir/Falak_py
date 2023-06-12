@@ -1,5 +1,5 @@
 from skyfield import api, almanac
-from skyfield.api import datetime, wgs84, N, E, load, Angle
+from skyfield.api import datetime, wgs84, N, E, load, Angle, Distance
 from pytz import timezone
 import datetime as dt
 from skyfield.searchlib import find_discrete
@@ -48,7 +48,7 @@ class Takwim:
         
         return current_time
     
-    def sun_altitude(self, t = None, angle_format = 'skylib', temperature = None, pressure = None):
+    def sun_altitude(self, t = None, angle_format = 'skylib', temperature = None, pressure = None, topo = 'topo'):
         eph = api.load(self.ephem)
         earth, sun = eph['earth'], eph['sun']
         current_topo = earth + self.location()
@@ -60,6 +60,18 @@ class Takwim:
             s_al= current_topo.at(t).observe(sun).apparent().altaz(temperature_C = temperature, pressure_mbar = pressure)
         sun_altitude = s_al[0]
         
+        if topo =='geo' or topo == 'geocentric':
+            topo_vector = self.location().at(self.current_time()).xyz.km
+            radius_at_topo = Distance(km =topo_vector).length().km
+            center_of_earth = Takwim()
+            center_of_earth.latitude = self.latitude
+            center_of_earth.longitude = self.longitude
+            center_of_earth.elevation = -radius_at_topo*1000 #Set observer at the center of the Earth using the x,y,z vector magnitude. 
+            center_of_earth = earth + center_of_earth.location()
+            center_of_earth.pressure = 0
+
+            sun_altitude = center_of_earth.at(t).observe(sun).apparent().altaz(temperature_C = 0, pressure_mbar = 0)[0]
+
         if angle_format != 'skylib' and angle_format != 'degree':
             sun_altitude = sun_altitude.dstr(format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
         
@@ -108,10 +120,11 @@ class Takwim:
             return sun_distance 
 
     
-    def moon_altitude(self, t = None, angle_format = 'skylib', temperature = None, pressure = None):
+    def moon_altitude(self, t = None, angle_format = 'skylib', temperature = None, pressure = None, topo = 'topo'):
         eph = api.load(self.ephem)
         earth, moon = eph['earth'], eph['moon']
         current_topo = earth + self.location()
+        
         if t is None:
             t = self.current_time()
        
@@ -122,6 +135,18 @@ class Takwim:
         
         
         moon_altitude = m_al[0]
+
+        if topo =='geo' or topo == 'geocentric':
+            topo_vector = self.location().at(self.current_time()).xyz.km
+            radius_at_topo = Distance(km =topo_vector).length().km
+            center_of_earth = Takwim()
+            center_of_earth.latitude = self.latitude
+            center_of_earth.longitude = self.longitude
+            center_of_earth.elevation = -radius_at_topo*1000 #Set observer at the center of the Earth using the x,y,z vector magnitude. 
+            center_of_earth = earth + center_of_earth.location()
+            center_of_earth.pressure = 0
+
+            moon_altitude = center_of_earth.at(t).observe(moon).apparent().altaz(temperature_C = 0, pressure_mbar = 0)[0]
         
         if angle_format != 'skylib' and angle_format != 'degree':
             moon_altitude = moon_altitude.dstr(format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
@@ -191,6 +216,12 @@ class Takwim:
         sun_az = self.sun_azimuth(angle_format='degree')
 
         return abs(moon_az-sun_az)
+    
+    def arcv(self):
+        moon_alt = self.moon_altitude(topo='geo', angle_format='degree')
+        sun_alt = self.sun_altitude(topo = 'geo', pressure=0, angle_format='degree')
+
+        return abs(moon_alt-sun_alt)
     
     def __iteration_moonset(self, t):
         
@@ -504,7 +535,6 @@ class Takwim:
         eph = api.load(self.ephem)
         earth, sun = eph['earth'], eph['sun']
         ts = load.timescale()
-        current_topo = earth + self.location()
         now = self.current_time().astimezone(self.zone)
         midnight = now.replace(hour = 0, minute = 0, second = 0, microsecond = 0)
         next_midnight = midnight + dt.timedelta(days =1)
@@ -870,6 +900,7 @@ class Takwim:
         lebar_sabit = []
         az_diff = []
         tarikh = []
+        arc_vision = []
         min_in_day = 1/1440
 
         for i in range (60):
@@ -917,6 +948,10 @@ class Takwim:
             daz = self.daz()
             az_diff.append(daz)
 
+            #Arc of Vision
+            arcv = self.arcv()
+            arc_vision.append(arcv)
+
         for i in range (1,60):
             delta_time = self.waktu_maghrib(time_format= 'default') + i*min_in_day
             hour = int(str(delta_time.astimezone(self.zone))[11:13])
@@ -961,10 +996,14 @@ class Takwim:
             #Azimuth Difference
             daz = self.daz()
             az_diff.append(daz)
+
+            #Arc of Vision
+            arcv = self.arcv()
+            arc_vision.append(arcv)
             
-        ephem_bulan = pd.DataFrame(list(zip(elon_bulanMat,alt_bulan_list, azm_bul, alt_mat, azm_mat, illumination_bulan, lebar_sabit, az_diff)), 
+        ephem_bulan = pd.DataFrame(list(zip(elon_bulanMat,alt_bulan_list, azm_bul, alt_mat, azm_mat, illumination_bulan, lebar_sabit, az_diff, arc_vision)), 
                            index=tarikh, 
-                           columns=["Elongasi","Alt Bulan", "Az Bulan", "Alt Matahari", "Az Matahari", "illuminasi bulan", "lebar sabit", "DAZ"])
+                           columns=["Elongasi","Alt Bulan", "Az Bulan", "Alt Matahari", "Az Matahari", "Illuminasi bulan", "Lebar Hilal(%)", "DAZ", "ARCV"])
 
         return ephem_bulan
     
@@ -1092,6 +1131,5 @@ class Takwim:
         takwim_bulanan = pd.DataFrame(list(zip(bayang_kiblat_mula, bayang_kiblat_tamat, subuh, syuruk, zohor, asar, maghrib, isyak)), index = tarikh, columns=["Bayang mula", "Bayang tamat", "Subuh", "Syuruk", "Zohor", "Asar", "Maghrib", "Isyak"])
 
         return takwim_bulanan
-
 
 
