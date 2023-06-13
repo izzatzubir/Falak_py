@@ -34,8 +34,10 @@ class Takwim:
             molar = 0.02896968
             r_0 = 8.314462618
 
-            pressure = pressure_0*(1-(g*self.elevation)/(c_p *t_0))**(c_p*molar/r_0)
-            self.pressure = pressure/100
+            pressure = pressure_0*(1-(g*self.elevation)/(c_p *t_0))**(c_p*molar/r_0)/100
+        else:
+            pressure = pressure
+        self.pressure = pressure
         self.ephem = ephem
 
         
@@ -66,10 +68,11 @@ class Takwim:
         if t is None :
             t = self.current_time()
         if temperature is None and pressure is None:
-            s_al= current_topo.at(t).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)   
+            s_al= current_topo.at(t).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure) 
+            
         else:
             s_al= current_topo.at(t).observe(sun).apparent().altaz(temperature_C = temperature, pressure_mbar = pressure)
-        sun_altitude = s_al[0]
+        sun_altitude =  s_al[0]
         
         if topo =='geo' or topo == 'geocentric':
             topo_vector = self.location().at(self.current_time()).xyz.km
@@ -265,7 +268,7 @@ class Takwim:
         r = 0.016667 / tan((-(horizon_depression+sun_apparent_radius) + 7.31 / (-(horizon_depression+sun_apparent_radius) + 4.4)) * 0.017453292519943296)
         d = r * (0.28 * self.pressure / (self.temperature + 273.0))    
 
-        f = almanac.risings_and_settings(eph, moon, surface.location(), horizon_degrees= -(d+horizon_depression))
+        f = almanac.risings_and_settings(eph, moon, self.location(), horizon_degrees= -(d+horizon_depression))
         moon_sett, nilai = almanac.find_discrete(t0, t1, f)
         moon_rise_set = list(zip(moon_sett,nilai))
         try:
@@ -305,7 +308,7 @@ class Takwim:
         r = 0.016667 / tan((-(horizon_depression+sun_apparent_radius) + 7.31 / (-(horizon_depression+sun_apparent_radius) + 4.4)) * 0.017453292519943296)
         d = r * (0.28 * self.pressure / (self.temperature + 273.0))    
 
-        f = almanac.risings_and_settings(eph, moon, surface.location(), horizon_degrees= -(d+horizon_depression))
+        f = almanac.risings_and_settings(eph, moon, self.location(), horizon_degrees= -(d+horizon_depression))
         moon_sett, nilai = almanac.find_discrete(t0, t1, f)
         moon_rise_set = list(zip(moon_sett,nilai))
         try:
@@ -602,7 +605,7 @@ class Takwim:
             r = 0.016667 / tan((-(horizon_depression+sun_apparent_radius) + 7.31 / (-(horizon_depression+sun_apparent_radius) + 4.4)) * 0.017453292519943296)
             d = r * (0.28 * self.pressure / (self.temperature + 273.0))    
 
-            f = almanac.risings_and_settings(eph, sun, surface.location(), horizon_degrees= -(d+horizon_depression))
+            f = almanac.risings_and_settings(eph, sun, self.location(), horizon_degrees= -(d+horizon_depression))
             syur, nilai = almanac.find_discrete(t0, t1, f)
             syuruk = syur[0].astimezone(self.zone)
             
@@ -711,7 +714,7 @@ class Takwim:
             r = 0.016667 / tan((-(horizon_depression+sun_apparent_radius) + 7.31 / (-(horizon_depression+sun_apparent_radius) + 4.4)) * 0.017453292519943296)
             d = r * (0.28 * self.pressure / (self.temperature + 273.0))    
 
-            f = almanac.risings_and_settings(eph, sun, surface.location(), horizon_degrees= -(d+horizon_depression))
+            f = almanac.risings_and_settings(eph, sun, self.location(), horizon_degrees= -(d+horizon_depression))
             magh, nilai = almanac.find_discrete(t0, t1, f)
             maghrib = magh[0].astimezone(self.zone)
             
