@@ -253,13 +253,24 @@ class Takwim:
         ts = load.timescale()
         t0 = ts.from_datetime(midnight)
         t1 = ts.from_datetime(next_midnight)
-        r = refraction(0.0, temperature_C=self.temperature, pressure_mbar=self.pressure)
-        f = almanac.risings_and_settings(eph, moon, self.location(), horizon_degrees=-r) #using skyfield's built in. Tested, is unreliable. Errors can be 2 minutes and more
-        moon_setting, y = find_discrete(t0, t1, self.__iteration_moonset)
-        moon_rise_set = list(zip(moon_setting,y))
+        surface = Takwim()
+        surface.latitude = self.latitude
+        surface.longitude = self.longitude
+        surface.elevation = 0
+        topo_vector = surface.location().at(self.current_time()).xyz.km
+        radius_at_topo = Distance(km =topo_vector).length().km
+        sun_radius = 695508 #km
+        sun_apparent_radius = degrees(asin(sun_radius/self.sun_distance()))
+        horizon_depression = degrees(acos(radius_at_topo/(radius_at_topo+ self.elevation/1000)))
+        r = 0.016667 / tan((-(horizon_depression+sun_apparent_radius) + 7.31 / (-(horizon_depression+sun_apparent_radius) + 4.4)) * 0.017453292519943296)
+        d = r * (0.28 * self.pressure / (self.temperature + 273.0))    
+
+        f = almanac.risings_and_settings(eph, moon, surface.location(), horizon_degrees= -(d+horizon_depression))
+        moon_sett, nilai = almanac.find_discrete(t0, t1, f)
+        moon_rise_set = list(zip(moon_sett,nilai))
         try:
             for x in moon_rise_set:
-                if x[1] == 1:
+                if x[1] == 0:
                     moon_set_time = x[0].astimezone(self.zone) 
         
             if time_format == 'datetime':
@@ -282,14 +293,24 @@ class Takwim:
         ts = load.timescale()
         t0 = ts.from_datetime(midnight)
         t1 = ts.from_datetime(next_midnight)
-        
-        r = refraction(0.0, temperature_C=self.temperature, pressure_mbar=self.pressure)
-        f = almanac.risings_and_settings(eph, moon, self.location(), horizon_degrees=-r)#using skyfield's built in. Tested, is unreliable. Errors can be 2 minutes and more
-        moon_setting, y = find_discrete(t0, t1, self.__iteration_moonset)
-        moon_rise_set = list(zip(moon_setting,y))
+        surface = Takwim()
+        surface.latitude = self.latitude
+        surface.longitude = self.longitude
+        surface.elevation = 0
+        topo_vector = surface.location().at(self.current_time()).xyz.km
+        radius_at_topo = Distance(km =topo_vector).length().km
+        sun_radius = 695508 #km
+        sun_apparent_radius = degrees(asin(sun_radius/self.sun_distance()))
+        horizon_depression = degrees(acos(radius_at_topo/(radius_at_topo+ self.elevation/1000)))
+        r = 0.016667 / tan((-(horizon_depression+sun_apparent_radius) + 7.31 / (-(horizon_depression+sun_apparent_radius) + 4.4)) * 0.017453292519943296)
+        d = r * (0.28 * self.pressure / (self.temperature + 273.0))    
+
+        f = almanac.risings_and_settings(eph, moon, surface.location(), horizon_degrees= -(d+horizon_depression))
+        moon_sett, nilai = almanac.find_discrete(t0, t1, f)
+        moon_rise_set = list(zip(moon_sett,nilai))
         try:
             for x in moon_rise_set:
-                if x[1] == 0:
+                if x[1] == 1:
                     moon_set_time = x[0].astimezone(self.zone) 
         
             if time_format == 'datetime':
@@ -1196,7 +1217,5 @@ class Takwim:
         takwim_bulanan = pd.DataFrame(list(zip(bayang_kiblat_mula, bayang_kiblat_tamat, subuh, syuruk, zohor, asar, maghrib, isyak)), index = tarikh, columns=["Bayang mula", "Bayang tamat", "Subuh", "Syuruk", "Zohor", "Asar", "Maghrib", "Isyak"])
 
         return takwim_bulanan
-
-
 
 
