@@ -4,15 +4,16 @@ from pytz import timezone
 import datetime as dt
 from skyfield.searchlib import find_discrete
 import pandas as pd
-from mpmath import degrees, acot,cot,sin, atan2, sqrt, cos, radians, atan
+from mpmath import degrees, acot,cot,sin, atan2, sqrt, cos, radians, atan, acos, tan, asin
 from datetime import timedelta
 from skyfield.framelib import ecliptic_frame
+from skyfield.earthlib import refraction
 
 class Takwim:
     def __init__(self,latitude=5.41144, longitude=100.19672, elevation=40, 
                  year = datetime.now().year, month = datetime.now().month, day =datetime.now().day,
                  hour =datetime.now().hour, minute = datetime.now().minute, second =datetime.now().second,
-                 zone='Asia/Kuala_Lumpur', temperature = 27, pressure = 1010, ephem = 'de440s.bsp'): #set default values
+                 zone='Asia/Kuala_Lumpur', temperature = 27, pressure = None, ephem = 'de440s.bsp'): #set default values
         self.latitude = latitude
         self.longitude = longitude
         self.elevation = elevation
@@ -24,7 +25,17 @@ class Takwim:
         self.second = second
         self.zone = timezone(zone)
         self.temperature = temperature
-        self.pressure = pressure
+
+        if pressure is None:
+            pressure_0 = 101325
+            c_p = 1004.68506
+            t_0 = 288.16
+            g = 9.80665
+            molar = 0.02896968
+            r_0 = 8.314462618
+
+            pressure = pressure_0*(1-(g*self.elevation)/(c_p *t_0))**(c_p*molar/r_0)
+            self.pressure = pressure/100
         self.ephem = ephem
 
         
@@ -108,10 +119,10 @@ class Takwim:
         sun_distance = current_topo.at(t).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)  
         if topo == 'topo' or topo== 'topocentric':
             if unit == 'km' or unit == 'KM':
-                sun_distance = current_topo.at(t).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure).km
+                sun_distance = current_topo.at(t).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)[2].km
             else:
-                sun_distance = current_topo.at(t).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)
-            return sun_distance[2]
+                sun_distance = current_topo.at(t).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)[2]
+            return sun_distance
         else:
             if unit == 'km' or unit == 'KM':
                 sun_distance = earth.at(t).observe(sun).apparent().distance().km
@@ -234,13 +245,16 @@ class Takwim:
     #For moonset/moonrise, syuruk and maghrib, if altitude is customised, ensure that pressure is zero to remove refraction
     #Refracted altitude are taken from Meuss Astronomical Algorithm, p105-107
     def moon_set(self, time_format = 'default'):
+        eph = api.load(self.ephem)
+        moon = eph['moon']
         now = self.current_time().astimezone(self.zone)
         midnight = now.replace(hour = 0, minute = 0, second = 0, microsecond = 0)
         next_midnight = midnight + dt.timedelta(days =1)
         ts = load.timescale()
         t0 = ts.from_datetime(midnight)
         t1 = ts.from_datetime(next_midnight)
-        
+        r = refraction(0.0, temperature_C=self.temperature, pressure_mbar=self.pressure)
+        f = almanac.risings_and_settings(eph, moon, self.location(), horizon_degrees=-r) #using skyfield's built in. Tested, is unreliable. Errors can be 2 minutes and more
         moon_setting, y = find_discrete(t0, t1, self.__iteration_moonset)
         moon_rise_set = list(zip(moon_setting,y))
         try:
@@ -260,6 +274,8 @@ class Takwim:
                 return "Moon does not set on " + str(self.day) +"-" + str(self.month) + "-" + str(self.year)
         return moon_set_time
     def moon_rise(self, time_format = 'default'):
+        eph = api.load(self.ephem)
+        moon = eph['moon']
         now = self.current_time().astimezone(self.zone)
         midnight = now.replace(hour = 0, minute = 0, second = 0, microsecond = 0)
         next_midnight = midnight + dt.timedelta(days =1)
@@ -267,6 +283,8 @@ class Takwim:
         t0 = ts.from_datetime(midnight)
         t1 = ts.from_datetime(next_midnight)
         
+        r = refraction(0.0, temperature_C=self.temperature, pressure_mbar=self.pressure)
+        f = almanac.risings_and_settings(eph, moon, self.location(), horizon_degrees=-r)#using skyfield's built in. Tested, is unreliable. Errors can be 2 minutes and more
         moon_setting, y = find_discrete(t0, t1, self.__iteration_moonset)
         moon_rise_set = list(zip(moon_setting,y))
         try:
@@ -372,6 +390,14 @@ class Takwim:
             crescent_width = crescent_width.dstr(format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
         
         return crescent_width
+    
+    def lag_time(self):
+        sun_set = self.waktu_maghrib()
+        moon_set = self.moon_set()
+
+        lag_time = str(dt.timedelta(moon_set-sun_set))[2:7]
+
+        return lag_time
     
     
     def waktu_zawal(self, time_format = 'default'):
@@ -543,10 +569,21 @@ class Takwim:
         self.altitude_syuruk = altitude
         
         if altitude == 'default':
-            twilight_default = almanac.dark_twilight_day(eph, self.location())
-            t2, event = almanac.find_discrete(t0, t1, twilight_default)
-            sunrise_refraction_accounted = t2[event==4]
-            syuruk = sunrise_refraction_accounted[0].astimezone(self.zone)
+            surface = Takwim()
+            surface.latitude = self.latitude
+            surface.longitude = self.longitude
+            surface.elevation = 0
+            topo_vector = surface.location().at(self.current_time()).xyz.km
+            radius_at_topo = Distance(km =topo_vector).length().km
+            sun_radius = 695508 #km
+            sun_apparent_radius = degrees(asin(sun_radius/self.sun_distance()))
+            horizon_depression = degrees(acos(radius_at_topo/(radius_at_topo+ self.elevation/1000)))
+            r = 0.016667 / tan((-(horizon_depression+sun_apparent_radius) + 7.31 / (-(horizon_depression+sun_apparent_radius) + 4.4)) * 0.017453292519943296)
+            d = r * (0.28 * self.pressure / (self.temperature + 273.0))    
+
+            f = almanac.risings_and_settings(eph, sun, surface.location(), horizon_degrees= -(d+horizon_depression))
+            syur, nilai = almanac.find_discrete(t0, t1, f)
+            syuruk = syur[0].astimezone(self.zone)
             
         elif altitude <= 0 and altitude >= -4:
             #legacy edition uses while loop
@@ -622,19 +659,40 @@ class Takwim:
         eph = api.load(self.ephem)
         earth, sun = eph['earth'], eph['sun']
         ts = load.timescale()
-        current_topo = earth + self.location()
         now = self.current_time().astimezone(self.zone)
         midnight = now.replace(hour = 0, minute = 0, second = 0, microsecond = 0)
         next_midnight = midnight + dt.timedelta(days =1)
         t0 = ts.from_datetime(midnight)
         t1 = ts.from_datetime(next_midnight)
-        self.altitude_maghrib = altitude
+        
         
         if altitude == 'default':
+            ts = load.timescale()
             twilight_default = almanac.dark_twilight_day(eph, self.location())
             t2, event = almanac.find_discrete(t0, t1, twilight_default)
             sunset_refraction_accounted = t2[event==3]
-            maghrib = sunset_refraction_accounted[1].astimezone(self.zone)
+            maghrib_time = sunset_refraction_accounted[1].astimezone(self.zone)
+            now = maghrib_time - timedelta(minutes=10) #begins iteration 10 minutes before default sunset
+            end = maghrib_time + timedelta(minutes=28) #ends iteration 28 minutes after default sunset
+
+            t0 = ts.from_datetime(now)
+            t1 = ts.from_datetime(end)
+
+            surface = Takwim()
+            surface.latitude = self.latitude
+            surface.longitude = self.longitude
+            surface.elevation = 0
+            topo_vector = surface.location().at(self.current_time()).xyz.km
+            radius_at_topo = Distance(km =topo_vector).length().km
+            sun_radius = 695508 #km
+            sun_apparent_radius = degrees(asin(sun_radius/self.sun_distance()))
+            horizon_depression = degrees(acos(radius_at_topo/(radius_at_topo+ self.elevation/1000)))
+            r = 0.016667 / tan((-(horizon_depression+sun_apparent_radius) + 7.31 / (-(horizon_depression+sun_apparent_radius) + 4.4)) * 0.017453292519943296)
+            d = r * (0.28 * self.pressure / (self.temperature + 273.0))    
+
+            f = almanac.risings_and_settings(eph, sun, surface.location(), horizon_degrees= -(d+horizon_depression))
+            magh, nilai = almanac.find_discrete(t0, t1, f)
+            maghrib = magh[0].astimezone(self.zone)
             
         elif altitude <= 0 and altitude >= -4:
             #legacy version using while loop
@@ -655,12 +713,10 @@ class Takwim:
                     break
                 now += timedelta(seconds=1)
                 maghrib = now"""
-                
+            self.altitude_maghrib = altitude    
             #starts iteration
             ts = load.timescale()
             twilight_default = almanac.dark_twilight_day(eph, self.location())
-            self.temperature = 0
-            self.pressure = 0
             t2, event = almanac.find_discrete(t0, t1, twilight_default)
             sunset_refraction_accounted = t2[event==3]
             maghrib_time = sunset_refraction_accounted[1].astimezone(self.zone)
@@ -901,6 +957,7 @@ class Takwim:
         az_diff = []
         tarikh = []
         arc_vision = []
+        lag_time_list = []
         min_in_day = 1/1440
 
         for i in range (60):
@@ -952,6 +1009,10 @@ class Takwim:
             arcv = self.arcv()
             arc_vision.append(arcv)
 
+            #Lag time
+            lagtime = self.lag_time()
+            lag_time_list.append(lagtime)
+
         for i in range (1,60):
             delta_time = self.waktu_maghrib(time_format= 'default') + i*min_in_day
             hour = int(str(delta_time.astimezone(self.zone))[11:13])
@@ -1000,10 +1061,14 @@ class Takwim:
             #Arc of Vision
             arcv = self.arcv()
             arc_vision.append(arcv)
+
+            #Lag time
+            lagtime = self.lag_time()
+            lag_time_list.append(lagtime)
             
-        ephem_bulan = pd.DataFrame(list(zip(elon_bulanMat,alt_bulan_list, azm_bul, alt_mat, azm_mat, illumination_bulan, lebar_sabit, az_diff, arc_vision)), 
+        ephem_bulan = pd.DataFrame(list(zip(elon_bulanMat,alt_bulan_list, azm_bul, alt_mat, azm_mat, illumination_bulan, lebar_sabit, az_diff, arc_vision, lag_time_list)), 
                            index=tarikh, 
-                           columns=["Elongasi","Alt Bulan", "Az Bulan", "Alt Matahari", "Az Matahari", "Illuminasi bulan", "Lebar Hilal(%)", "DAZ", "ARCV"])
+                           columns=["Elongasi","Alt Bulan", "Az Bulan", "Alt Matahari", "Az Matahari", "Illuminasi bulan", "Lebar Hilal(%)", "DAZ", "ARCV", "Lag time"])
 
         return ephem_bulan
     
@@ -1131,5 +1196,7 @@ class Takwim:
         takwim_bulanan = pd.DataFrame(list(zip(bayang_kiblat_mula, bayang_kiblat_tamat, subuh, syuruk, zohor, asar, maghrib, isyak)), index = tarikh, columns=["Bayang mula", "Bayang tamat", "Subuh", "Syuruk", "Zohor", "Asar", "Maghrib", "Isyak"])
 
         return takwim_bulanan
+
+
 
 
