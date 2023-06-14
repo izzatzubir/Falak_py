@@ -27,14 +27,7 @@ class Takwim:
         self.temperature = temperature
 
         if pressure is None:
-            pressure_0 = 101325
-            c_p = 1004.68506
-            t_0 = 288.16
-            g = 9.80665
-            molar = 0.02896968
-            r_0 = 8.314462618
-
-            pressure = pressure_0*(1-(g*self.elevation)/(c_p *t_0))**(c_p*molar/r_0)/100
+            pressure = (1013.25*((288.15-(self.elevation*0.0065))/288.15)**5.2558)
         else:
             pressure = pressure
         self.pressure = pressure
@@ -197,10 +190,10 @@ class Takwim:
        
         if topo == 'topo' or topo== 'topocentric':
             if unit == 'km' or unit == 'KM':
-                moon_distance = current_topo.at(t).observe(moon).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure).km
+                moon_distance = current_topo.at(t).observe(moon).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)[2].km
             else:
-                moon_distance = current_topo.at(t).observe(moon).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)
-            return moon_distance[2]
+                moon_distance = current_topo.at(t).observe(moon).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)[2]
+            return moon_distance
         else:
             if unit == 'km' or unit == 'KM':
                 moon_distance = earth.at(t).observe(moon).apparent().distance().km
@@ -262,13 +255,13 @@ class Takwim:
         surface.elevation = 0
         topo_vector = surface.location().at(self.current_time()).xyz.km
         radius_at_topo = Distance(km =topo_vector).length().km
-        sun_radius = 695508 #km
-        sun_apparent_radius = degrees(asin(sun_radius/self.sun_distance()))
+        moon_radius = 1738.1 #km
+        moon_apparent_radius = degrees(asin(moon_radius/self.moon_distance()))
         horizon_depression = degrees(acos(radius_at_topo/(radius_at_topo+ self.elevation/1000)))
-        r = 0.016667 / tan((-(horizon_depression+sun_apparent_radius) + 7.31 / (-(horizon_depression+sun_apparent_radius) + 4.4)) * 0.017453292519943296)
-        d = r * (0.28 * self.pressure / (self.temperature + 273.0))    
+        r = (1.02/60) / tan((-(horizon_depression+moon_apparent_radius) + 10.3 / (-(horizon_depression+moon_apparent_radius) + 5.11)) * 0.017453292519943296)
+        d = r * (0.28 * self.pressure / (self.temperature + 273.0))
 
-        f = almanac.risings_and_settings(eph, moon, self.location(), horizon_degrees= -(d+horizon_depression))
+        f = almanac.risings_and_settings(eph, moon, self.location(), horizon_degrees=-(d+horizon_depression),  radius_degrees=moon_apparent_radius)
         moon_sett, nilai = almanac.find_discrete(t0, t1, f)
         moon_rise_set = list(zip(moon_sett,nilai))
         try:
@@ -302,13 +295,13 @@ class Takwim:
         surface.elevation = 0
         topo_vector = surface.location().at(self.current_time()).xyz.km
         radius_at_topo = Distance(km =topo_vector).length().km
-        sun_radius = 695508 #km
-        sun_apparent_radius = degrees(asin(sun_radius/self.sun_distance()))
+        moon_radius = 1738.1 #km
+        moon_apparent_radius = degrees(asin(moon_radius/self.moon_distance()))
         horizon_depression = degrees(acos(radius_at_topo/(radius_at_topo+ self.elevation/1000)))
-        r = 0.016667 / tan((-(horizon_depression+sun_apparent_radius) + 7.31 / (-(horizon_depression+sun_apparent_radius) + 4.4)) * 0.017453292519943296)
+        r = (1.02/60) / tan((-(horizon_depression+moon_apparent_radius) + 10.3 / (-(horizon_depression+moon_apparent_radius) + 5.11)) * 0.017453292519943296)
         d = r * (0.28 * self.pressure / (self.temperature + 273.0))    
 
-        f = almanac.risings_and_settings(eph, moon, self.location(), horizon_degrees= -(d+horizon_depression))
+        f = almanac.risings_and_settings(eph, moon, self.location(), horizon_degrees= -(d+horizon_depression), radius_degrees=moon_apparent_radius)
         moon_sett, nilai = almanac.find_discrete(t0, t1, f)
         moon_rise_set = list(zip(moon_sett,nilai))
         try:
@@ -602,10 +595,10 @@ class Takwim:
             sun_radius = 695508 #km
             sun_apparent_radius = degrees(asin(sun_radius/self.sun_distance()))
             horizon_depression = degrees(acos(radius_at_topo/(radius_at_topo+ self.elevation/1000)))
-            r = 0.016667 / tan((-(horizon_depression+sun_apparent_radius) + 7.31 / (-(horizon_depression+sun_apparent_radius) + 4.4)) * 0.017453292519943296)
+            r = (1.02/60) / tan((-(horizon_depression+sun_apparent_radius) + (10.3 / (-(horizon_depression+sun_apparent_radius) + 5.11))) * 0.017453292519943296)
             d = r * (0.28 * self.pressure / (self.temperature + 273.0))    
 
-            f = almanac.risings_and_settings(eph, sun, self.location(), horizon_degrees= -(d+horizon_depression))
+            f = almanac.risings_and_settings(eph, sun, self.location(), horizon_degrees= -(d+horizon_depression), radius_degrees=sun_apparent_radius)
             syur, nilai = almanac.find_discrete(t0, t1, f)
             syuruk = syur[0].astimezone(self.zone)
             
@@ -711,10 +704,10 @@ class Takwim:
             sun_radius = 695508 #km
             sun_apparent_radius = degrees(asin(sun_radius/self.sun_distance()))
             horizon_depression = degrees(acos(radius_at_topo/(radius_at_topo+ self.elevation/1000)))
-            r = 0.016667 / tan((-(horizon_depression+sun_apparent_radius) + 7.31 / (-(horizon_depression+sun_apparent_radius) + 4.4)) * 0.017453292519943296)
+            r = (1.02/60) / tan((-(horizon_depression+sun_apparent_radius) + 10.3 / (-(horizon_depression+sun_apparent_radius) + 5.11)) * 0.017453292519943296)
             d = r * (0.28 * self.pressure / (self.temperature + 273.0))    
 
-            f = almanac.risings_and_settings(eph, sun, self.location(), horizon_degrees= -(d+horizon_depression))
+            f = almanac.risings_and_settings(eph, sun, self.location(), horizon_degrees= -(d+horizon_depression), radius_degrees= sun_apparent_radius)
             magh, nilai = almanac.find_discrete(t0, t1, f)
             maghrib = magh[0].astimezone(self.zone)
             
@@ -1221,4 +1214,7 @@ class Takwim:
 
         return takwim_bulanan
 
-
+Penang = Takwim(elevation=0)
+Penang.day = 14
+print(Penang.moon_set(time_format = 'string'))
+print(Penang.waktu_maghrib(time_format='string'))
