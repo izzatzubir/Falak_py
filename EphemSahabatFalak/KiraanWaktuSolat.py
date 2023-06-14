@@ -1214,7 +1214,3 @@ class Takwim:
 
         return takwim_bulanan
 
-Penang = Takwim(elevation=0)
-Penang.day = 14
-print(Penang.moon_set(time_format = 'string'))
-print(Penang.waktu_maghrib(time_format='string'))
