@@ -408,6 +408,28 @@ class Takwim:
         
         return crescent_width
     
+    def moon_age(self):
+        eph = api.load(self.ephem)
+        earth, moon = eph['earth'], eph['moon']
+        ts = load.timescale()
+        
+        conjunction_moon = almanac.oppositions_conjunctions(eph, moon)
+        now = self.current_time().astimezone(self.zone)
+        half_month_before = now - dt.timedelta(days = 15)
+        half_month_after = now + dt.timedelta(days =15)
+        t0 = ts.from_datetime(half_month_before)
+        t1 = ts.from_datetime(half_month_after)
+
+        t, y = almanac.find_discrete(t0, t1, conjunction_moon)
+        select_moon = t[y==1][0].astimezone(self.zone)
+        select_moon_age= ts.from_datetime(select_moon)
+        maghrib = self.waktu_maghrib()
+
+        moon_age_1 = maghrib-select_moon_age
+        moon_age = str(dt.timedelta(moon_age_1))[:7]
+
+        return moon_age
+    
     def lag_time(self):
         sun_set = self.waktu_maghrib()
         moon_set = self.moon_set()
@@ -676,7 +698,7 @@ class Takwim:
         eph = api.load(self.ephem)
         earth, sun = eph['earth'], eph['sun']
         ts = load.timescale()
-        now = self.current_time().astimezone(self.zone)
+        now = self.current_time().astimezone(self.zone) #python datetime
         midnight = now.replace(hour = 0, minute = 0, second = 0, microsecond = 0)
         next_midnight = midnight + dt.timedelta(days =1)
         t0 = ts.from_datetime(midnight)
@@ -974,7 +996,6 @@ class Takwim:
         az_diff = []
         tarikh = []
         arc_vision = []
-        lag_time_list = []
         min_in_day = 1/1440
 
         for i in range (60):
@@ -991,7 +1012,7 @@ class Takwim:
             tarikh.append(masa)
 
             #altitud bulan
-            alt_bulan = self.moon_altitude(angle_format='string')
+            alt_bulan = self.moon_altitude(angle_format='string', topo=topo)
             alt_bulan_list.append(alt_bulan)
 
             #azimut bulan
@@ -999,7 +1020,7 @@ class Takwim:
             azm_bul.append(azimut_bulan)
 
             #altitud matahari
-            altitud_matahari = self.sun_altitude(angle_format = 'string')
+            altitud_matahari = self.sun_altitude(angle_format = 'string', topo=topo)
             alt_mat.append(altitud_matahari)
 
             #azimut matahari
@@ -1025,10 +1046,6 @@ class Takwim:
             #Arc of Vision
             arcv = self.arcv()
             arc_vision.append(arcv)
-
-            #Lag time
-            lagtime = self.lag_time()
-            lag_time_list.append(lagtime)
 
         for i in range (1,60):
             delta_time = self.waktu_maghrib(time_format= 'default') + i*min_in_day
@@ -1044,7 +1061,7 @@ class Takwim:
             tarikh.append(masa)
 
             #altitud bulan
-            alt_bulan = self.moon_altitude(angle_format='string')
+            alt_bulan = self.moon_altitude(angle_format='string', topo = topo)
             alt_bulan_list.append(alt_bulan)
 
             #azimut bulan
@@ -1052,7 +1069,7 @@ class Takwim:
             azm_bul.append(azimut_bulan)
 
             #altitud matahari
-            altitud_matahari = self.sun_altitude(angle_format = 'string')
+            altitud_matahari = self.sun_altitude(angle_format = 'string', topo = topo)
             alt_mat.append(altitud_matahari)
 
             #azimut matahari
@@ -1079,13 +1096,10 @@ class Takwim:
             arcv = self.arcv()
             arc_vision.append(arcv)
 
-            #Lag time
-            lagtime = self.lag_time()
-            lag_time_list.append(lagtime)
             
-        ephem_bulan = pd.DataFrame(list(zip(elon_bulanMat,alt_bulan_list, azm_bul, alt_mat, azm_mat, illumination_bulan, lebar_sabit, az_diff, arc_vision, lag_time_list)), 
+        ephem_bulan = pd.DataFrame(list(zip(elon_bulanMat,alt_bulan_list, azm_bul, alt_mat, azm_mat, illumination_bulan, lebar_sabit, az_diff, arc_vision)), 
                            index=tarikh, 
-                           columns=["Elongasi","Alt Bulan", "Az Bulan", "Alt Matahari", "Az Matahari", "Illuminasi bulan", "Lebar Hilal(%)", "DAZ", "ARCV", "Lag time"])
+                           columns=["Elongasi","Alt Bulan", "Az Bulan", "Alt Matahari", "Az Matahari", "Illuminasi bulan(%)", "Lebar Hilal", "DAZ", "ARCV"])
 
         return ephem_bulan
     
