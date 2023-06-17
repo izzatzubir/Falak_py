@@ -61,10 +61,10 @@ class Takwim:
         if t is None :
             t = self.current_time()
         if temperature is None and pressure is None:
-            s_al= current_topo.at(t).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure) 
+            s_al= current_topo.at(self.current_time()).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure) 
             
         else:
-            s_al= current_topo.at(t).observe(sun).apparent().altaz(temperature_C = temperature, pressure_mbar = pressure)
+            s_al= current_topo.at(self.current_time()).observe(sun).apparent().altaz(temperature_C = temperature, pressure_mbar = pressure)
         sun_altitude =  s_al[0]
         
         if topo =='geo' or topo == 'geocentric':
@@ -77,7 +77,7 @@ class Takwim:
             center_of_earth = earth + center_of_earth.location()
             center_of_earth.pressure = 0
 
-            sun_altitude = center_of_earth.at(t).observe(sun).apparent().altaz(temperature_C = 0, pressure_mbar = 0)[0]
+            sun_altitude = center_of_earth.at(self.current_time()).observe(sun).apparent().altaz(temperature_C = 0, pressure_mbar = 0)[0]
 
         if angle_format != 'skylib' and angle_format != 'degree':
             sun_altitude = sun_altitude.dstr(format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
@@ -94,7 +94,7 @@ class Takwim:
         if t is None:
             t = self.current_time()
        
-        s_az = current_topo.at(t).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)   
+        s_az = current_topo.at(self.current_time()).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)   
         sun_azimuth = s_az[1]
         
         if angle_format != 'skylib' and angle_format != 'degree':
@@ -112,18 +112,18 @@ class Takwim:
         if t is None:
             t = self.current_time()
        
-        sun_distance = current_topo.at(t).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)  
+        sun_distance = current_topo.at(self.current_time()).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)  
         if topo == 'topo' or topo== 'topocentric':
             if unit == 'km' or unit == 'KM':
-                sun_distance = current_topo.at(t).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)[2].km
+                sun_distance = current_topo.at(self.current_time()).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)[2].km
             else:
-                sun_distance = current_topo.at(t).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)[2]
+                sun_distance = current_topo.at(self.current_time()).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)[2]
             return sun_distance
         else:
             if unit == 'km' or unit == 'KM':
-                sun_distance = earth.at(t).observe(sun).apparent().distance().km
+                sun_distance = earth.at(self.current_time()).observe(sun).apparent().distance().km
             else:
-                sun_distance = earth.at(t).observe(sun).apparent().distance()
+                sun_distance = earth.at(self.current_time()).observe(sun).apparent().distance()
             return sun_distance 
 
     
@@ -134,11 +134,21 @@ class Takwim:
         
         if t is None:
             t = self.current_time()
+        elif t == 'maghrib':
+            maghrib = self.waktu_maghrib(time_format = 'string')
+            self.hour = int(maghrib[0:2])
+            self.minute = int(maghrib[3:5])
+            self.second = int(maghrib[6:8])
+        elif t == 'syuruk':
+            syuruk = self.waktu_syuruk(time_format = 'string')
+            self.hour = int(syuruk[0:2])
+            self.minute = int(syuruk[3:5])
+            self.second = int(syuruk[6:8])
        
         if temperature is None and pressure is None:
-            m_al = current_topo.at(t).observe(moon).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)   
+            m_al = current_topo.at(self.current_time()).observe(moon).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)   
         else:
-            m_al = current_topo.at(t).observe(moon).apparent().altaz(temperature_C = temperature, pressure_mbar = pressure)   
+            m_al = current_topo.at(self.current_time()).observe(moon).apparent().altaz(temperature_C = temperature, pressure_mbar = pressure)   
         
         
         moon_altitude = m_al[0]
@@ -153,7 +163,7 @@ class Takwim:
             center_of_earth = earth + center_of_earth.location()
             center_of_earth.pressure = 0
 
-            moon_altitude = center_of_earth.at(t).observe(moon).apparent().altaz(temperature_C = 0, pressure_mbar = 0)[0]
+            moon_altitude = center_of_earth.at(self.current_time()).observe(moon).apparent().altaz(temperature_C = 0, pressure_mbar = 0)[0]
         
         if angle_format != 'skylib' and angle_format != 'degree':
             moon_altitude = moon_altitude.dstr(format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
@@ -169,8 +179,18 @@ class Takwim:
         current_topo = earth + self.location()
         if t is None:
             t = self.current_time()
+        elif t == 'maghrib':
+            maghrib = self.waktu_maghrib(time_format = 'string')
+            self.hour = int(maghrib[0:2])
+            self.minute = int(maghrib[3:5])
+            self.second = int(maghrib[6:8])
+        elif t == 'syuruk':
+            syuruk = self.waktu_syuruk(time_format = 'string')
+            self.hour = int(syuruk[0:2])
+            self.minute = int(syuruk[3:5])
+            self.second = int(syuruk[6:8])
        
-        m_az = current_topo.at(t).observe(moon).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)   
+        m_az = current_topo.at(self.current_time()).observe(moon).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)   
         moon_azimuth = m_az[1]
         
         if angle_format != 'skylib' and angle_format != 'degree':
@@ -187,18 +207,28 @@ class Takwim:
         current_topo = earth + self.location()
         if t is None:
             t = self.current_time()
+        elif t == 'maghrib':
+            maghrib = self.waktu_maghrib(time_format = 'string')
+            self.hour = int(maghrib[0:2])
+            self.minute = int(maghrib[3:5])
+            self.second = int(maghrib[6:8])
+        elif t == 'syuruk':
+            syuruk = self.waktu_syuruk(time_format = 'string')
+            self.hour = int(syuruk[0:2])
+            self.minute = int(syuruk[3:5])
+            self.second = int(syuruk[6:8])
        
         if topo == 'topo' or topo== 'topocentric':
             if unit == 'km' or unit == 'KM':
-                moon_distance = current_topo.at(t).observe(moon).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)[2].km
+                moon_distance = current_topo.at(self.current_time()).observe(moon).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)[2].km
             else:
-                moon_distance = current_topo.at(t).observe(moon).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)[2]
+                moon_distance = current_topo.at(self.current_time()).observe(moon).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)[2]
             return moon_distance
         else:
             if unit == 'km' or unit == 'KM':
-                moon_distance = earth.at(t).observe(moon).apparent().distance().km
+                moon_distance = earth.at(self.current_time()).observe(moon).apparent().distance().km
             else:
-                moon_distance = earth.at(t).observe(moon).apparent().distance()
+                moon_distance = earth.at(self.current_time()).observe(moon).apparent().distance()
             return moon_distance
 
         
@@ -209,26 +239,77 @@ class Takwim:
 
         if t is None:
             t = self.current_time()
+        elif t == 'maghrib':
+            maghrib = self.waktu_maghrib(time_format = 'string')
+            self.hour = int(maghrib[0:2])
+            self.minute = int(maghrib[3:5])
+            self.second = int(maghrib[6:8])
+        elif t == 'syuruk':
+            syuruk = self.waktu_syuruk(time_format = 'string')
+            self.hour = int(syuruk[0:2])
+            self.minute = int(syuruk[3:5])
+            self.second = int(syuruk[6:8])
+
         if topo == 'geo' or topo == 'geocentric':
-            illumination = earth.at(t).observe(moon).apparent().fraction_illuminated(sun)
+            illumination = earth.at(self.current_time()).observe(moon).apparent().fraction_illuminated(sun)
 
         else:
-            illumination = current_topo.at(t).observe(moon).apparent().fraction_illuminated(sun)
+            illumination = current_topo.at(self.current_time()).observe(moon).apparent().fraction_illuminated(sun)
 
         moon_illumination = illumination * 100
         return moon_illumination
     
-    def daz(self):
+    def daz(self, t=None, angle_format = 'skylib'):
+        if t is None:
+            t = self.current_time()
+        elif t == 'maghrib':
+            maghrib = self.waktu_maghrib(time_format = 'string')
+            self.hour = int(maghrib[0:2])
+            self.minute = int(maghrib[3:5])
+            self.second = int(maghrib[6:8])
+        elif t == 'syuruk':
+            syuruk = self.waktu_syuruk(time_format = 'string')
+            self.hour = int(syuruk[0:2])
+            self.minute = int(syuruk[3:5])
+            self.second = int(syuruk[6:8])
+
         moon_az = self.moon_azimuth(angle_format='degree')
         sun_az = self.sun_azimuth(angle_format='degree')
+        daz = Angle(degrees = abs(moon_az-sun_az))
 
-        return abs(moon_az-sun_az)
+        if angle_format != 'skylib' and angle_format != 'degree':
+            daz = daz.dstr(format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
+        
+        elif angle_format == 'degree':
+            daz = daz.degrees
+
+        return daz
     
-    def arcv(self):
-        moon_alt = self.moon_altitude(topo='geo', angle_format='degree')
-        sun_alt = self.sun_altitude(topo = 'geo', pressure=0, angle_format='degree')
+    def arcv(self, t = None, angle_format = 'skylib'):
+        if t is None:
+            t = self.current_time()
+        elif t == 'maghrib':
+            maghrib = self.waktu_maghrib(time_format = 'string')
+            self.hour = int(maghrib[0:2])
+            self.minute = int(maghrib[3:5])
+            self.second = int(maghrib[6:8])
+        elif t == 'syuruk':
+            syuruk = self.waktu_syuruk(time_format = 'string')
+            self.hour = int(syuruk[0:2])
+            self.minute = int(syuruk[3:5])
+            self.second = int(syuruk[6:8])
 
-        return abs(moon_alt-sun_alt)
+        moon_alt = self.moon_altitude(topo='geo',pressure = 0, angle_format='degree')
+        sun_alt = self.sun_altitude(topo = 'geo', pressure=0, angle_format='degree')
+        arcv = Angle(degrees = abs(moon_alt-sun_alt))
+
+        if angle_format != 'skylib' and angle_format != 'degree':
+            arcv = arcv.dstr(format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
+        
+        elif angle_format == 'degree':
+            arcv = arcv.degrees
+
+        return arcv
     
     def __iteration_moonset(self, t):
         
@@ -327,17 +408,28 @@ class Takwim:
         
         if t is None:
             t = self.current_time()
+        elif t == 'maghrib':
+            maghrib = self.waktu_maghrib(time_format = 'string')
+            self.hour = int(maghrib[0:2])
+            self.minute = int(maghrib[3:5])
+            self.second = int(maghrib[6:8])
+        elif t == 'syuruk':
+            syuruk = self.waktu_syuruk(time_format = 'string')
+            self.hour = int(syuruk[0:2])
+            self.minute = int(syuruk[3:5])
+            self.second = int(syuruk[6:8])
+
             
         #add options for topo or geocentric
         if topo == 'geo' or topo == 'geocentric':
-            from_topo = earth.at(t)
+            from_topo = earth.at(self.current_time())
             s = from_topo.observe(sun)
             m = from_topo.observe(moon)
 
             elongation_moon_sun = s.separation_from(m)
         
         else:
-            from_topo = current_topo.at(t)
+            from_topo = current_topo.at(self.current_time())
             s = from_topo.observe(sun)
             m = from_topo.observe(moon)
 
@@ -349,21 +441,31 @@ class Takwim:
 
         return elongation_moon_sun
     
-    def moon_phase(self,t=None, topo = 'topo'):
+    def moon_phase(self,t=None, topo = 'topo', angle_format = 'skylib'):
         eph = api.load(self.ephem)
         earth, moon, sun = eph['earth'], eph['moon'], eph['sun']
         current_topo = earth + self.location()
 
         if t is None:
             t = self.current_time()
+        elif t == 'maghrib':
+            maghrib = self.waktu_maghrib(time_format = 'string')
+            self.hour = int(maghrib[0:2])
+            self.minute = int(maghrib[3:5])
+            self.second = int(maghrib[6:8])
+        elif t == 'syuruk':
+            syuruk = self.waktu_syuruk(time_format = 'string')
+            self.hour = int(syuruk[0:2])
+            self.minute = int(syuruk[3:5])
+            self.second = int(syuruk[6:8])
 
         if topo == 'geo' or topo == 'geocentric':
-            e = earth.at(t)
+            e = earth.at(self.current_time())
             s = e.observe(sun).apparent()
             m = e.observe(moon).apparent()
 
         else: 
-            e = current_topo.at(t)
+            e = current_topo.at(self.current_time())
             s = e.observe(sun).apparent()
             m = e.observe(moon).apparent()
 
@@ -371,7 +473,15 @@ class Takwim:
         _, mlon, _ = m.frame_latlon(ecliptic_frame)
         phase = (mlon.degrees - slon.degrees) % 360.0
 
-        return phase
+        moon_phase = Angle(degrees=phase)
+        if angle_format != 'skylib' and angle_format != 'degree':
+            moon_phase = moon_phase.dstr(format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
+        
+        elif angle_format == 'degree':
+            moon_phase = moon_phase.degrees
+        
+
+        return moon_phase
 
 
     def lunar_crescent_width (self,t=None, topo = 'topo',angle_format = 'skylib', method = 'modern'):
@@ -382,15 +492,25 @@ class Takwim:
 
         if t is None:
             t = self.current_time()
+        elif t == 'maghrib':
+            maghrib = self.waktu_maghrib(time_format = 'string')
+            self.hour = int(maghrib[0:2])
+            self.minute = int(maghrib[3:5])
+            self.second = int(maghrib[6:8])
+        elif t == 'syuruk':
+            syuruk = self.waktu_syuruk(time_format = 'string')
+            self.hour = int(syuruk[0:2])
+            self.minute = int(syuruk[3:5])
+            self.second = int(syuruk[6:8])
 
-        m = moon.at(t)
+        m = moon.at(self.current_time())
         s = m.observe(sun).apparent()
         if topo == 'geo' or topo == 'geocentric':
-            earth_moon_distance = earth.at(t).observe(moon).apparent().distance().km #center of earth - center of moon distance
+            earth_moon_distance = earth.at(self.current_time()).observe(moon).apparent().distance().km #center of earth - center of moon distance
             e = m.observe(earth).apparent() #vector from the center of the moon, to the center of the earth
         
         else:
-            earth_moon_distance = current_topo.at(t).observe(moon).apparent().distance().km # topo - center of moon distance
+            earth_moon_distance = current_topo.at(self.current_time()).observe(moon).apparent().distance().km # topo - center of moon distance
             e = m.observe(current_topo).apparent() #vector from center of the moon, to topo
 
         elon_earth_sun = e.separation_from(s) #elongation of the earth-sun, as seen from the center of the moon. Not to be confused with phase angle
@@ -425,8 +545,13 @@ class Takwim:
         select_moon_age= ts.from_datetime(select_moon)
         maghrib = self.waktu_maghrib()
 
-        moon_age_1 = maghrib-select_moon_age
-        moon_age = str(dt.timedelta(moon_age_1))[:7]
+        moon_age_1 = dt.timedelta(maghrib-select_moon_age)
+        if moon_age_1.days<0:
+            moon_age = '-' + str(dt.timedelta() - moon_age_1)[:7]
+        elif moon_age_1.days>= 1:
+            moon_age = '1D ' + str( moon_age_1 -dt.timedelta(days =1))[:7]
+        else:
+            moon_age = str(moon_age_1)[:7]
 
         return moon_age
     
@@ -434,8 +559,11 @@ class Takwim:
         sun_set = self.waktu_maghrib()
         moon_set = self.moon_set()
 
-        lag_time = str(dt.timedelta(moon_set-sun_set))[2:7]
-
+        lag_time = dt.timedelta(days = moon_set-sun_set)
+        if lag_time.days < 0:
+            lag_time =  '-' + str(dt.timedelta() - lag_time)[:7]
+        else:
+            lag_time = str(lag_time)[:7]
         return lag_time
     
     
