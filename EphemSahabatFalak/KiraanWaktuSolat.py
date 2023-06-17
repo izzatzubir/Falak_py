@@ -435,9 +435,10 @@ class Takwim:
 
             elongation_moon_sun = s.separation_from(m)
 
-        if angle_format != 'skylib':
+        if angle_format != 'skylib' and angle_format != 'degree':
             elongation_moon_sun = elongation_moon_sun.dstr(format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
-
+        elif angle_format == 'degree':
+            elongation_moon_sun = elongation_moon_sun.degrees
 
         return elongation_moon_sun
     
@@ -523,12 +524,13 @@ class Takwim:
             length_crescent_km = 1738.1*(1-cos(self.elongation_moon_sun(topo = topo).radians)) #length of crescent width, in km
             crescent_width = Angle(degrees = degrees(length_crescent_km/earth_moon_distance)) #in radians
 
-        if angle_format != 'skylib':
+        if angle_format != 'skylib' and angle_format != 'degree':
             crescent_width = crescent_width.dstr(format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
-        
+        elif angle_format == 'degree':
+            crescent_width = crescent_width.degrees
         return crescent_width
     
-    def moon_age(self):
+    def moon_age(self, time_format = 'string'):
         eph = api.load(self.ephem)
         earth, moon = eph['earth'], eph['moon']
         ts = load.timescale()
@@ -546,24 +548,31 @@ class Takwim:
         maghrib = self.waktu_maghrib()
 
         moon_age_1 = dt.timedelta(maghrib-select_moon_age)
-        if moon_age_1.days<0:
-            moon_age = '-' + str(dt.timedelta() - moon_age_1)[:7]
-        elif moon_age_1.days>= 1:
-            moon_age = '1D ' + str( moon_age_1 -dt.timedelta(days =1))[:7]
+        if time_format == 'string':
+            if moon_age_1.days<0:
+                moon_age = '-' + str(dt.timedelta() - moon_age_1)[:7]
+            elif moon_age_1.days>= 1:
+                moon_age = '1D ' + str( moon_age_1 -dt.timedelta(days =1))[:7]
+            else:
+                moon_age = str(moon_age_1)[:7]
         else:
-            moon_age = str(moon_age_1)[:7]
+            moon_age = moon_age_1.total_seconds()
 
         return moon_age
     
-    def lag_time(self):
+    def lag_time(self, time_format = 'string'):
         sun_set = self.waktu_maghrib()
         moon_set = self.moon_set()
 
         lag_time = dt.timedelta(days = moon_set-sun_set)
-        if lag_time.days < 0:
-            lag_time =  '-' + str(dt.timedelta() - lag_time)[:7]
+
+        if time_format == 'string':
+            if lag_time.days < 0:
+                lag_time =  '-' + str(dt.timedelta() - lag_time)[:7]
+            else:
+                lag_time = str(lag_time)[:7]
         else:
-            lag_time = str(lag_time)[:7]
+            lag_time = lag_time.total_seconds()
         return lag_time
     
     
