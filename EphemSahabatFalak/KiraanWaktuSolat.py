@@ -7,6 +7,9 @@ import pandas as pd
 from mpmath import degrees, acot,cot,sin, atan2, sqrt, cos, radians, atan, acos, tan, asin
 from datetime import timedelta
 from skyfield.framelib import ecliptic_frame
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
 
 
 class Takwim:
@@ -316,6 +319,19 @@ class Takwim:
         return current_moon_altitude < -0.8333 #ensure that pressure is set to zero (airless) or it will calculate refracted altitude
 
     __iteration_moonset.step_days = 1/4
+
+    def __horizon_dip_refraction_semid(self):
+        surface = Takwim(latitude=self.latitude, longitude=self.longitude, zone = self.zone_string, temperature=self.temperature, pressure = self.pressure, ephem = self.ephem)
+        surface.elevation = 0
+        topo_vector = surface.location().at(self.current_time()).xyz.km
+        radius_at_topo = Distance(km =topo_vector).length().km
+        moon_radius = 1738.1 #km
+        moon_apparent_radius = degrees(asin(moon_radius/self.moon_distance()))
+        horizon_depression = degrees(acos(radius_at_topo/(radius_at_topo+ self.elevation/1000)))
+        r = (1.02/60) / tan((-(horizon_depression+moon_apparent_radius) + 10.3 / (-(horizon_depression+moon_apparent_radius) + 5.11)) * 0.017453292519943296)
+        d = r * (0.28 * self.pressure / (self.temperature + 273.0))
+
+        return d+horizon_depression+moon_apparent_radius
     
     #For moonset/moonrise, syuruk and maghrib, if altitude is customised, ensure that pressure is zero to remove refraction
     #Refracted altitude are taken from Meuss Astronomical Algorithm, p105-107
@@ -1544,7 +1560,7 @@ class Takwim:
 
 
     # Takwim hijri
-    def takwim_hijri_tahunan(self,year=632, criteria_value = 1, first_hijri_day = 1, first_hijri_month = 12, current_hijri_year = 10):
+    def takwim_hijri_tahunan(self, year=632, criteria_value = 1, first_hijri_day = 1, first_hijri_month = 12, current_hijri_year = 10):
         hari_hijri_list = [first_hijri_day]
         bulan_hijri_list =[first_hijri_month]
         tahun_hijri_list = [current_hijri_year]
@@ -1558,7 +1574,7 @@ class Takwim:
         time_in_jd = takwim_hijri.current_time() 
         islamic_lunation_day = 1
         islamic_lunation_day_list = [islamic_lunation_day]
-        for i in range(50*12*30):
+        for i in range(1444*12*30):
             print(i)
             time_in_jd += 1
             islamic_lunation_day += 1
@@ -1596,7 +1612,7 @@ class Takwim:
                 islamic_lunation_day_list.append(islamic_lunation_day)
             elif hari_hijri == 29:
                 
-                if takwim_hijri.Mabims_2021_criteria() > criteria_value:
+                if takwim_hijri.Mabims_2021_criteria()> criteria_value:
                     hari_hijri += 1
                     hari_hijri_list.append(hari_hijri)
                     bulan_hijri_list.append(bulan_hijri)
@@ -1625,6 +1641,74 @@ class Takwim:
                         day_of_the_week.append(takwim_hijri.day_of_the_week()) 
                         islamic_lunation_day_list.append(islamic_lunation_day)
         return pd.DataFrame(list(zip(day_of_the_week,hari_hijri_list,bulan_hijri_list, tahun_hijri_list, islamic_lunation_day_list)),index = tarikh_masihi, columns=["Hari","Tarikh", "Bulan", "Tahun", "Izzat's Islamic Lunation Number"])
+
+    def gambar_hilal_mabims(self, directory = 'gambar_hilal.png'):
+        eph = api.load(self.ephem)
+        earth, sun, moon = eph['earth'], eph['sun'], eph['moon']
+        ts = load.timescale()
+
+        #Define the positions of moon and sun at sunset
+        maghrib = self.waktu_maghrib()
+        sun_az = self.sun_azimuth(t=maghrib, angle_format='degree')
+        sun_al = self.sun_altitude(t=maghrib, angle_format='degree', pressure = 0)
+        moon_az = self.moon_azimuth(t=maghrib, angle_format='degree')
+        moon_al = self.moon_altitude(t=maghrib, angle_format='degree', pressure = 0)
+
+        #initiate the plot
+        fig, ax = plt.subplots(figsize=[16, 9])
+
+        #Logic to draw the altitude = 3. Work it out!
+        horizon_dip = float(self.__horizon_dip_refraction_semid())
+        line_a = sun_az
+        line_b = sun_az+8+abs(sun_az-moon_az)
+        x_angle = 6.4*np.sin(np.arccos((3+horizon_dip)/6.4))
+        y_init = sun_az-abs(sun_az-moon_az)-8
+        b_y = line_b - y_init
+        first_min = (line_a-x_angle-y_init)/b_y
+        first_max = 1-(line_b-line_a-x_angle)/b_y
+        ratio_x_y = b_y/abs(moon_al-sun_al)+9
+
+        #plot the 'scatter'
+        ax.scatter(moon_az, moon_al, ratio_x_y*20, c= 'gainsboro',
+                edgecolor='black', linewidth=0.25, zorder=2)
+        ax.scatter(sun_az, sun_al, ratio_x_y*20, c= 'yellow',
+                edgecolor='black', linewidth=0.25, zorder=2)
+        
+        ax.set(
+                aspect=1.0,
+                title='Kedudukan Hilal pada ' + self.convert_julian_from_time(),
+                xlabel='Azimuth (°)',
+                ylabel='Altitude (°)',
+                xlim=((sun_az-abs(sun_az-moon_az)-8), (sun_az+8+abs(sun_az-moon_az))),
+                ylim=((sun_al-2), (sun_al+abs(moon_al-sun_al)+7)),
+                #xticks=np.arange((x2-abs(x2-x)-8), (x2+8+abs(x2-x)),5) ,
+                #yticks = np.arange((y2-2), (y2+abs(y-y2)+8),1)
+                
+            )
+        
+        ax.axhline(y=-horizon_dip+0.25, color = 'red', linestyle = '--') #apparent horizon
+        ax.axhline(y=3, color = 'green', linestyle = '--', xmax=first_min) #3 degree. always at 3, not arcv
+        ax.axhline(y=3, color = 'green', linestyle = '--', xmin=first_max)
+
+        theta = np.linspace(np.pi/2-(np.arccos((3+horizon_dip)/6.4)),np.pi/2+(np.arccos((3+horizon_dip)/6.4)), 100)
+
+        # the radius of the circle
+        r = 6.4
+
+        # compute x1 and x2
+        x3 = r*np.cos(theta)
+        y3 = r*np.sin(theta)
+
+        #plot elongation
+        ax.plot(x3+sun_az, y3+sun_al, ':', color = 'green')
+
+        sky = LinearSegmentedColormap.from_list('sky', ['white','yellow', 'orange'])
+        extent = ax.get_xlim() + ax.get_ylim()
+        ax.imshow([[0,0], [1,1]], cmap=sky, interpolation='bicubic', extent=extent)
+
+        fig.savefig(directory)
+
+        
 
 
 
