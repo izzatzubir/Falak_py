@@ -1558,7 +1558,7 @@ class Takwim:
         time_in_jd = takwim_hijri.current_time() 
         islamic_lunation_day = 1
         islamic_lunation_day_list = [islamic_lunation_day]
-        for i in range(1444*12*30):
+        for i in range(50*12*30):
             print(i)
             time_in_jd += 1
             islamic_lunation_day += 1
@@ -1567,7 +1567,6 @@ class Takwim:
             takwim_hijri.month = time_in_datetime.month
             takwim_hijri.day = time_in_datetime.day
             takwim_hijri.ephem = takwim_hijri.ephem
-            print (takwim_hijri.ephem)
             if hari_hijri <29: #for each day on every month except 29 and 30
                 hari_hijri += 1
                 hari_hijri_list.append(hari_hijri)
@@ -1625,15 +1624,8 @@ class Takwim:
                         tarikh_masihi.append(takwim_hijri.convert_julian_from_time())
                         day_of_the_week.append(takwim_hijri.day_of_the_week()) 
                         islamic_lunation_day_list.append(islamic_lunation_day)
-        return pd.DataFrame(list(zip(day_of_the_week,hari_hijri_list,bulan_hijri_list, tahun_hijri_list)),index = tarikh_masihi, columns=["Hari","Tarikh", "Bulan", "Tahun"])
+        return pd.DataFrame(list(zip(day_of_the_week,hari_hijri_list,bulan_hijri_list, tahun_hijri_list, islamic_lunation_day_list)),index = tarikh_masihi, columns=["Hari","Tarikh", "Bulan", "Tahun", "Izzat's Islamic Lunation Number"])
 
-
-
-#Cuba jana takwim dengan run code ini
-Penang = Takwim()
-x = Penang.takwim_hijri_tahunan()
-x.to_csv('../Data_Hilal/test_tahun_hijri.csv')
-print(x)
 
 
 
