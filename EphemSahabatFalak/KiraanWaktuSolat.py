@@ -1574,15 +1574,22 @@ class Takwim:
         time_in_jd = takwim_hijri.current_time() 
         islamic_lunation_day = 1
         islamic_lunation_day_list = [islamic_lunation_day]
-        for i in range(1444*12*30):
+        for i in range(1434*12*30):
             print(i)
+            
             time_in_jd += 1
             islamic_lunation_day += 1
             time_in_datetime = time_in_jd.astimezone(takwim_hijri.zone)
             takwim_hijri.year = time_in_datetime.year
             takwim_hijri.month = time_in_datetime.month
             takwim_hijri.day = time_in_datetime.day
-            takwim_hijri.ephem = takwim_hijri.ephem
+            if takwim_hijri.year < 1550 or takwim_hijri.year > 2650:
+                takwim_hijri.ephem = 'de441.bsp'
+            elif takwim_hijri.year >= 1550 and takwim_hijri.year <1850 or takwim_hijri.year > 2149 and takwim_hijri.year <=2650:
+                takwim_hijri.ephem = 'de440.bsp'
+            else:
+                takwim_hijri.ephem = 'de440s.bsp'
+            print(takwim_hijri.ephem)
             if hari_hijri <29: #for each day on every month except 29 and 30
                 hari_hijri += 1
                 hari_hijri_list.append(hari_hijri)
@@ -1711,5 +1718,10 @@ class Takwim:
         
 
 
+#Cuba jana takwim dengan run code ini
+Penang = Takwim(day=29, month = 2, year = 632, latitude=24.5247, longitude=39.5692)
+x = Penang.takwim_hijri_tahunan()
+x.to_csv('../Data_Hilal/test_tahun_hijri.csv')
+print(x)
 
 
