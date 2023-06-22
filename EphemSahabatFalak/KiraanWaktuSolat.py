@@ -1544,7 +1544,7 @@ class Takwim:
 
 
     # Takwim hijri
-    def takwim_hijri_tahunan(self,year=1969, criteria_value = 1, first_hijri_day = 1, first_hijri_month = 12, current_hijri_year = 10):
+    def takwim_hijri_tahunan(self,year=632, criteria_value = 1, first_hijri_day = 1, first_hijri_month = 12, current_hijri_year = 10):
         hari_hijri_list = [first_hijri_day]
         bulan_hijri_list =[first_hijri_month]
         tahun_hijri_list = [current_hijri_year]
@@ -1627,12 +1627,13 @@ class Takwim:
                         islamic_lunation_day_list.append(islamic_lunation_day)
         return pd.DataFrame(list(zip(day_of_the_week,hari_hijri_list,bulan_hijri_list, tahun_hijri_list)),index = tarikh_masihi, columns=["Hari","Tarikh", "Bulan", "Tahun"])
 
-                    
 
 
-
-            
-
+#Cuba jana takwim dengan run code ini
+Penang = Takwim()
+x = Penang.takwim_hijri_tahunan()
+x.to_csv('../Data_Hilal/test_tahun_hijri.csv')
+print(x)
 
 
 
