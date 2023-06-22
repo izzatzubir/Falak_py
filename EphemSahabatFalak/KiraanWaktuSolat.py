@@ -1,5 +1,5 @@
 from skyfield import api, almanac
-from skyfield.api import datetime, wgs84, N, E, load, Angle, Distance
+from skyfield.api import datetime, wgs84, N, E, load, Angle, Distance, GREGORIAN_START
 from pytz import timezone
 import datetime as dt
 from skyfield.searchlib import find_discrete
@@ -24,6 +24,7 @@ class Takwim:
         self.minute = minute
         self.second = second
         self.zone = timezone(zone)
+        self.zone_string = zone
         self.temperature = temperature
 
         if pressure is None:
@@ -31,9 +32,16 @@ class Takwim:
         else:
             pressure = pressure
         self.pressure = pressure
-        self.ephem = ephem
-
+        if self.year < 1550 or self.year > 2650:
+            self.ephem = 'de441.bsp'
+        elif self.year >= 1550 and self.year <1849 or self.year > 2150 and self.year <=2650:
+            self.ephem = 'de440.bsp'
+        else:
+            self.ephem = ephem
         
+        
+
+    
         
     def location(self):
         loc = wgs84.latlon(self.latitude*N, self.longitude*E, self.elevation)
@@ -44,6 +52,7 @@ class Takwim:
         zone = self.zone
         now = zone.localize(dt.datetime(self.year, self.month, self.day, self.hour, self.minute, self.second))
         ts = load.timescale()
+
         current_time = ts.from_datetime(now) #skylib.time
         
         if time_format == 'string':           
@@ -53,31 +62,44 @@ class Takwim:
             current_time = current_time.astimezone(self.zone) 
         
         return current_time
+
+    def convert_julian_from_time(self):
+        greg_time = self.current_time().tt
+
+        ts = load.timescale()
+        ts.julian_calendar_cutoff = GREGORIAN_START
+        current_time = ts.tai_jd(greg_time+0.5)
+
+        current_time_jul = current_time.utc
+        current_time_julian = str(current_time_jul.year) + '-' + str(current_time_jul.month) + '-' + str(current_time_jul.day)
+        return current_time_julian
     
     def sun_altitude(self, t = None, angle_format = 'skylib', temperature = None, pressure = None, topo = 'topo'):
         eph = api.load(self.ephem)
+        eph.segments = eph.segments[:14]
         earth, sun = eph['earth'], eph['sun']
         current_topo = earth + self.location()
         if t is None :
             t = self.current_time()
+        
         if temperature is None and pressure is None:
-            s_al= current_topo.at(self.current_time()).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure) 
+            s_al= current_topo.at(t).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure) 
             
         else:
-            s_al= current_topo.at(self.current_time()).observe(sun).apparent().altaz(temperature_C = temperature, pressure_mbar = pressure)
+            s_al= current_topo.at(t).observe(sun).apparent().altaz(temperature_C = temperature, pressure_mbar = pressure)
         sun_altitude =  s_al[0]
         
         if topo =='geo' or topo == 'geocentric':
-            topo_vector = self.location().at(self.current_time()).xyz.km
+            topo_vector = self.location().at(t).xyz.km
             radius_at_topo = Distance(km =topo_vector).length().km
-            center_of_earth = Takwim()
+            center_of_earth = Takwim(zone = self.zone_string, temperature=self.temperature, pressure = self.pressure, ephem = self.ephem)
             center_of_earth.latitude = self.latitude
             center_of_earth.longitude = self.longitude
             center_of_earth.elevation = -radius_at_topo*1000 #Set observer at the center of the Earth using the x,y,z vector magnitude. 
             center_of_earth = earth + center_of_earth.location()
             center_of_earth.pressure = 0
 
-            sun_altitude = center_of_earth.at(self.current_time()).observe(sun).apparent().altaz(temperature_C = 0, pressure_mbar = 0)[0]
+            sun_altitude = center_of_earth.at(t).observe(sun).apparent().altaz(temperature_C = 0, pressure_mbar = 0)[0]
 
         if angle_format != 'skylib' and angle_format != 'degree':
             sun_altitude = sun_altitude.dstr(format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
@@ -89,12 +111,13 @@ class Takwim:
     
     def sun_azimuth(self, t = None, angle_format = 'skylib'):
         eph = api.load(self.ephem)
+        eph.segments = eph.segments[:14]
         earth, sun = eph['earth'], eph['sun']
         current_topo = earth + self.location()
         if t is None:
             t = self.current_time()
        
-        s_az = current_topo.at(self.current_time()).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)   
+        s_az = current_topo.at(t).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)   
         sun_azimuth = s_az[1]
         
         if angle_format != 'skylib' and angle_format != 'degree':
@@ -107,63 +130,60 @@ class Takwim:
     
     def sun_distance(self, t = None, topo = 'topo', unit = 'km'):
         eph = api.load(self.ephem)
+        eph.segments = eph.segments[:14]
         earth, sun = eph['earth'], eph['sun']
         current_topo = earth + self.location()
         if t is None:
             t = self.current_time()
        
-        sun_distance = current_topo.at(self.current_time()).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)  
+        sun_distance = current_topo.at(t).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)  
         if topo == 'topo' or topo== 'topocentric':
             if unit == 'km' or unit == 'KM':
-                sun_distance = current_topo.at(self.current_time()).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)[2].km
+                sun_distance = current_topo.at(t).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)[2].km
             else:
-                sun_distance = current_topo.at(self.current_time()).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)[2]
+                sun_distance = current_topo.at(t).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)[2]
             return sun_distance
         else:
             if unit == 'km' or unit == 'KM':
-                sun_distance = earth.at(self.current_time()).observe(sun).apparent().distance().km
+                sun_distance = earth.at(t).observe(sun).apparent().distance().km
             else:
-                sun_distance = earth.at(self.current_time()).observe(sun).apparent().distance()
+                sun_distance = earth.at(t).observe(sun).apparent().distance()
             return sun_distance 
 
     
     def moon_altitude(self, t = None, angle_format = 'skylib', temperature = None, pressure = None, topo = 'topo'):
         eph = api.load(self.ephem)
+        eph.segments = eph.segments[:14]
         earth, moon = eph['earth'], eph['moon']
         current_topo = earth + self.location()
         
         if t is None:
             t = self.current_time()
         elif t == 'maghrib':
-            maghrib = self.waktu_maghrib(time_format = 'string')
-            self.hour = int(maghrib[0:2])
-            self.minute = int(maghrib[3:5])
-            self.second = int(maghrib[6:8])
+            t = self.waktu_maghrib()
+
         elif t == 'syuruk':
-            syuruk = self.waktu_syuruk(time_format = 'string')
-            self.hour = int(syuruk[0:2])
-            self.minute = int(syuruk[3:5])
-            self.second = int(syuruk[6:8])
+            t = self.waktu_syuruk()
        
         if temperature is None and pressure is None:
-            m_al = current_topo.at(self.current_time()).observe(moon).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)   
+            m_al = current_topo.at(t).observe(moon).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)   
         else:
-            m_al = current_topo.at(self.current_time()).observe(moon).apparent().altaz(temperature_C = temperature, pressure_mbar = pressure)   
+            m_al = current_topo.at(t).observe(moon).apparent().altaz(temperature_C = temperature, pressure_mbar = pressure)   
         
         
         moon_altitude = m_al[0]
 
         if topo =='geo' or topo == 'geocentric':
-            topo_vector = self.location().at(self.current_time()).xyz.km
+            topo_vector = self.location().at(t).xyz.km
             radius_at_topo = Distance(km =topo_vector).length().km
-            center_of_earth = Takwim()
+            center_of_earth = Takwim(zone = self.zone_string, temperature=self.temperature, pressure = self.pressure, ephem = self.ephem)
             center_of_earth.latitude = self.latitude
             center_of_earth.longitude = self.longitude
             center_of_earth.elevation = -radius_at_topo*1000 #Set observer at the center of the Earth using the x,y,z vector magnitude. 
             center_of_earth = earth + center_of_earth.location()
             center_of_earth.pressure = 0
 
-            moon_altitude = center_of_earth.at(self.current_time()).observe(moon).apparent().altaz(temperature_C = 0, pressure_mbar = 0)[0]
+            moon_altitude = center_of_earth.at(t).observe(moon).apparent().altaz(temperature_C = 0, pressure_mbar = 0)[0]
         
         if angle_format != 'skylib' and angle_format != 'degree':
             moon_altitude = moon_altitude.dstr(format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
@@ -175,22 +195,18 @@ class Takwim:
     
     def moon_azimuth(self, t = None, angle_format = 'skylib'):
         eph = api.load(self.ephem)
+        eph.segments = eph.segments[:14]
         earth, moon = eph['earth'], eph['moon']
         current_topo = earth + self.location()
         if t is None:
             t = self.current_time()
         elif t == 'maghrib':
-            maghrib = self.waktu_maghrib(time_format = 'string')
-            self.hour = int(maghrib[0:2])
-            self.minute = int(maghrib[3:5])
-            self.second = int(maghrib[6:8])
+            t = self.waktu_maghrib()
+
         elif t == 'syuruk':
-            syuruk = self.waktu_syuruk(time_format = 'string')
-            self.hour = int(syuruk[0:2])
-            self.minute = int(syuruk[3:5])
-            self.second = int(syuruk[6:8])
+            t = self.waktu_syuruk()
        
-        m_az = current_topo.at(self.current_time()).observe(moon).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)   
+        m_az = current_topo.at(t).observe(moon).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)   
         moon_azimuth = m_az[1]
         
         if angle_format != 'skylib' and angle_format != 'degree':
@@ -203,58 +219,50 @@ class Takwim:
     
     def moon_distance(self, t = None, topo = 'topo', unit = 'km'):
         eph = api.load(self.ephem)
+        eph.segments = eph.segments[:14]
         earth, moon = eph['earth'], eph['moon']
         current_topo = earth + self.location()
         if t is None:
             t = self.current_time()
         elif t == 'maghrib':
-            maghrib = self.waktu_maghrib(time_format = 'string')
-            self.hour = int(maghrib[0:2])
-            self.minute = int(maghrib[3:5])
-            self.second = int(maghrib[6:8])
+            t = self.waktu_maghrib()
+
         elif t == 'syuruk':
-            syuruk = self.waktu_syuruk(time_format = 'string')
-            self.hour = int(syuruk[0:2])
-            self.minute = int(syuruk[3:5])
-            self.second = int(syuruk[6:8])
+            t = self.waktu_syuruk()
        
         if topo == 'topo' or topo== 'topocentric':
             if unit == 'km' or unit == 'KM':
-                moon_distance = current_topo.at(self.current_time()).observe(moon).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)[2].km
+                moon_distance = current_topo.at(t).observe(moon).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)[2].km
             else:
-                moon_distance = current_topo.at(self.current_time()).observe(moon).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)[2]
+                moon_distance = current_topo.at(t).observe(moon).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)[2]
             return moon_distance
         else:
             if unit == 'km' or unit == 'KM':
-                moon_distance = earth.at(self.current_time()).observe(moon).apparent().distance().km
+                moon_distance = earth.at(t).observe(moon).apparent().distance().km
             else:
-                moon_distance = earth.at(self.current_time()).observe(moon).apparent().distance()
+                moon_distance = earth.at(t).observe(moon).apparent().distance()
             return moon_distance
 
         
     def moon_illumination(self, t = None, topo = 'topo'):
         eph = api.load(self.ephem)
+        eph.segments = eph.segments[:14]
         earth, moon, sun = eph['earth'], eph['moon'], eph['sun']
         current_topo = earth + self.location()
 
         if t is None:
             t = self.current_time()
         elif t == 'maghrib':
-            maghrib = self.waktu_maghrib(time_format = 'string')
-            self.hour = int(maghrib[0:2])
-            self.minute = int(maghrib[3:5])
-            self.second = int(maghrib[6:8])
+            t = self.waktu_maghrib()
+
         elif t == 'syuruk':
-            syuruk = self.waktu_syuruk(time_format = 'string')
-            self.hour = int(syuruk[0:2])
-            self.minute = int(syuruk[3:5])
-            self.second = int(syuruk[6:8])
+            t = self.waktu_syuruk()
 
         if topo == 'geo' or topo == 'geocentric':
-            illumination = earth.at(self.current_time()).observe(moon).apparent().fraction_illuminated(sun)
+            illumination = earth.at(t).observe(moon).apparent().fraction_illuminated(sun)
 
         else:
-            illumination = current_topo.at(self.current_time()).observe(moon).apparent().fraction_illuminated(sun)
+            illumination = current_topo.at(t).observe(moon).apparent().fraction_illuminated(sun)
 
         moon_illumination = illumination * 100
         return moon_illumination
@@ -263,15 +271,10 @@ class Takwim:
         if t is None:
             t = self.current_time()
         elif t == 'maghrib':
-            maghrib = self.waktu_maghrib(time_format = 'string')
-            self.hour = int(maghrib[0:2])
-            self.minute = int(maghrib[3:5])
-            self.second = int(maghrib[6:8])
+            t = self.waktu_maghrib()
+
         elif t == 'syuruk':
-            syuruk = self.waktu_syuruk(time_format = 'string')
-            self.hour = int(syuruk[0:2])
-            self.minute = int(syuruk[3:5])
-            self.second = int(syuruk[6:8])
+            t = self.waktu_syuruk()
 
         moon_az = self.moon_azimuth(angle_format='degree')
         sun_az = self.sun_azimuth(angle_format='degree')
@@ -285,22 +288,17 @@ class Takwim:
 
         return daz
     
-    def arcv(self, t = None, angle_format = 'skylib'):
+    def arcv(self, t = None, angle_format = 'skylib', topo = 'geo'):
         if t is None:
             t = self.current_time()
         elif t == 'maghrib':
-            maghrib = self.waktu_maghrib(time_format = 'string')
-            self.hour = int(maghrib[0:2])
-            self.minute = int(maghrib[3:5])
-            self.second = int(maghrib[6:8])
+            t = self.waktu_maghrib()
         elif t == 'syuruk':
-            syuruk = self.waktu_syuruk(time_format = 'string')
-            self.hour = int(syuruk[0:2])
-            self.minute = int(syuruk[3:5])
-            self.second = int(syuruk[6:8])
+            t = self.waktu_syuruk()
 
-        moon_alt = self.moon_altitude(topo='geo',pressure = 0, angle_format='degree')
-        sun_alt = self.sun_altitude(topo = 'geo', pressure=0, angle_format='degree')
+
+        moon_alt = self.moon_altitude(topo=topo,pressure = 0, angle_format='degree')
+        sun_alt = self.sun_altitude(topo = topo, pressure=0, angle_format='degree')
         arcv = Angle(degrees = abs(moon_alt-sun_alt))
 
         if angle_format != 'skylib' and angle_format != 'degree':
@@ -317,22 +315,22 @@ class Takwim:
             
         return current_moon_altitude < -0.8333 #ensure that pressure is set to zero (airless) or it will calculate refracted altitude
 
-    __iteration_moonset.step_days = 1/86400
+    __iteration_moonset.step_days = 1/4
     
     #For moonset/moonrise, syuruk and maghrib, if altitude is customised, ensure that pressure is zero to remove refraction
     #Refracted altitude are taken from Meuss Astronomical Algorithm, p105-107
     def moon_set(self, time_format = 'default'):
         eph = api.load(self.ephem)
+        eph.segments = eph.segments[:14]
         moon = eph['moon']
         now = self.current_time().astimezone(self.zone)
         midnight = now.replace(hour = 0, minute = 0, second = 0, microsecond = 0)
         next_midnight = midnight + dt.timedelta(days =1)
         ts = load.timescale()
+        
         t0 = ts.from_datetime(midnight)
         t1 = ts.from_datetime(next_midnight)
-        surface = Takwim()
-        surface.latitude = self.latitude
-        surface.longitude = self.longitude
+        surface = Takwim(latitude=self.latitude, longitude=self.longitude, zone = self.zone_string, temperature=self.temperature, pressure = self.pressure, ephem = self.ephem)
         surface.elevation = 0
         topo_vector = surface.location().at(self.current_time()).xyz.km
         radius_at_topo = Distance(km =topo_vector).length().km
@@ -363,14 +361,16 @@ class Takwim:
         return moon_set_time
     def moon_rise(self, time_format = 'default'):
         eph = api.load(self.ephem)
+        eph.segments = eph.segments[:14]
         moon = eph['moon']
         now = self.current_time().astimezone(self.zone)
         midnight = now.replace(hour = 0, minute = 0, second = 0, microsecond = 0)
         next_midnight = midnight + dt.timedelta(days =1)
         ts = load.timescale()
+        
         t0 = ts.from_datetime(midnight)
         t1 = ts.from_datetime(next_midnight)
-        surface = Takwim()
+        surface = Takwim(zone = self.zone_string, temperature=self.temperature, pressure = self.pressure, ephem = self.ephem)
         surface.latitude = self.latitude
         surface.longitude = self.longitude
         surface.elevation = 0
@@ -403,33 +403,28 @@ class Takwim:
         return moon_set_time
     def elongation_moon_sun(self, t = None, topo = 'topo', angle_format = 'skylib'):
         eph = api.load(self.ephem)
+        eph.segments = eph.segments[:14]
         earth, moon, sun = eph['earth'], eph['moon'], eph['sun']
         current_topo = earth + self.location()
         
         if t is None:
             t = self.current_time()
         elif t == 'maghrib':
-            maghrib = self.waktu_maghrib(time_format = 'string')
-            self.hour = int(maghrib[0:2])
-            self.minute = int(maghrib[3:5])
-            self.second = int(maghrib[6:8])
-        elif t == 'syuruk':
-            syuruk = self.waktu_syuruk(time_format = 'string')
-            self.hour = int(syuruk[0:2])
-            self.minute = int(syuruk[3:5])
-            self.second = int(syuruk[6:8])
+            t = self.waktu_maghrib()
 
-            
+        elif t == 'syuruk':
+            t = self.waktu_syuruk()
+   
         #add options for topo or geocentric
         if topo == 'geo' or topo == 'geocentric':
-            from_topo = earth.at(self.current_time())
+            from_topo = earth.at(t)
             s = from_topo.observe(sun)
             m = from_topo.observe(moon)
 
             elongation_moon_sun = s.separation_from(m)
         
         else:
-            from_topo = current_topo.at(self.current_time())
+            from_topo = current_topo.at(t)
             s = from_topo.observe(sun)
             m = from_topo.observe(moon)
 
@@ -444,29 +439,25 @@ class Takwim:
     
     def moon_phase(self,t=None, topo = 'topo', angle_format = 'skylib'):
         eph = api.load(self.ephem)
+        eph.segments = eph.segments[:14]
         earth, moon, sun = eph['earth'], eph['moon'], eph['sun']
         current_topo = earth + self.location()
 
         if t is None:
             t = self.current_time()
         elif t == 'maghrib':
-            maghrib = self.waktu_maghrib(time_format = 'string')
-            self.hour = int(maghrib[0:2])
-            self.minute = int(maghrib[3:5])
-            self.second = int(maghrib[6:8])
+            t = self.waktu_maghrib()
+
         elif t == 'syuruk':
-            syuruk = self.waktu_syuruk(time_format = 'string')
-            self.hour = int(syuruk[0:2])
-            self.minute = int(syuruk[3:5])
-            self.second = int(syuruk[6:8])
+            t = self.waktu_syuruk()
 
         if topo == 'geo' or topo == 'geocentric':
-            e = earth.at(self.current_time())
+            e = earth.at(t)
             s = e.observe(sun).apparent()
             m = e.observe(moon).apparent()
 
         else: 
-            e = current_topo.at(self.current_time())
+            e = current_topo.at(t)
             s = e.observe(sun).apparent()
             m = e.observe(moon).apparent()
 
@@ -487,6 +478,7 @@ class Takwim:
 
     def lunar_crescent_width (self,t=None, topo = 'topo',angle_format = 'skylib', method = 'modern'):
         eph = api.load(self.ephem)
+        eph.segments = eph.segments[:14]
         earth, moon, sun = eph['earth'], eph['moon'], eph['sun']
         current_topo = earth + self.location()
         radius_of_the_Moon = 1738.1 #at equator. In reality, this should be the radius of the moon along the thickest part of the crescent
@@ -494,24 +486,19 @@ class Takwim:
         if t is None:
             t = self.current_time()
         elif t == 'maghrib':
-            maghrib = self.waktu_maghrib(time_format = 'string')
-            self.hour = int(maghrib[0:2])
-            self.minute = int(maghrib[3:5])
-            self.second = int(maghrib[6:8])
-        elif t == 'syuruk':
-            syuruk = self.waktu_syuruk(time_format = 'string')
-            self.hour = int(syuruk[0:2])
-            self.minute = int(syuruk[3:5])
-            self.second = int(syuruk[6:8])
+            t = self.waktu_maghrib()
 
-        m = moon.at(self.current_time())
+        elif t == 'syuruk':
+            t = self.waktu_syuruk()
+
+        m = moon.at(t)
         s = m.observe(sun).apparent()
         if topo == 'geo' or topo == 'geocentric':
-            earth_moon_distance = earth.at(self.current_time()).observe(moon).apparent().distance().km #center of earth - center of moon distance
+            earth_moon_distance = earth.at(t).observe(moon).apparent().distance().km #center of earth - center of moon distance
             e = m.observe(earth).apparent() #vector from the center of the moon, to the center of the earth
         
         else:
-            earth_moon_distance = current_topo.at(self.current_time()).observe(moon).apparent().distance().km # topo - center of moon distance
+            earth_moon_distance = current_topo.at(t).observe(moon).apparent().distance().km # topo - center of moon distance
             e = m.observe(current_topo).apparent() #vector from center of the moon, to topo
 
         elon_earth_sun = e.separation_from(s) #elongation of the earth-sun, as seen from the center of the moon. Not to be confused with phase angle
@@ -532,8 +519,10 @@ class Takwim:
     
     def moon_age(self, time_format = 'string'):
         eph = api.load(self.ephem)
-        earth, moon = eph['earth'], eph['moon']
+        eph.segments = eph.segments[:14]
+        moon = eph['moon']
         ts = load.timescale()
+        
         
         conjunction_moon = almanac.oppositions_conjunctions(eph, moon)
         now = self.current_time().astimezone(self.zone)
@@ -543,8 +532,8 @@ class Takwim:
         t1 = ts.from_datetime(half_month_after)
 
         t, y = almanac.find_discrete(t0, t1, conjunction_moon)
-        select_moon = t[y==1][0].astimezone(self.zone)
-        select_moon_age= ts.from_datetime(select_moon)
+        new_moon = t[y==1][0].astimezone(self.zone)
+        select_moon_age= ts.from_datetime(new_moon)
         maghrib = self.waktu_maghrib()
 
         moon_age_1 = dt.timedelta(maghrib-select_moon_age)
@@ -578,8 +567,10 @@ class Takwim:
     
     def waktu_zawal(self, time_format = 'default'):
         eph = api.load(self.ephem)
+        eph.segments = eph.segments[:14]
         earth, sun = eph['earth'], eph['sun']
         ts = load.timescale()
+        
         
         transit_Sun = almanac.meridian_transits(eph, sun, self.location())
         now = self.current_time().astimezone(self.zone)
@@ -604,8 +595,10 @@ class Takwim:
     
     def waktu_zohor(self, time_format = 'default'):
         eph = api.load(self.ephem)
+        eph.segments = eph.segments[:14]
         earth, sun = eph['earth'], eph['sun']
         ts = load.timescale()
+        
         
         transit_Sun = almanac.meridian_transits(eph, sun, self.location())
         now = self.current_time().astimezone(self.zone)
@@ -644,16 +637,18 @@ class Takwim:
             alt = self.altitude_subh
             
         current_sun_altitude = self.sun_altitude(t).degrees   
-        find_when_current_altitude_equals_chosen_altitude = abs(current_sun_altitude-alt)
+        find_when_current_altitude_equals_chosen_altitude =current_sun_altitude-alt
             
-        return find_when_current_altitude_equals_chosen_altitude < 0.01
+        return find_when_current_altitude_equals_chosen_altitude < 0
     
-    __iteration_waktu_subuh.step_days = 1/86400
+    __iteration_waktu_subuh.step_days = 1/4
     
     def waktu_subuh(self, altitude = 'default', time_format = 'default'):
         eph = api.load(self.ephem)
+        eph.segments = eph.segments[:14]
         earth, sun = eph['earth'], eph['sun']
         ts = load.timescale()
+        
         current_topo = earth + self.location()     
         now = self.current_time().astimezone(self.zone)
         midnight = now.replace(hour = 0, minute = 0, second = 0, microsecond = 0)
@@ -727,16 +722,18 @@ class Takwim:
             alt = self.altitude_syuruk
             
         current_sun_altitude = self.sun_altitude(t, pressure=0).degrees    
-        find_when_current_altitude_equals_chosen_altitude = abs(current_sun_altitude-alt)
+        find_when_current_altitude_equals_chosen_altitude = current_sun_altitude-alt
             
-        return find_when_current_altitude_equals_chosen_altitude < 0.01
+        return find_when_current_altitude_equals_chosen_altitude < 0
     
-    __iteration_waktu_syuruk.step_days = 1/86400
+    __iteration_waktu_syuruk.step_days = 1/4
     
     def waktu_syuruk(self, altitude = 'default', time_format = 'default'):
         eph = api.load(self.ephem)
+        eph.segments = eph.segments[:14]
         earth, sun = eph['earth'], eph['sun']
         ts = load.timescale()
+        
         now = self.current_time().astimezone(self.zone)
         midnight = now.replace(hour = 0, minute = 0, second = 0, microsecond = 0)
         next_midnight = midnight + dt.timedelta(days =1)
@@ -745,7 +742,7 @@ class Takwim:
         self.altitude_syuruk = altitude
         
         if altitude == 'default':
-            surface = Takwim()
+            surface = Takwim(zone = self.zone_string, temperature=self.temperature, pressure = self.pressure, ephem = self.ephem)
             surface.latitude = self.latitude
             surface.longitude = self.longitude
             surface.elevation = 0
@@ -783,6 +780,7 @@ class Takwim:
                 
         #starts iteration
             ts = load.timescale()
+            
             twilight_default = almanac.dark_twilight_day(eph, self.location())
             self.temperature = 0
             self.pressure = 0
@@ -825,16 +823,18 @@ class Takwim:
             alt = self.altitude_maghrib
             
         current_sun_altitude = self.sun_altitude(t, pressure=0).degrees #pressure = 0 for airless, to prevent refraction redundancy
-        find_when_current_altitude_equals_chosen_altitude = abs(current_sun_altitude-alt)
+        find_when_current_altitude_equals_chosen_altitude = current_sun_altitude-alt
             
-        return find_when_current_altitude_equals_chosen_altitude < 0.01
+        return find_when_current_altitude_equals_chosen_altitude < 0
     
-    __iteration_waktu_maghrib.step_days = 1/86400
+    __iteration_waktu_maghrib.step_days = 1/4
     
     def waktu_maghrib(self, altitude = 'default', time_format = 'default'):
         eph = api.load(self.ephem)
+        eph.segments = eph.segments[:14]
         earth, sun = eph['earth'], eph['sun']
         ts = load.timescale()
+        
         now = self.current_time().astimezone(self.zone) #python datetime
         midnight = now.replace(hour = 0, minute = 0, second = 0, microsecond = 0)
         next_midnight = midnight + dt.timedelta(days =1)
@@ -844,6 +844,7 @@ class Takwim:
         
         if altitude == 'default':
             ts = load.timescale()
+            
             twilight_default = almanac.dark_twilight_day(eph, self.location())
             t2, event = almanac.find_discrete(t0, t1, twilight_default)
             sunset_refraction_accounted = t2[event==3]
@@ -854,9 +855,8 @@ class Takwim:
             t0 = ts.from_datetime(now)
             t1 = ts.from_datetime(end)
 
-            surface = Takwim()
-            surface.latitude = self.latitude
-            surface.longitude = self.longitude
+            surface = Takwim(latitude=self.latitude, longitude=self.longitude, elevation=self.elevation, 
+                             zone = self.zone_string, temperature=self.temperature, pressure = self.pressure, ephem = self.ephem)
             surface.elevation = 0
             topo_vector = surface.location().at(self.current_time()).xyz.km
             radius_at_topo = Distance(km =topo_vector).length().km
@@ -866,7 +866,8 @@ class Takwim:
             r = (1.02/60) / tan((-(horizon_depression+sun_apparent_radius) + 10.3 / (-(horizon_depression+sun_apparent_radius) + 5.11)) * 0.017453292519943296)
             d = r * (0.28 * self.pressure / (self.temperature + 273.0))    
 
-            f = almanac.risings_and_settings(eph, sun, self.location(), horizon_degrees= -(d+horizon_depression), radius_degrees= sun_apparent_radius)
+            f = almanac.risings_and_settings(eph, sun, self.location(), horizon_degrees= -(d+horizon_depression), 
+                                             radius_degrees= sun_apparent_radius)
             magh, nilai = almanac.find_discrete(t0, t1, f)
             maghrib = magh[0].astimezone(self.zone)
             
@@ -892,6 +893,7 @@ class Takwim:
             self.altitude_maghrib = altitude    
             #starts iteration
             ts = load.timescale()
+            
             twilight_default = almanac.dark_twilight_day(eph, self.location())
             t2, event = almanac.find_discrete(t0, t1, twilight_default)
             sunset_refraction_accounted = t2[event==3]
@@ -932,16 +934,18 @@ class Takwim:
             alt = self.altitude_isya
             
         current_sun_altitude = self.sun_altitude(t).degrees    
-        find_when_current_altitude_equals_chosen_altitude = abs(current_sun_altitude-alt)
+        find_when_current_altitude_equals_chosen_altitude = current_sun_altitude-alt
             
-        return find_when_current_altitude_equals_chosen_altitude < 0.0067
+        return find_when_current_altitude_equals_chosen_altitude < 0
     
-    __iteration_waktu_isya.step_days = 1/86400
+    __iteration_waktu_isya.step_days = 1/4
     
     def waktu_isyak(self, altitude = 'default', time_format = 'default'):
         eph = api.load(self.ephem)
+        eph.segments = eph.segments[:14]
         earth, sun = eph['earth'], eph['sun']
         ts = load.timescale()
+        
         now = self.current_time().astimezone(self.zone)
         midnight = now.replace(hour = 0, minute = 0, second = 0, microsecond = 0)
         next_midnight = midnight + dt.timedelta(days =1)
@@ -978,6 +982,7 @@ class Takwim:
             #starts iteration
             transit_time = self.waktu_maghrib()
             ts = load.timescale()
+            
             twilight_default = almanac.dark_twilight_day(eph, self.location())
             self.temperature = 0
             self.pressure = 0
@@ -1026,14 +1031,15 @@ class Takwim:
         
         else:
             current_sun_altitude = self.sun_altitude(t).degrees
-            find_when_current_altitude_equals_asr = abs(current_sun_altitude-sun_altitude_at_asr)
+            find_when_current_altitude_equals_asr = current_sun_altitude-sun_altitude_at_asr
             
-        return find_when_current_altitude_equals_asr < 0.01
+        return find_when_current_altitude_equals_asr < 0
         
-    __iteration_waktu_asar.step_days = 1/86400
+    __iteration_waktu_asar.step_days = 1/4
     def waktu_asar(self, time_format = 'default'):
         transit_time = self.waktu_zawal()
         ts = load.timescale()
+        
         
         zawal = transit_time.astimezone(self.zone)
         begins = zawal + dt.timedelta(hours = 1) #assuming that asr is more than 1 hour after zawal
@@ -1093,7 +1099,7 @@ class Takwim:
         difference_azimut = abs(current_sun_azimut - self.azimut_kiblat())
 
         return difference_azimut < 0.3
-    __iteration_bayang_searah_kiblat.step_days = 1/86400
+    __iteration_bayang_searah_kiblat.step_days = 20/86400
     def bayang_searah_kiblat(self, time_format = 'default'): #tambah tolak 0.3 darjah atau 18 arkaminit
         t0 = self.waktu_syuruk()
         t1 = self.waktu_maghrib()
@@ -1137,8 +1143,8 @@ class Takwim:
 
         for i in range (60):
             delta_time = self.waktu_maghrib(time_format= 'default') - (59-i)*min_in_day
-            hour = int(str(delta_time.astimezone(self.zone))[11:13])
-            minute = int(str(delta_time.astimezone(self.zone))[14:16])
+            hour = delta_time.astimezone(self.zone).hour
+            minute = delta_time.astimezone(self.zone).minute
 
             self.hour = hour
             self.minute = minute
@@ -1177,17 +1183,17 @@ class Takwim:
             lebar_sabit.append(sabit)
 
             #Azimuth Difference
-            daz = self.daz()
+            daz = self.daz(angle_format='string')
             az_diff.append(daz)
 
             #Arc of Vision
-            arcv = self.arcv()
+            arcv = self.arcv(angle_format = 'string')
             arc_vision.append(arcv)
 
         for i in range (1,60):
             delta_time = self.waktu_maghrib(time_format= 'default') + i*min_in_day
-            hour = int(str(delta_time.astimezone(self.zone))[11:13])
-            minute = int(str(delta_time.astimezone(self.zone))[14:16])
+            hour = delta_time.astimezone(self.zone).hour
+            minute = delta_time.astimezone(self.zone).minute
 
             self.hour = hour
             self.minute = minute
@@ -1226,17 +1232,19 @@ class Takwim:
             lebar_sabit.append(sabit)
 
             #Azimuth Difference
-            daz = self.daz()
+            daz = self.daz(angle_format = 'string')
             az_diff.append(daz)
 
             #Arc of Vision
-            arcv = self.arcv()
+            arcv = self.arcv(angle_format = 'string')
             arc_vision.append(arcv)
 
             
-        ephem_bulan = pd.DataFrame(list(zip(elon_bulanMat,alt_bulan_list, azm_bul, alt_mat, azm_mat, illumination_bulan, lebar_sabit, az_diff, arc_vision)), 
+        ephem_bulan = pd.DataFrame(list(zip(elon_bulanMat,alt_bulan_list, azm_bul, alt_mat, azm_mat,
+                                             illumination_bulan, lebar_sabit, az_diff, arc_vision)), 
                            index=tarikh, 
-                           columns=["Elongasi","Alt Bulan", "Az Bulan", "Alt Matahari", "Az Matahari", "Illuminasi bulan(%)", "Lebar Hilal", "DAZ", "ARCV"])
+                           columns=["Elongasi","Alt Bulan", "Az Bulan", "Alt Matahari", "Az Matahari", 
+                                    "Illuminasi bulan(%)", "Lebar Hilal", "DAZ", "ARCV"])
 
         return ephem_bulan
     
@@ -1262,6 +1270,7 @@ class Takwim:
         isyak = []
         
         for i in range (1,32):
+            
             errormessage = "not triggered"
             if self.month in [2,4,6,9,11] and i >30:
                 continue
@@ -1274,7 +1283,7 @@ class Takwim:
                 
             if errormessage == "triggered":
                 continue
-
+            print('Calculating for day: ' + str(i))
             if altitud_subuh != 'default' and (altitud_subuh > -12 or altitud_subuh) < -24:
                 print("Altitude subuh is below 24 degrees, or above 12 degrees")
                 break
@@ -1361,7 +1370,269 @@ class Takwim:
                 isyak.append(waktu_isyak)
 
         
-        takwim_bulanan = pd.DataFrame(list(zip(bayang_kiblat_mula, bayang_kiblat_tamat, subuh, syuruk, zohor, asar, maghrib, isyak)), index = tarikh, columns=["Bayang mula", "Bayang tamat", "Subuh", "Syuruk", "Zohor", "Asar", "Maghrib", "Isyak"])
+        takwim_bulanan = pd.DataFrame(list(zip(bayang_kiblat_mula, bayang_kiblat_tamat, 
+                                               subuh, syuruk, zohor, asar, maghrib, isyak)), index = tarikh, 
+                                               columns=["Bayang mula", "Bayang tamat", "Subuh", "Syuruk", "Zohor", "Asar", 
+                                                        "Maghrib", "Isyak"])
 
         return takwim_bulanan
+    
+    def takwim_solat_tahunan(self, altitud_subuh ='default', altitud_syuruk ='default', 
+                             altitud_maghrib ='default', altitud_isyak ='default', saat = 'tidak'):
+        for i in range(1,13):
+            self.month = i
+            takwim_tahunan = self.takwim_solat_bulanan( altitud_subuh = altitud_subuh, altitud_syuruk =altitud_syuruk, 
+                             altitud_maghrib =altitud_maghrib, altitud_isyak =altitud_isyak, saat =saat)
+                             
+            return takwim_tahunan
+    
+    #visibility criterion
+    def Yallop_criteria(self, value = 'criteria'):
+        lag_time = dt.timedelta(days = 4/9 *(self.moon_set() - self.waktu_maghrib()))
+        best_time = lag_time + self.waktu_maghrib(time_format = 'datetime')
+        Yallop = Takwim(latitude=self.latitude, longitude=self.longitude, 
+                        elevation=self.elevation, zone = self.zone_string, 
+                        temperature=self.temperature, pressure = self.pressure, 
+                        ephem = self.ephem, year = best_time.year, month = best_time.month, 
+                        day = best_time.day, hour = best_time.hour, minute = best_time.minute, second = best_time.second)
+        arcv = Yallop.arcv(angle_format = 'degree')
+        topo_width = Yallop.lunar_crescent_width(angle_format = 'degree')*60 #Value in arc minutes
+
+        q_value = (arcv-(11.8371-6.3226*topo_width + 0.7319*topo_width**2-0.1018*topo_width**3))/10
+
+        if q_value > 0.216:
+            criteria = 1
+        elif q_value <= 0.216 and q_value >-0.014:
+            criteria = 2
+        elif q_value <= 0.014 and q_value > -0.160:
+            criteria = 3
+        elif q_value <= -0.160 and q_value > -0.232:
+            criteria = 4
+        elif q_value <= -0.232 and q_value > -0.293:
+            criteria = 5
+        elif q_value <= -0.293:
+            criteria = 6
+        
+        if value == 'criteria':
+            return criteria
+        elif value == 'q value':
+            return q_value
+        
+    
+    def Odeh_criteria(self, value = 'criteria'):
+        lag_time = dt.timedelta(days = 4/9 *(self.moon_set() - self.waktu_maghrib()))
+        best_time = lag_time + self.waktu_maghrib(time_format = 'datetime')
+        Odeh = Takwim(latitude=self.latitude, longitude=self.longitude, elevation=self.elevation, zone = self.zone_string, temperature=self.temperature, pressure = self.pressure, ephem = self.ephem,year = best_time.year, month = best_time.month, day = best_time.day, hour = best_time.hour, minute = best_time.minute, second = best_time.second)
+        arcv = Odeh.arcv(angle_format = 'degree', topo = 'topo')
+        topo_width = Odeh.lunar_crescent_width(angle_format = 'degree')*60
+
+        q_value = arcv-(7.1651-6.3226*topo_width + 0.7319*topo_width**2-0.1018*topo_width**3)
+
+        if q_value >= 5.65:
+            criteria = 1
+        elif q_value < 5.65 and q_value >= 2:
+            criteria = 2
+        elif q_value <2 and q_value >= -0.96:
+            criteria = 3
+        elif q_value < -0.96:
+            criteria = 4
+
+        if value == 'criteria':
+            return criteria
+        elif value == 'q value':
+            return q_value
+
+    def Mabims_2021_criteria(self, time_of_calculation = 'maghrib'):
+
+        if time_of_calculation == 'maghrib':
+            best_time = self.waktu_maghrib(time_format = 'datetime')
+        elif time_of_calculation == 'Yallop best time':
+            lag_time = dt.timedelta(days = 4/9 *(self.moon_set() - self.waktu_maghrib()))
+            best_time = lag_time + self.waktu_maghrib(time_format = 'datetime')
+
+        mabims_2021 = Takwim(latitude=self.latitude, longitude=self.longitude, elevation=self.elevation, zone = self.zone_string, temperature=self.temperature, pressure = self.pressure, ephem = self.ephem,year = best_time.year, month = best_time.month, day = best_time.day, hour = best_time.hour, minute = best_time.minute, second = best_time.second)
+        elon_topo = mabims_2021.elongation_moon_sun(angle_format = 'degree')
+        alt_bul_topo = mabims_2021.moon_altitude(angle_format = 'degree')
+
+        if elon_topo >= 6.4 and alt_bul_topo > 3:
+            criteria = 1
+        else:
+            criteria = 2
+
+        return criteria
+    
+    def Mabims_1995_criteria(self, time_of_calculation = 'maghrib'):
+        if time_of_calculation == 'maghrib':
+            best_time = self.waktu_maghrib(time_format = 'datetime')
+        elif time_of_calculation == 'Yallop best time':
+            lag_time = dt.timedelta(days = 4/9 *(self.moon_set() - self.waktu_maghrib()))
+            best_time = lag_time + self.waktu_maghrib(time_format = 'datetime')
+
+        mabims_1995 = Takwim(latitude=self.latitude, longitude=self.longitude, elevation=self.elevation, zone = self.zone_string, temperature=self.temperature, pressure = self.pressure, ephem = self.ephem,year = best_time.year, month = best_time.month, day = best_time.day, hour = best_time.hour, minute = best_time.minute, second = best_time.second)
+        elon_topo = mabims_1995.elongation_moon_sun(angle_format = 'degree')
+        alt_bul_topo = mabims_1995.moon_altitude(angle_format = 'degree')
+        age_moon = mabims_1995.moon_age(time_format = 'second')
+
+        if elon_topo >= 3 and alt_bul_topo > 2 or age_moon/3600 > 8:
+            criteria = 1
+        else:
+            criteria = 2
+    
+        return criteria
+    
+    def Istanbul_1978_criteria(self):
+        best_time = self.waktu_maghrib(time_format = 'datetime')
+        Istanbul_1978 = Takwim(latitude=self.latitude, longitude=self.longitude, elevation=self.elevation, zone = self.zone_string, temperature=self.temperature, pressure = self.pressure, ephem = self.ephem,year = best_time.year, month = best_time.month, day = best_time.day, hour = best_time.hour, minute = best_time.minute, second = best_time.second)
+        elon_topo = Istanbul_1978.elongation_moon_sun(angle_format = 'degree')
+        alt_bul_topo = Istanbul_1978.moon_altitude(angle_format = 'degree')
+        
+        if elon_topo >= 8 and alt_bul_topo >= 5:
+            criteria = 1
+        else:
+            criteria = 2
+    
+        return criteria
+    
+    def Muhammadiyah_wujudul_hilal_criteria(self):
+        best_time = self.waktu_maghrib(time_format = 'datetime')
+        Muhammadiyah_wujudul_hilal = Takwim(latitude=self.latitude, longitude=self.longitude, elevation=self.elevation, zone = self.zone_string, temperature=self.temperature, pressure = self.pressure, ephem = self.ephem,year = best_time.year, month = best_time.month, day = best_time.day, hour = best_time.hour, minute = best_time.minute, second = best_time.second)
+        alt_bul_topo = Muhammadiyah_wujudul_hilal.moon_altitude(angle_format = 'degree')
+        age_moon = Muhammadiyah_wujudul_hilal.moon_age(time_format = 'second')
+
+        if age_moon >0 and alt_bul_topo >0:
+            criteria = 1
+        else:
+            criteria = 2
+
+        return criteria
+    
+    #day of the week
+    def day_of_the_week(self, language = 'Malay'):
+        observer_day = Takwim(latitude=self.latitude, longitude=self.longitude, elevation=self.elevation, zone = self.zone_string, temperature=self.temperature, pressure = self.pressure, ephem = self.ephem,year= self.year, month = self.month, day = self.day, hour = 0, minute = 0, second = 0)
+        jd_observer_plus_one = int(observer_day.current_time().tt)%7
+        if jd_observer_plus_one == 3:
+            day_of_week = 'Jumaat'
+            if language == 'English':
+                day_of_week = 'Friday'
+        elif jd_observer_plus_one == 4:
+            day_of_week = 'Sabtu'
+            if language == 'English':
+                day_of_week = 'Saturday'
+        elif jd_observer_plus_one == 5:
+            day_of_week = 'Ahad'
+            if language == 'English':
+                day_of_week = 'Sunday'
+        elif jd_observer_plus_one == 6:
+            day_of_week = 'Isnin'
+            if language == 'English':
+                day_of_week = 'Monday'
+        elif jd_observer_plus_one == 0:
+            day_of_week = 'Selasa'
+            if language == 'English':
+                day_of_week = 'Tuesday'
+        elif jd_observer_plus_one == 1:
+            day_of_week = 'Rabu'
+            if language == 'English':
+                day_of_week = 'Wednesday'
+        elif jd_observer_plus_one == 2:
+            day_of_week = 'Khamis'
+            if language == 'English':
+                day_of_week = 'Thursday'
+
+        
+        return day_of_week
+
+
+    # Takwim hijri
+    def takwim_hijri_tahunan(self,year=1969, criteria_value = 1, first_hijri_day = 1, first_hijri_month = 12, current_hijri_year = 10):
+        hari_hijri_list = [first_hijri_day]
+        bulan_hijri_list =[first_hijri_month]
+        tahun_hijri_list = [current_hijri_year]
+        hari_hijri = first_hijri_day
+        bulan_hijri = first_hijri_month
+        tahun_hijri = current_hijri_year
+        first_zulhijjah_10H_in_JD = 1951953 #khamis
+        takwim_hijri = Takwim(day = 1, month = 3, year = year, hour = 0, minute = 0, second = 0,latitude=self.latitude, longitude=self.longitude, elevation=self.elevation, zone = self.zone_string, temperature=self.temperature, pressure = self.pressure, ephem = self.ephem)
+        tarikh_masihi = [takwim_hijri.convert_julian_from_time()]
+        day_of_the_week = [takwim_hijri.day_of_the_week()]
+        time_in_jd = takwim_hijri.current_time() 
+        islamic_lunation_day = 1
+        islamic_lunation_day_list = [islamic_lunation_day]
+        for i in range(1444*12*30):
+            print(i)
+            time_in_jd += 1
+            islamic_lunation_day += 1
+            time_in_datetime = time_in_jd.astimezone(takwim_hijri.zone)
+            takwim_hijri.year = time_in_datetime.year
+            takwim_hijri.month = time_in_datetime.month
+            takwim_hijri.day = time_in_datetime.day
+            takwim_hijri.ephem = takwim_hijri.ephem
+            print (takwim_hijri.ephem)
+            if hari_hijri <29: #for each day on every month except 29 and 30
+                hari_hijri += 1
+                hari_hijri_list.append(hari_hijri)
+                bulan_hijri_list.append(bulan_hijri)
+                tahun_hijri_list.append(tahun_hijri)
+                tarikh_masihi.append(takwim_hijri.convert_julian_from_time())
+                day_of_the_week.append(takwim_hijri.day_of_the_week())  
+                islamic_lunation_day_list.append(islamic_lunation_day)
+            elif hari_hijri == 30 and bulan_hijri <12: #for new months except zulhijjah if 30 days
+                hari_hijri = 1
+                bulan_hijri += 1
+                hari_hijri_list.append(hari_hijri)
+                bulan_hijri_list.append(bulan_hijri)
+                tahun_hijri_list.append(tahun_hijri)
+                tarikh_masihi.append(takwim_hijri.convert_julian_from_time())
+                day_of_the_week.append(takwim_hijri.day_of_the_week())  
+                islamic_lunation_day_list.append(islamic_lunation_day)
+            elif hari_hijri == 30 and bulan_hijri == 12: #for 30th day of zulhijjah, if it occurs
+                hari_hijri = 1
+                bulan_hijri = 1
+                tahun_hijri +=1
+                hari_hijri_list.append(hari_hijri)
+                bulan_hijri_list.append(bulan_hijri)
+                tahun_hijri_list.append(tahun_hijri)
+                tarikh_masihi.append(takwim_hijri.convert_julian_from_time())
+                day_of_the_week.append(takwim_hijri.day_of_the_week())  
+                islamic_lunation_day_list.append(islamic_lunation_day)
+            elif hari_hijri == 29:
+                
+                if takwim_hijri.Mabims_2021_criteria() > criteria_value:
+                    hari_hijri += 1
+                    hari_hijri_list.append(hari_hijri)
+                    bulan_hijri_list.append(bulan_hijri)
+                    tahun_hijri_list.append(tahun_hijri)
+                    tarikh_masihi.append(takwim_hijri.convert_julian_from_time())
+                    day_of_the_week.append(takwim_hijri.day_of_the_week())  
+                    islamic_lunation_day_list.append(islamic_lunation_day)
+                else:
+                    if bulan_hijri == 12:
+                        hari_hijri = 1
+                        bulan_hijri = 1
+                        tahun_hijri += 1
+                        hari_hijri_list.append(hari_hijri)
+                        bulan_hijri_list.append(bulan_hijri)
+                        tahun_hijri_list.append(tahun_hijri)
+                        tarikh_masihi.append(takwim_hijri.convert_julian_from_time())
+                        day_of_the_week.append(takwim_hijri.day_of_the_week())  
+                        islamic_lunation_day_list.append(islamic_lunation_day)
+                    else:
+                        hari_hijri = 1
+                        bulan_hijri += 1
+                        hari_hijri_list.append(hari_hijri)
+                        bulan_hijri_list.append(bulan_hijri)
+                        tahun_hijri_list.append(tahun_hijri)
+                        tarikh_masihi.append(takwim_hijri.convert_julian_from_time())
+                        day_of_the_week.append(takwim_hijri.day_of_the_week()) 
+                        islamic_lunation_day_list.append(islamic_lunation_day)
+        return pd.DataFrame(list(zip(day_of_the_week,hari_hijri_list,bulan_hijri_list, tahun_hijri_list)),index = tarikh_masihi, columns=["Hari","Tarikh", "Bulan", "Tahun"])
+
+                    
+
+
+
+            
+
+
+
 
