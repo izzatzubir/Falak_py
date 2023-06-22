@@ -1718,10 +1718,4 @@ class Takwim:
         
 
 
-#Cuba jana takwim dengan run code ini
-Penang = Takwim(day=29, month = 2, year = 632, latitude=24.5247, longitude=39.5692)
-x = Penang.takwim_hijri_tahunan()
-x.to_csv('../Data_Hilal/test_tahun_hijri.csv')
-print(x)
-
 
