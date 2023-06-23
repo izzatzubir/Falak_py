@@ -1143,7 +1143,26 @@ class Takwim:
         
         return masa_bayang_searah_kiblat_mula, masa_bayang_searah_kiblat_tamat
 
+    def efemeris_kiblat(self, objek = 'matahari', directory = '../Efemeris_kiblat.xlsx'):
+        az_matahari_list = []
+        masa_list = []
+        self.second = 0
+        for i in range(60):
+            delta_time = self.current_time(time_format= 'default') + (1)*(1/1440)
+            hour = delta_time.astimezone(self.zone).hour
+            minute = delta_time.astimezone(self.zone).minute
+            self.hour = hour
+            self.minute = minute
+            self.second = 0
 
+            az_matahari = self.sun_azimuth(angle_format='string')
+            masa = self.current_time(time_format='string')
+            az_matahari_list.append(az_matahari)
+            masa_list.append(masa)
+
+        efemeris_kiblat = pd.DataFrame(az_matahari_list, index=masa_list, columns=['Azimut'])
+        efemeris_kiblat_excel = efemeris_kiblat.to_excel(directory)
+        return efemeris_kiblat_excel
     def efemeris_hilal(self, topo = 'topo'):
         alt_bulan_list = []
         alt_mat = []
@@ -1561,92 +1580,66 @@ class Takwim:
 
     # Takwim hijri
     def takwim_hijri_tahunan(self, year=632, criteria_value = 1, first_hijri_day = 1, first_hijri_month = 12, current_hijri_year = 10):
-        hari_hijri_list = [first_hijri_day]
-        bulan_hijri_list =[first_hijri_month]
-        tahun_hijri_list = [current_hijri_year]
+        hari_hijri_list = []
+        bulan_hijri_list =[]
+        tahun_hijri_list = []
         hari_hijri = first_hijri_day
         bulan_hijri = first_hijri_month
         tahun_hijri = current_hijri_year
         first_zulhijjah_10H_in_JD = 1951953 #khamis
         takwim_hijri = Takwim(day = 1, month = 3, year = year, hour = 0, minute = 0, second = 0,latitude=self.latitude, longitude=self.longitude, elevation=self.elevation, zone = self.zone_string, temperature=self.temperature, pressure = self.pressure, ephem = self.ephem)
-        tarikh_masihi = [takwim_hijri.convert_julian_from_time()]
-        day_of_the_week = [takwim_hijri.day_of_the_week()]
+        tarikh_masihi = []
+        day_of_the_week = []
         time_in_jd = takwim_hijri.current_time() 
         islamic_lunation_day = 1
-        islamic_lunation_day_list = [islamic_lunation_day]
+        islamic_lunation_day_list = []
         for i in range(1434*12*30):
             print(i)
             
-            time_in_jd += 1
-            islamic_lunation_day += 1
+            islamic_lunation_day_list.append(islamic_lunation_day)
             time_in_datetime = time_in_jd.astimezone(takwim_hijri.zone)
             takwim_hijri.year = time_in_datetime.year
             takwim_hijri.month = time_in_datetime.month
             takwim_hijri.day = time_in_datetime.day
+            time_in_jd += 1
+            islamic_lunation_day += 1
+            tarikh_masihi.append(takwim_hijri.convert_julian_from_time())
+            day_of_the_week.append(takwim_hijri.day_of_the_week())  
+            hari_hijri_list.append(hari_hijri)
+            bulan_hijri_list.append(bulan_hijri)
+            tahun_hijri_list.append(tahun_hijri)
             if takwim_hijri.year < 1550 or takwim_hijri.year > 2650:
                 takwim_hijri.ephem = 'de441.bsp'
             elif takwim_hijri.year >= 1550 and takwim_hijri.year <1850 or takwim_hijri.year > 2149 and takwim_hijri.year <=2650:
                 takwim_hijri.ephem = 'de440.bsp'
             else:
                 takwim_hijri.ephem = 'de440s.bsp'
-            print(takwim_hijri.ephem)
             if hari_hijri <29: #for each day on every month except 29 and 30
                 hari_hijri += 1
-                hari_hijri_list.append(hari_hijri)
-                bulan_hijri_list.append(bulan_hijri)
-                tahun_hijri_list.append(tahun_hijri)
-                tarikh_masihi.append(takwim_hijri.convert_julian_from_time())
-                day_of_the_week.append(takwim_hijri.day_of_the_week())  
-                islamic_lunation_day_list.append(islamic_lunation_day)
+
+                
             elif hari_hijri == 30 and bulan_hijri <12: #for new months except zulhijjah if 30 days
+                
                 hari_hijri = 1
                 bulan_hijri += 1
-                hari_hijri_list.append(hari_hijri)
-                bulan_hijri_list.append(bulan_hijri)
-                tahun_hijri_list.append(tahun_hijri)
-                tarikh_masihi.append(takwim_hijri.convert_julian_from_time())
-                day_of_the_week.append(takwim_hijri.day_of_the_week())  
-                islamic_lunation_day_list.append(islamic_lunation_day)
+
             elif hari_hijri == 30 and bulan_hijri == 12: #for 30th day of zulhijjah, if it occurs
                 hari_hijri = 1
                 bulan_hijri = 1
                 tahun_hijri +=1
-                hari_hijri_list.append(hari_hijri)
-                bulan_hijri_list.append(bulan_hijri)
-                tahun_hijri_list.append(tahun_hijri)
-                tarikh_masihi.append(takwim_hijri.convert_julian_from_time())
-                day_of_the_week.append(takwim_hijri.day_of_the_week())  
-                islamic_lunation_day_list.append(islamic_lunation_day)
             elif hari_hijri == 29:
-                
+                print('triggered' + takwim_hijri.convert_julian_from_time())
                 if takwim_hijri.Mabims_2021_criteria()> criteria_value:
                     hari_hijri += 1
-                    hari_hijri_list.append(hari_hijri)
-                    bulan_hijri_list.append(bulan_hijri)
-                    tahun_hijri_list.append(tahun_hijri)
-                    tarikh_masihi.append(takwim_hijri.convert_julian_from_time())
-                    day_of_the_week.append(takwim_hijri.day_of_the_week())  
-                    islamic_lunation_day_list.append(islamic_lunation_day)
+                    
                 else:
                     if bulan_hijri == 12:
                         hari_hijri = 1
                         bulan_hijri = 1
                         tahun_hijri += 1
-                        hari_hijri_list.append(hari_hijri)
-                        bulan_hijri_list.append(bulan_hijri)
-                        tahun_hijri_list.append(tahun_hijri)
-                        tarikh_masihi.append(takwim_hijri.convert_julian_from_time())
-                        day_of_the_week.append(takwim_hijri.day_of_the_week())  
-                        islamic_lunation_day_list.append(islamic_lunation_day)
                     else:
                         hari_hijri = 1
                         bulan_hijri += 1
-                        hari_hijri_list.append(hari_hijri)
-                        bulan_hijri_list.append(bulan_hijri)
-                        tahun_hijri_list.append(tahun_hijri)
-                        tarikh_masihi.append(takwim_hijri.convert_julian_from_time())
-                        day_of_the_week.append(takwim_hijri.day_of_the_week()) 
-                        islamic_lunation_day_list.append(islamic_lunation_day)
         return pd.DataFrame(list(zip(day_of_the_week,hari_hijri_list,bulan_hijri_list, tahun_hijri_list, islamic_lunation_day_list)),index = tarikh_masihi, columns=["Hari","Tarikh", "Bulan", "Tahun", "Izzat's Islamic Lunation Number"])
 
     def gambar_hilal_mabims(self, directory = 'gambar_hilal.png'):
@@ -1716,6 +1709,8 @@ class Takwim:
         fig.savefig(directory)
 
         
+
+
 
 
 
