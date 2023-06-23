@@ -1211,6 +1211,8 @@ class Takwim:
         return asar_time
     
     def azimut_kiblat(self):
+        """
+        Returns azimuth of the Kiblat direction from the observer's location"""
         lat_kaabah = radians(21.422487)#21.422487
         lon_kaabah = radians(39.826206)#39.826206
         delta_lat = radians(degrees(lat_kaabah) - self.latitude)
@@ -1226,6 +1228,8 @@ class Takwim:
         return azimut
     
     def jarak_kaabah(self):
+        """
+        Returns the 'Great Circle' distance between the observer's location to the Kaabah"""
         lat_kaabah = radians(21.422487)#21.422487
         lon_kaabah = radians(39.826206)#39.826206
         delta_lat = radians(degrees(lat_kaabah) - self.latitude)
@@ -1240,16 +1244,30 @@ class Takwim:
         return d/1000
     
     def __iteration_bayang_searah_kiblat(self, t):
-        current_sun_azimut = self.sun_azimuth(t, angle_format='degree')
-        difference_azimut = abs(current_sun_azimut - self.azimut_kiblat())
+
+        if self.objek == 'venus' or self.objek == 'zuhrah':
+            current_venus_azimut = self.__venus_azimuth(t, angle_format='degree')
+            difference_azimut = abs(current_venus_azimut - self.azimut_kiblat())
+        elif self.objek == 'bulan':
+            current_moon_azimut = self.moon_azimuth(t, angle_format='degree')
+            difference_azimut = abs(current_moon_azimut - self.azimut_kiblat())
+        else:
+            current_sun_azimut = self.sun_azimuth(t, angle_format='degree')
+            difference_azimut = abs(current_sun_azimut - self.azimut_kiblat())
 
         return difference_azimut < 0.3
     __iteration_bayang_searah_kiblat.step_days = 20/86400
-    def bayang_searah_kiblat(self, time_format = 'default'): #tambah tolak 0.3 darjah atau 18 arkaminit
+    def bayang_searah_kiblat(self, time_format = 'default', objek = 'matahari'): #tambah tolak 0.3 darjah atau 18 arkaminit
         t0 = self.waktu_syuruk()
         t1 = self.waktu_maghrib()
+        self.objek = objek
         
-        masa, nilai = find_discrete(t0, t1, self.__iteration_bayang_searah_kiblat)
+        if objek == 'bulan':
+            masa, nilai = find_discrete(t0, t0+1, self.__iteration_bayang_searah_kiblat)
+        elif objek == 'venus' or objek == 'zuhrah':
+            masa, nilai = find_discrete(t1, t0+1, self.__iteration_bayang_searah_kiblat)
+        else:
+            masa, nilai = find_discrete(t0, t1, self.__iteration_bayang_searah_kiblat)
         
         
         #finding_asr = self.iteration_waktu_asar()
@@ -1272,8 +1290,45 @@ class Takwim:
         
         return masa_bayang_searah_kiblat_mula, masa_bayang_searah_kiblat_tamat
 
+    def __venus_azimuth(self, t = None, angle_format = 'skylib'):
+        eph = api.load(self.ephem)
+        eph.segments = eph.segments[:14]
+        earth, venus = eph['earth'], eph['venus']
+        current_topo = earth + self.location()
+        if t is None:
+            t = self.current_time()
+        elif t == 'maghrib':
+            t = self.waktu_maghrib()
+
+        elif t == 'syuruk':
+            t = self.waktu_syuruk()
+       
+        v_az = current_topo.at(t).observe(venus).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)   
+        venus_azimuth = v_az[1]
+        
+        if angle_format != 'skylib' and angle_format != 'degree':
+            venus_azimuth = venus_azimuth.dstr(format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
+        
+        elif angle_format == 'degree':
+            venus_azimuth = venus_azimuth.degrees
+        
+        return venus_azimuth
     def efemeris_kiblat(self, objek = 'matahari', directory = '../Efemeris_kiblat.xlsx'):
-        az_matahari_list = []
+        """
+        This method is useful for Kiblat Finders (Juru-ukur Kiblat)\n
+        Returns a 60 minutes-table of the azimuth of the selected object from the class.current_time().\n
+        To change the starting time, please change the class's time. \n
+
+        Parameters:\n
+        objek: \n
+        'matahari' -> returns sun's azimuth\n
+        'bulan' -> returns moon's azimuth\n
+        'venus' -> returns venus's azimuth\n
+
+        directory:\n
+        Choose the directory of choice. By default, the table will be saved in your desktop folder.
+        """
+        az_objek_list = []
         masa_list = []
         self.second = 0
         for i in range(60):
@@ -1284,14 +1339,20 @@ class Takwim:
             self.minute = minute
             self.second = 0
 
-            az_matahari = self.sun_azimuth(angle_format='string')
+            if objek == 'bulan':
+                az_objek = self.moon_azimuth(angle_format='string')
+            elif objek == 'venus' or objek =='zuhrah':
+                az_objek = self.__venus_azimuth(angle_format = 'string')
+            else:
+                az_objek = self.sun_azimuth(angle_format='string')
             masa = self.current_time(time_format='string')
-            az_matahari_list.append(az_matahari)
+            az_objek_list.append(az_objek)
             masa_list.append(masa)
 
-        efemeris_kiblat = pd.DataFrame(az_matahari_list, index=masa_list, columns=['Azimut'])
+        efemeris_kiblat = pd.DataFrame(az_objek_list, index=masa_list, columns=['Azimut'])
         efemeris_kiblat_excel = efemeris_kiblat.to_excel(directory)
         return efemeris_kiblat_excel
+    
     def efemeris_hilal(self, topo = 'topo'):
         alt_bulan_list = []
         alt_mat = []
