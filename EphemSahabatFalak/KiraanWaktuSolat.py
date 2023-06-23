@@ -47,11 +47,22 @@ class Takwim:
     
         
     def location(self):
+        """Returns the current location in wgs84"""
         loc = wgs84.latlon(self.latitude*N, self.longitude*E, self.elevation)
         
         return loc
     
     def current_time(self, time_format = 'skylib'): # current time method
+        """
+        Returns the 'current time' of the class. This can be changed by changing the class day-month-year and hour-minute-second parameters.
+        The time contains timezone information from the class.zone parameter. Default zone is 'Asia/Kuala_Lumpur'.
+        Optional parameter:
+        time_format:\n
+        'skylib' -> returns the time in skylib Time format (default) \n
+        'datetime' -> returns the time in python datetime format \n
+        'string' -> returns the time in string format yyyy-mm-dd hh-mm-ss
+        
+        """
         zone = self.zone
         now = zone.localize(dt.datetime(self.year, self.month, self.day, self.hour, self.minute, self.second))
         ts = load.timescale()
@@ -67,6 +78,8 @@ class Takwim:
         return current_time
 
     def convert_julian_from_time(self):
+        """Return a string value of julian date in yyyy-mm-dd format. Calendar cutoff is at 4 October 1582. \n
+        This method will automatically switch to Gregorian calendar at 15 October 1582."""
         greg_time = self.current_time().tt
 
         ts = load.timescale()
@@ -78,11 +91,44 @@ class Takwim:
         return current_time_julian
     
     def sun_altitude(self, t = None, angle_format = 'skylib', temperature = None, pressure = None, topo = 'topo'):
+        """
+        Returns the altitude of the Sun.
+
+        Parameters:\n
+        t: (time)\n
+        None -> Defaults to the current time of the class (class.current_time())\n
+        'maghrib' -> Returns sun altitude at sunset\n
+        'syuruk' -> Returns sun altitude at sunrise\n
+
+        
+        temperature:\n
+        None -> Defaults to the current temperature of the class (class.temperature)\n
+
+        pressure:\n
+        None -> Defaults to the current pressure of the class (class.pressure)\n
+
+        topo:\n
+        'topo' (default) -> Returns the topocentric altitude of the Sun. This is the angle Sun - Observer - Horizon \n
+        'geo' or 'geocentric' -> Returns the geocentric altitude of the Sun. This is the altitude measured as if the Observer is at the
+          center of the earth, with the same zenith as the z-axis.\n
+
+        angle_format:\n
+        'skylib' -> Returns the angle in skyfield Angle format.\n
+        'degree' -> Returns the angle in degrees\n
+        'string' -> Returns the angle in string format dd°mm'ss"
+        """
         eph = api.load(self.ephem)
         eph.segments = eph.segments[:14]
         earth, sun = eph['earth'], eph['sun']
         current_topo = earth + self.location()
-        if t is None :
+        if t is None:
+            t = self.current_time()
+        elif t == 'maghrib':
+            t = self.waktu_maghrib()
+
+        elif t == 'syuruk':
+            t = self.waktu_syuruk()
+        else:
             t = self.current_time()
         
         if temperature is None and pressure is None:
@@ -113,12 +159,30 @@ class Takwim:
         return sun_altitude
     
     def sun_azimuth(self, t = None, angle_format = 'skylib'):
+        """
+        Returns the azimuth of the Sun.\n
+
+        Parameters:\n
+        t: (timen
+        None -> Defaults to the current time of the class (class.current_time())\n
+        'maghrib' -> Returns sun azimuth at sunset\n
+        'syuruk' -> Returns sun azimuth at sunrise\n
+        angle_format:
+        'skylib' -> Returns the angle in skyfield Angle format.\n
+        'degree' -> Returns the angle in degrees\n
+        'string' -> Returns the angle in string format dd°mm'ss"
+        """
         eph = api.load(self.ephem)
         eph.segments = eph.segments[:14]
         earth, sun = eph['earth'], eph['sun']
         current_topo = earth + self.location()
         if t is None:
             t = self.current_time()
+        elif t == 'maghrib':
+            t = self.waktu_maghrib()
+
+        elif t == 'syuruk':
+            t = self.waktu_syuruk()
        
         s_az = current_topo.at(t).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)   
         sun_azimuth = s_az[1]
@@ -132,12 +196,36 @@ class Takwim:
         return sun_azimuth
     
     def sun_distance(self, t = None, topo = 'topo', unit = 'km'):
+        """
+        Returns the distance to the Sun.
+
+        Parameters:
+        t: (time)
+        None -> Defaults to the current time of the class (class.current_time())\n
+        'maghrib' -> Returns sun distance at sunset\n
+        'syuruk' -> Returns sun distance at sunrise\n
+
+        topo:\n
+        'topo' (default) -> Returns the topocentric altitude of the Sun. This is the angle Sun - Observer - Horizon \n
+        'geo' or 'geocentric' -> Returns the geocentric altitude of the Sun. This is the altitude measured as if the Observer is at the
+          center of the earth, with the same zenith as the z-axis.\n
+
+        unit: \n
+        'km' (default) -> Returns the distance in kilometers\n
+        'au' -> Returns the distance in astronomical unit
+        """
         eph = api.load(self.ephem)
         eph.segments = eph.segments[:14]
         earth, sun = eph['earth'], eph['sun']
         current_topo = earth + self.location()
         if t is None:
             t = self.current_time()
+        elif t == 'maghrib':
+            t = self.waktu_maghrib()
+
+        elif t == 'syuruk':
+            t = self.waktu_syuruk()
+            
        
         sun_distance = current_topo.at(t).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure)  
         if topo == 'topo' or topo== 'topocentric':
@@ -155,6 +243,32 @@ class Takwim:
 
     
     def moon_altitude(self, t = None, angle_format = 'skylib', temperature = None, pressure = None, topo = 'topo'):
+        """
+        Returns the altitude of the moon.
+
+        Parameters:\n
+        t: (time)\n
+        None -> Defaults to the current time of the class (class.current_time())\n
+        'maghrib' -> Returns moon altitude at sunset\n
+        'syuruk' -> Returns moon altitude at sunrise\n
+
+        
+        temperature:\n
+        None -> Defaults to the current temperature of the class (class.temperature)\n
+
+        pressure:\n
+        None -> Defaults to the current pressure of the class (class.pressure)\n
+
+        topo:\n
+        'topo' (default) -> Returns the topocentric altitude of the moon. This is the angle Moon - Observer - Horizon \n
+        'geo' or 'geocentric' -> Returns the geocentric altitude of the Moon. This is the altitude measured as if the Observer is at the
+          center of the earth, with the same zenith as the z-axis.\n
+
+        angle_format:\n
+        'skylib' -> Returns the angle in skyfield Angle format.\n
+        'degree' -> Returns the angle in degrees\n
+        'string' -> Returns the angle in string format dd°mm'ss"
+        """
         eph = api.load(self.ephem)
         eph.segments = eph.segments[:14]
         earth, moon = eph['earth'], eph['moon']
@@ -197,6 +311,19 @@ class Takwim:
         return moon_altitude
     
     def moon_azimuth(self, t = None, angle_format = 'skylib'):
+        """
+        Returns the azimuth of the Moon.\n
+
+        Parameters:\n
+        t: (timen
+        None -> Defaults to the current time of the class (class.current_time())\n
+        'maghrib' -> Returns moon azimuth at sunset\n
+        'syuruk' -> Returns moon azimuth at sunrise\n
+        angle_format:
+        'skylib' -> Returns the angle in skyfield Angle format.\n
+        'degree' -> Returns the angle in degrees\n
+        'string' -> Returns the angle in string format dd°mm'ss"
+        """
         eph = api.load(self.ephem)
         eph.segments = eph.segments[:14]
         earth, moon = eph['earth'], eph['moon']
@@ -300,8 +427,8 @@ class Takwim:
             t = self.waktu_syuruk()
 
 
-        moon_alt = self.moon_altitude(topo=topo,pressure = 0, angle_format='degree')
-        sun_alt = self.sun_altitude(topo = topo, pressure=0, angle_format='degree')
+        moon_alt = self.moon_altitude(t=t,topo=topo,pressure = 0, angle_format='degree')
+        sun_alt = self.sun_altitude(t=t,topo = topo, pressure=0, angle_format='degree')
         arcv = Angle(degrees = abs(moon_alt-sun_alt))
 
         if angle_format != 'skylib' and angle_format != 'degree':
@@ -555,9 +682,11 @@ class Takwim:
         moon_age_1 = dt.timedelta(maghrib-select_moon_age)
         if time_format == 'string':
             if moon_age_1.days<0:
-                moon_age = '-' + str(dt.timedelta() - moon_age_1)[:7]
+                moon_age = '-' + str(dt.timedelta() - moon_age_1)[:8]
             elif moon_age_1.days>= 1:
-                moon_age = '1D ' + str( moon_age_1 -dt.timedelta(days =1))[:7]
+                moon_age = '1D ' + str( moon_age_1 -dt.timedelta(days =1))[:8]
+            elif moon_age_1.days<1 and moon_age_1.days> 1/2.4:
+                moon_age = str(moon_age_1)[:8]
             else:
                 moon_age = str(moon_age_1)[:7]
         else:
@@ -1514,6 +1643,25 @@ class Takwim:
             criteria = 2
     
         return criteria
+
+    def Malaysia_2013_criteria(self, time_of_calculation = 'maghrib'):
+        if time_of_calculation == 'maghrib':
+            best_time = self.waktu_maghrib(time_format = 'datetime')
+        elif time_of_calculation == 'Yallop best time':
+            lag_time = dt.timedelta(days = 4/9 *(self.moon_set() - self.waktu_maghrib()))
+            best_time = lag_time + self.waktu_maghrib(time_format = 'datetime')
+
+        malaysia_2013 = Takwim(latitude=self.latitude, longitude=self.longitude, elevation=self.elevation, zone = self.zone_string, temperature=self.temperature, pressure = self.pressure, ephem = self.ephem,year = best_time.year, month = best_time.month, day = best_time.day, hour = best_time.hour, minute = best_time.minute, second = best_time.second)
+        elon_topo = malaysia_2013.elongation_moon_sun(angle_format = 'degree')
+        alt_bul_topo = malaysia_2013.moon_altitude(angle_format = 'degree')
+        age_moon = malaysia_2013.moon_age(time_format = 'second')
+
+        if elon_topo >= 5 and alt_bul_topo > 3:
+            criteria = 1
+        else:
+            criteria = 2
+    
+        return criteria
     
     def Istanbul_1978_criteria(self):
         best_time = self.waktu_maghrib(time_format = 'datetime')
@@ -1579,21 +1727,31 @@ class Takwim:
 
 
     # Takwim hijri
-    def takwim_hijri_tahunan(self, year=632, criteria_value = 1, first_hijri_day = 1, first_hijri_month = 12, current_hijri_year = 10):
+    def takwim_hijri_tahunan(self, criteria = 'Mabims2021', year=None, criteria_value = 1, first_hijri_day = None, first_hijri_month = None, current_hijri_year = None):
         hari_hijri_list = []
         bulan_hijri_list =[]
         tahun_hijri_list = []
+
+        if year is None:
+            year = self.year
+        islamic_lunation_day = 1
+        if first_hijri_day == None or first_hijri_month == None or current_hijri_year == None:
+            takwim_awal_tahun = pd.read_csv('../EphemSahabatFalak/Tarikh_Hijri_Awal_Tahun_Pulau_Pinang.csv')
+            takwim_tahun_tertentu = takwim_awal_tahun[takwim_awal_tahun['Tarikh_Masihi']== str(year) + '-1-1']
+            first_hijri_day = int(takwim_tahun_tertentu.iloc[0][3])
+            first_hijri_month = int(takwim_tahun_tertentu.iloc[0][4])
+            current_hijri_year = int(takwim_tahun_tertentu.iloc[0][5])
+            islamic_lunation_day = int(takwim_tahun_tertentu.iloc[0][6])
         hari_hijri = first_hijri_day
         bulan_hijri = first_hijri_month
         tahun_hijri = current_hijri_year
         first_zulhijjah_10H_in_JD = 1951953 #khamis
-        takwim_hijri = Takwim(day = 1, month = 3, year = year, hour = 0, minute = 0, second = 0,latitude=self.latitude, longitude=self.longitude, elevation=self.elevation, zone = self.zone_string, temperature=self.temperature, pressure = self.pressure, ephem = self.ephem)
+        takwim_hijri = Takwim(day = 1, month = 1, year = year, hour = 0, minute = 0, second = 0,latitude=self.latitude, longitude=self.longitude, elevation=self.elevation, zone = self.zone_string, temperature=self.temperature, pressure = self.pressure, ephem = self.ephem)
         tarikh_masihi = []
         day_of_the_week = []
         time_in_jd = takwim_hijri.current_time() 
-        islamic_lunation_day = 1
         islamic_lunation_day_list = []
-        for i in range(1434*12*30):
+        for i in range(365):
             print(i)
             
             islamic_lunation_day_list.append(islamic_lunation_day)
@@ -1628,32 +1786,104 @@ class Takwim:
                 bulan_hijri = 1
                 tahun_hijri +=1
             elif hari_hijri == 29:
-                print('triggered' + takwim_hijri.convert_julian_from_time())
-                if takwim_hijri.Mabims_2021_criteria()> criteria_value:
-                    hari_hijri += 1
-                    
-                else:
-                    if bulan_hijri == 12:
-                        hari_hijri = 1
-                        bulan_hijri = 1
-                        tahun_hijri += 1
+                
+                if criteria == 'Odeh':
+                    if takwim_hijri.Odeh_criteria()> criteria_value:
+                        hari_hijri += 1
+                        
                     else:
-                        hari_hijri = 1
-                        bulan_hijri += 1
+                        if bulan_hijri == 12:
+                            hari_hijri = 1
+                            bulan_hijri = 1
+                            tahun_hijri += 1
+                        else:
+                            hari_hijri = 1
+                            bulan_hijri += 1
+                elif criteria == 'Mabims 1995':
+                    if takwim_hijri.Mabims_1995_criteria()> criteria_value:
+                        hari_hijri += 1
+                        
+                    else:
+                        if bulan_hijri == 12:
+                            hari_hijri = 1
+                            bulan_hijri = 1
+                            tahun_hijri += 1
+                        else:
+                            hari_hijri = 1
+                            bulan_hijri += 1
+                elif criteria == 'Yallop':
+                    if takwim_hijri.Yallop_criteria()> criteria_value:
+                        hari_hijri += 1
+                        
+                    else:
+                        if bulan_hijri == 12:
+                            hari_hijri = 1
+                            bulan_hijri = 1
+                            tahun_hijri += 1
+                        else:
+                            hari_hijri = 1
+                            bulan_hijri += 1
+                elif criteria == 'Muhammadiyah' or criteria == 'Wujudul Hilal':
+                    if takwim_hijri.Muhammadiyah_wujudul_hilal_criteria()> criteria_value:
+                        hari_hijri += 1
+                        
+                    else:
+                        if bulan_hijri == 12:
+                            hari_hijri = 1
+                            bulan_hijri = 1
+                            tahun_hijri += 1
+                        else:
+                            hari_hijri = 1
+                            bulan_hijri += 1
+                elif criteria == 'Istanbul 1978':
+                    if takwim_hijri.Istanbul_1978_criteria()> criteria_value:
+                        hari_hijri += 1
+                        
+                    else:
+                        if bulan_hijri == 12:
+                            hari_hijri = 1
+                            bulan_hijri = 1
+                            tahun_hijri += 1
+                        else:
+                            hari_hijri = 1
+                            bulan_hijri += 1
+                elif criteria == 'Malaysia 2013':
+                    if takwim_hijri.Malaysia_2013_criteria()> criteria_value:
+                        hari_hijri += 1
+                        
+                    else:
+                        if bulan_hijri == 12:
+                            hari_hijri = 1
+                            bulan_hijri = 1
+                            tahun_hijri += 1
+                        else:
+                            hari_hijri = 1
+                            bulan_hijri += 1
+                else:
+                    if takwim_hijri.Mabims_2021_criteria()> criteria_value:
+                        hari_hijri += 1
+                        
+                    else:
+                        if bulan_hijri == 12:
+                            hari_hijri = 1
+                            bulan_hijri = 1
+                            tahun_hijri += 1
+                        else:
+                            hari_hijri = 1
+                            bulan_hijri += 1
+                
+
         return pd.DataFrame(list(zip(day_of_the_week,hari_hijri_list,bulan_hijri_list, tahun_hijri_list, islamic_lunation_day_list)),index = tarikh_masihi, columns=["Hari","Tarikh", "Bulan", "Tahun", "Izzat's Islamic Lunation Number"])
 
-    def gambar_hilal_mabims(self, directory = 'gambar_hilal.png'):
-        eph = api.load(self.ephem)
-        earth, sun, moon = eph['earth'], eph['sun'], eph['moon']
-        ts = load.timescale()
-
+    def gambar_hilal_mabims(self, directory = 'gambar_hilal.png', criteria = 'mabims2021'):
+  
         #Define the positions of moon and sun at sunset
         maghrib = self.waktu_maghrib()
         sun_az = self.sun_azimuth(t=maghrib, angle_format='degree')
         sun_al = self.sun_altitude(t=maghrib, angle_format='degree', pressure = 0)
         moon_az = self.moon_azimuth(t=maghrib, angle_format='degree')
         moon_al = self.moon_altitude(t=maghrib, angle_format='degree', pressure = 0)
-
+        elon_moon_sun = self.elongation_moon_sun(t=maghrib, angle_format='degree')
         #initiate the plot
         fig, ax = plt.subplots(figsize=[16, 9])
 
@@ -1687,30 +1917,64 @@ class Takwim:
             )
         
         ax.axhline(y=-horizon_dip+0.25, color = 'red', linestyle = '--') #apparent horizon
-        ax.axhline(y=3, color = 'green', linestyle = '--', xmax=first_min) #3 degree. always at 3, not arcv
-        ax.axhline(y=3, color = 'green', linestyle = '--', xmin=first_max)
+
+        #mabims 2021
+        ax.axhline(y=3, color = 'green', linestyle = ':', xmax=first_min) #3 degree. always at 3, not arcv
+        ax.axhline(y=3, color = 'green', linestyle = ':', xmin=first_max)
 
         theta = np.linspace(np.pi/2-(np.arccos((3+horizon_dip)/6.4)),np.pi/2+(np.arccos((3+horizon_dip)/6.4)), 100)
-
         # the radius of the circle
         r = 6.4
-
         # compute x1 and x2
         x3 = r*np.cos(theta)
         y3 = r*np.sin(theta)
-
         #plot elongation
         ax.plot(x3+sun_az, y3+sun_al, ':', color = 'green')
+        #Parameter annotate
+        moon_parameter = str(format(elon_moon_sun, '.2f'))
+        moon_age = self.moon_age()
+        ax.annotate('Jarak Lengkung: ' + moon_parameter, (moon_az-8, moon_al+1.5), c='black', ha='center', va='center',
+                        textcoords='offset points', xytext=(moon_az-20, moon_al), size=10)
+        ax.annotate('Umur Bulan: ' + moon_age, (moon_az-8, moon_al+0.5), c='black', ha='center', va='center',
+                        textcoords='offset points', xytext=(moon_az-20, moon_al), size=10)
+        moon_parameter_al = str(format(moon_al, '.2f'))
+        ax.annotate('Altitud: ' + moon_parameter_al, (moon_az-8, moon_al+1), c='black', ha='center', va='center',
+                    textcoords='offset points', xytext=(moon_az-20, moon_al), size=10)
+
+        ax.annotate('Mabims 3-6.4', ((sun_az-abs(sun_az-moon_az)-8), 3.1), c='black', ha='center', va='center',
+                    textcoords='offset points', xytext=((sun_az-abs(sun_az-moon_az)-190), 3.1), size=10)
+        ax.annotate('Ufuk Mari\'e - Wujudul Hilal Muhammadiyah', ((sun_az-abs(sun_az-moon_az)-8),-horizon_dip+0.35), c='black', ha='center', va='center',
+                    textcoords='offset points', xytext=((sun_az-abs(sun_az-moon_az)-160), 3.1), size=10)
+        
+        if criteria == 'istanbul2015' or criteria == 'istanbul1978':
+            #istanbul 2015
+            x_angle2 = 8*np.sin(np.arccos((5+horizon_dip)/8))
+            y_init = sun_az-abs(sun_az-moon_az)-8
+            b_y = line_b - y_init
+            second_min = (line_a-x_angle2-y_init)/b_y
+            second_max = 1-(line_b-line_a-x_angle2)/b_y
+
+            ax.axhline(y=5, color = 'blue', linestyle = ':', xmax=second_min) #3 degree. always at 3, not arcv
+            ax.axhline(y=5, color = 'blue', linestyle = ':', xmin=second_max)
+            theta2 = np.linspace(np.pi/2-(np.arccos((5+horizon_dip)/8)),np.pi/2+(np.arccos((5+horizon_dip)/8)), 100)
+            # the radius of the circle
+            r2 = 8
+            # compute x1 and x2
+            x4 = r2*np.cos(theta2)
+            y4 = r2*np.sin(theta2)
+            #plot elongation
+            ax.plot(x4+sun_az, y4+sun_al, ':', color = 'blue')
+
+            
+            
+            ax.annotate('Istanbul 5-8', ((sun_az-abs(sun_az-moon_az)-8), 5.1), c='black', ha='center', va='center',
+                        textcoords='offset points', xytext=((sun_az-abs(sun_az-moon_az)-190), 3.1), size=10)
+
+
 
         sky = LinearSegmentedColormap.from_list('sky', ['white','yellow', 'orange'])
         extent = ax.get_xlim() + ax.get_ylim()
         ax.imshow([[0,0], [1,1]], cmap=sky, interpolation='bicubic', extent=extent)
 
         fig.savefig(directory)
-
-        
-
-
-
-
 
