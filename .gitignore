@@ -15,3 +15,5 @@ de441.bsp
 de440.bsp
 EphemSahabatFalak/.DS_Store
 .DS_Store
+env
+MANIFEST.in

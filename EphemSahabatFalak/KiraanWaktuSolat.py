@@ -10,6 +10,8 @@ from skyfield.framelib import ecliptic_frame
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
+from timezonefinder import TimezoneFinder
+
 
 
 class Takwim:
@@ -19,22 +21,31 @@ class Takwim:
                  zone='Asia/Kuala_Lumpur', temperature = 27, pressure = None, ephem = 'de440s.bsp'): #set default values
         self.latitude = latitude
         self.longitude = longitude
-        self.elevation = elevation
+        self.elevation = elevation #Elevation data is important for rise and set because it considers horizon dip angle.
         self.year = year
         self.month = month
         self.day = day
         self.hour = hour
         self.minute = minute
         self.second = second
-        self.zone = timezone(zone)
-        self.zone_string = zone
+        tf = TimezoneFinder()
+        tz = tf.timezone_at(lat= latitude, lng= longitude)
+        self.zone = timezone(tz)
+        self.zone_string = tz 
         self.temperature = temperature
 
+        # Pressure formula taken from internet source. Not verified, but seems to agree with many pressure-elevation calculators. 
+        # Perhaps need to verify? 
         if pressure is None:
-            pressure = (1013.25*((288.15-(self.elevation*0.0065))/288.15)**5.2558)
+            pressure = (1013.25*((288.15-(self.elevation*0.0065))/288.15)**5.2558) 
         else:
             pressure = pressure
         self.pressure = pressure
+
+        # Ephem changes for when user chose the date outside of the default ephemeris
+        # Always choose ephemeris with the least size to reduce disk size. DE440 is also more accurate for current century calculations (refer to skyfield).
+        # For year above 2650 will be error because de441 consists of two files. The default is part 1, which runs until 1969. 
+        # Skyfield claims to provide a fix through issue #691 but we are not able to fix it. 
         if self.year < 1550 or self.year > 2650:
             self.ephem = 'de441.bsp'
         elif self.year >= 1550 and self.year <1849 or self.year > 2150 and self.year <=2650:
@@ -128,8 +139,7 @@ class Takwim:
 
         elif t == 'syuruk':
             t = self.waktu_syuruk()
-        else:
-            t = self.current_time()
+
         
         if temperature is None and pressure is None:
             s_al= current_topo.at(t).observe(sun).apparent().altaz(temperature_C = self.temperature, pressure_mbar = self.pressure) 
@@ -685,7 +695,7 @@ class Takwim:
                 moon_age = '-' + str(dt.timedelta() - moon_age_1)[:8]
             elif moon_age_1.days>= 1:
                 moon_age = '1D ' + str( moon_age_1 -dt.timedelta(days =1))[:8]
-            elif moon_age_1.days<1 and moon_age_1.days> 1/2.4:
+            elif moon_age_1.total_seconds()<86400 and moon_age_1.total_seconds()> 36000:
                 moon_age = str(moon_age_1)[:8]
             else:
                 moon_age = str(moon_age_1)[:7]
@@ -1313,7 +1323,7 @@ class Takwim:
             venus_azimuth = venus_azimuth.degrees
         
         return venus_azimuth
-    def efemeris_kiblat(self, objek = 'matahari', directory = '../Efemeris_kiblat.xlsx'):
+    def efemeris_kiblat(self, objek = 'matahari', directory = None):
         """
         This method is useful for Kiblat Finders (Juru-ukur Kiblat)\n
         Returns a 60 minutes-table of the azimuth of the selected object from the class.current_time().\n
@@ -1326,7 +1336,11 @@ class Takwim:
         'venus' -> returns venus's azimuth\n
 
         directory:\n
-        Choose the directory of choice. By default, the table will be saved in your desktop folder.
+        None -> does not save the timetable in excel form. This is the default, as the author considers the possibility of users not wanting
+        their disk space to be filled up. \n
+        If you would like to save the timetable in excel format, insert the path. The path should contain the filename as .xlsx format. \n
+        In the case of wrongly inserted path, the program will automatically save the timetable in desktop with the following format:\n
+        '../Efemeris_Hilal_Hari_Bulan.xlsx'. This file can be found in the Desktop folder.
         """
         az_objek_list = []
         masa_list = []
@@ -1350,10 +1364,32 @@ class Takwim:
             masa_list.append(masa)
 
         efemeris_kiblat = pd.DataFrame(az_objek_list, index=masa_list, columns=['Azimut'])
-        efemeris_kiblat_excel = efemeris_kiblat.to_excel(directory)
-        return efemeris_kiblat_excel
+        filename = '../Efemeris_Kiblat_' + str(self.hour) + '_' + str(self.minute) + '.xlsx'
+        if directory == None:
+            pass
+        else:
+            try:
+                efemeris_kiblat_excel = efemeris_kiblat.to_excel(directory)
+            except:
+                efemeris_kiblat_excel = efemeris_kiblat.to_excel(filename)
+        return efemeris_kiblat
     
-    def efemeris_hilal(self, topo = 'topo'):
+    def efemeris_hilal(self, topo = 'topo', directory = None):
+        '''Returns a moon-ephemeris for a given date. The ephemeris starts at 1 hour before sunset, and ends at 1 hour after sunset.\n
+        The ephemeris contains altitude and azimuth of both the moon and sun, the elongation of moon from the sun, illumination of the moon,
+        width of the crescent, azimuth difference DAZ and the altitude difference ARCV.\n
+        
+        Parameters:\n
+        topo:\n
+        'topo' -> returns topocentric readings of the relevant parameters\n
+        'geo' -> returns geocentric readings of the relevant parameters\n
+        directory:\n
+        None -> does not save the timetable in excel form. This is the default, as the author considers the possibility of users not wanting
+        their disk space to be filled up. \n
+        If you would like to save the timetable in excel format, insert the path. The path should contain the filename as .xlsx format. \n
+        In the case of wrongly inserted path, the program will automatically save the timetable in desktop with the following format:\n
+        '../Efemeris_Hilal_Hari_Bulan.xlsx'. This file can be found in the Desktop folder.
+        '''
         alt_bulan_list = []
         alt_mat = []
         azm_mat = []
@@ -1412,7 +1448,7 @@ class Takwim:
             az_diff.append(daz)
 
             #Arc of Vision
-            arcv = self.arcv(angle_format = 'string')
+            arcv = self.arcv(angle_format = 'string', topo = topo)
             arc_vision.append(arcv)
 
         for i in range (1,60):
@@ -1461,7 +1497,7 @@ class Takwim:
             az_diff.append(daz)
 
             #Arc of Vision
-            arcv = self.arcv(angle_format = 'string')
+            arcv = self.arcv(angle_format = 'string', topo=topo)
             arc_vision.append(arcv)
 
             
@@ -1470,7 +1506,15 @@ class Takwim:
                            index=tarikh, 
                            columns=["Elongasi","Alt Bulan", "Az Bulan", "Alt Matahari", "Az Matahari", 
                                     "Illuminasi bulan(%)", "Lebar Hilal", "DAZ", "ARCV"])
-
+        
+        filename = '../Efemeris_Hilal_' + str(self.day) + '_' + str(self.month) + '.xlsx'
+        if directory == None:
+            pass
+        else:
+            try:
+                ephem_bulan_excel = ephem_bulan.to_excel(directory)
+            except:
+                ephem_bulan_excel = ephem_bulan.to_excel(filename)
         return ephem_bulan
     
     def __round_up(self, waktu):
@@ -1483,7 +1527,27 @@ class Takwim:
         return rounded_down_waktu
     
     def takwim_solat_bulanan(self, altitud_subuh ='default', altitud_syuruk ='default', 
-                             altitud_maghrib ='default', altitud_isyak ='default', saat = 'tidak'):
+                             altitud_maghrib ='default', altitud_isyak ='default', saat = 'tidak', directory = None):
+        '''
+        Returns a monthly prayer timetable. \n
+        The timetable contains Subuh, Syuruk, Zohor, Asar, Maghrib and Isyak prayer. \n
+        In addition, the timetable contains Bayang Searah Kiblat\n
+
+        Parameters:\n
+        altitud_subuh,altitud_syuruk,altitud_maghrib and altitud_isyak:\n
+        The altitude of the Sun corresponding to each prayer time can be set for these prayers. \n
+
+        saat:\n
+        Set whether to include seconds or not. By default, this is turned off, so that the prayer times and Bayang Searah Kiblat are rounded
+        to the nearest minute. For all prayers except syuruk and bayang tamat, the seconds are rounded up. For syuruk and bayang tamat, the seconds is rounded down.\n
+
+        directory:\n
+        None -> does not save the timetable in excel form. This is the default, as the author considers the possibility of users not wanting
+        their disk space to be filled up. \n
+        If you would like to save the timetable in excel format, insert the path. The path should contain the filename as .xlsx format. \n
+        In the case of wrongly inserted path, the program will automatically save the timetable in desktop with the following format:\n
+        '../Takwim_Solat_Bulan_Tahun.xlsx'. This file can be found in the Desktop folder.
+        '''
         tarikh = []
         subuh = []
         bayang_kiblat_mula = []
@@ -1599,11 +1663,22 @@ class Takwim:
                                                subuh, syuruk, zohor, asar, maghrib, isyak)), index = tarikh, 
                                                columns=["Bayang mula", "Bayang tamat", "Subuh", "Syuruk", "Zohor", "Asar", 
                                                         "Maghrib", "Isyak"])
-
+        
+        filename = '../Takwim_Solat_' + str(self.month) + '_' + str(self.year) + '.xlsx'
+        if directory == None:
+            pass
+        else:
+            try:
+                takwim_bulanan_excel = takwim_bulanan.to_excel(directory)
+            except:
+                takwim_bulanan_excel = takwim_bulanan.to_excel(filename)
+        
         return takwim_bulanan
     
     def takwim_solat_tahunan(self, altitud_subuh ='default', altitud_syuruk ='default', 
                              altitud_maghrib ='default', altitud_isyak ='default', saat = 'tidak'):
+        """
+        Returns similar timetable as in takwim_solat_bulanan, but for one-year."""
         for i in range(1,13):
             self.month = i
             takwim_tahunan = self.takwim_solat_bulanan( altitud_subuh = altitud_subuh, altitud_syuruk =altitud_syuruk, 
@@ -1752,7 +1827,12 @@ class Takwim:
     
     #day of the week
     def day_of_the_week(self, language = 'Malay'):
-        observer_day = Takwim(latitude=self.latitude, longitude=self.longitude, elevation=self.elevation, zone = self.zone_string, temperature=self.temperature, pressure = self.pressure, ephem = self.ephem,year= self.year, month = self.month, day = self.day, hour = 0, minute = 0, second = 0)
+        """Returns the day of the week for the class.current_time().\n
+        This function calculate the day of the week using julian date mod 7."""
+        observer_day = Takwim(latitude=self.latitude, longitude=self.longitude, elevation=self.elevation,
+                               zone = self.zone_string, temperature=self.temperature, pressure = self.pressure, 
+                               ephem = self.ephem,year= self.year, month = self.month, 
+                               day = self.day, hour = 0, minute = 0, second = 0)
         jd_observer_plus_one = int(observer_day.current_time().tt)%7
         if jd_observer_plus_one == 3:
             day_of_week = 'Jumaat'
@@ -1788,7 +1868,34 @@ class Takwim:
 
 
     # Takwim hijri
-    def takwim_hijri_tahunan(self, criteria = 'Mabims2021', year=None, criteria_value = 1, first_hijri_day = None, first_hijri_month = None, current_hijri_year = None):
+    def takwim_hijri_tahunan(self, criteria = 'Mabims2021', year=None, criteria_value = 1, first_hijri_day = 1, first_hijri_month = 12, current_hijri_year = 10, directory = None):
+        """
+        Returns a yearly timetable of Hijri calendar.\n
+        
+        Parameters:\n
+        criteria: \n
+        By default, the criteria used to generate this calendar is based on Mabims 2021 criteria. However, users may use any other
+        criteria available in this program.\n
+        year = None -> If year is not selected, the default will be the class.year\n
+        criteria_value -> This program uses criteria values to differentiate between different criteria outputs. For criteria with 
+        only 2 outputs (visible and non-visible), the criteria can be chosen as either 1 or 2. \n
+        For criteria containing many outputs such as Yallop, the criteria_value can be multiple. The program will generate the calendar
+        based on the criteria value in the 29th day of the hijri month. \n
+        first_hijri_day -> Default value is None, which takes in the value from a pre-built hijri calendar based on Mabims 2021 criteria
+        at Pusat Falak Sheikh Tahir.\n
+        User may use the hijri day for 1 January of the selected year, in the case where the pre-built calendar does not align
+        with the current calendar.\n
+        first_hijri_month -> Similar to first_hijri_day, but for the hijri month of on 1 January.\n
+        current_hijri_year -> Similar to first_hijri_day but for the current hijri year on 1 January.\n
+
+        directory:\n
+        None -> does not save the timetable in excel form. This is the default, as the author considers the possibility of users not wanting
+        their disk space to be filled up. \n
+        If you would like to save the timetable in excel format, insert the path. The path should contain the filename as .xlsx format. \n
+        In the case of wrongly inserted path, the program will automatically save the timetable in desktop with the following format:\n
+        '../Takwim_Hijri_Tahun.xlsx'. This file can be found in the Desktop folder.
+        """
+        
         hari_hijri_list = []
         bulan_hijri_list =[]
         tahun_hijri_list = []
@@ -1797,12 +1904,17 @@ class Takwim:
             year = self.year
         islamic_lunation_day = 1
         if first_hijri_day == None or first_hijri_month == None or current_hijri_year == None:
-            takwim_awal_tahun = pd.read_csv('../EphemSahabatFalak/Tarikh_Hijri_Awal_Tahun_Pulau_Pinang.csv')
+            if self.longitude > 90:
+                takwim_awal_tahun = pd.read_csv('../EphemSahabatFalak/Tarikh_Hijri_Awal_Tahun_Pulau_Pinang.csv')
+            else:
+                takwim_awal_tahun = pd.read_csv('../EphemSahabatFalak/Takwim_Madinah_Awal_Bulan_Mabims2021.csv')
             takwim_tahun_tertentu = takwim_awal_tahun[takwim_awal_tahun['Tarikh_Masihi']== str(year) + '-1-1']
             first_hijri_day = int(takwim_tahun_tertentu.iloc[0][3])
             first_hijri_month = int(takwim_tahun_tertentu.iloc[0][4])
             current_hijri_year = int(takwim_tahun_tertentu.iloc[0][5])
             islamic_lunation_day = int(takwim_tahun_tertentu.iloc[0][6])
+
+        islamic_lunation_day = 1
         hari_hijri = first_hijri_day
         bulan_hijri = first_hijri_month
         tahun_hijri = current_hijri_year
@@ -1812,7 +1924,7 @@ class Takwim:
         day_of_the_week = []
         time_in_jd = takwim_hijri.current_time() 
         islamic_lunation_day_list = []
-        for i in range(365):
+        for i in range(1430*12*30):
             print(i)
             
             islamic_lunation_day_list.append(islamic_lunation_day)
@@ -1932,19 +2044,38 @@ class Takwim:
                         else:
                             hari_hijri = 1
                             bulan_hijri += 1
-                
+        takwim_tahunan_hijri = pd.DataFrame(list(zip(day_of_the_week,hari_hijri_list,bulan_hijri_list, tahun_hijri_list, 
+                                                     islamic_lunation_day_list)),index = tarikh_masihi, 
+                                                     columns=["Hari","Tarikh", "Bulan", "Tahun", "Izzat's Islamic Lunation Number"])
+        filename = '../Takwim_Hijri_' + str(self.year) + '.xlsx'
+        if directory == None:
+            pass
+        else:
+            try:
+                takwim_tahunan_excel = takwim_tahunan_hijri.to_excel(directory)
+            except:
+                takwim_tahunan_excel = takwim_tahunan_hijri.to_excel(filename)
 
-        return pd.DataFrame(list(zip(day_of_the_week,hari_hijri_list,bulan_hijri_list, tahun_hijri_list, islamic_lunation_day_list)),index = tarikh_masihi, columns=["Hari","Tarikh", "Bulan", "Tahun", "Izzat's Islamic Lunation Number"])
+        return takwim_tahunan_hijri
 
-    def gambar_hilal_mabims(self, directory = 'gambar_hilal.png', criteria = 'mabims2021'):
-  
+    def gambar_hilal_mabims(self, directory = None, criteria = 'mabims2021', waktu = 'maghrib'):
+        '''
+        This method automatically saves a graphic of the sun and the moon during maghrib.'''
         #Define the positions of moon and sun at sunset
-        maghrib = self.waktu_maghrib()
-        sun_az = self.sun_azimuth(t=maghrib, angle_format='degree')
-        sun_al = self.sun_altitude(t=maghrib, angle_format='degree', pressure = 0)
-        moon_az = self.moon_azimuth(t=maghrib, angle_format='degree')
-        moon_al = self.moon_altitude(t=maghrib, angle_format='degree', pressure = 0)
-        elon_moon_sun = self.elongation_moon_sun(t=maghrib, angle_format='degree')
+
+        if waktu == 'syuruk' or waktu == 'pagi':
+            sun_az = self.sun_azimuth(t='syuruk', angle_format='degree')
+            sun_al = self.sun_altitude(t='syuruk', angle_format='degree', pressure = 0)
+            moon_az = self.moon_azimuth(t='syuruk', angle_format='degree')
+            moon_al = self.moon_altitude(t='syuruk', angle_format='degree', pressure = 0)
+            elon_moon_sun = self.elongation_moon_sun(t='maghrib', angle_format='degree')
+
+        else:
+            sun_az = self.sun_azimuth(t='maghrib', angle_format='degree')
+            sun_al = self.sun_altitude(t='maghrib', angle_format='degree', pressure = 0)
+            moon_az = self.moon_azimuth(t='maghrib', angle_format='degree')
+            moon_al = self.moon_altitude(t='maghrib', angle_format='degree', pressure = 0)
+            elon_moon_sun = self.elongation_moon_sun(t='maghrib', angle_format='degree')
         #initiate the plot
         fig, ax = plt.subplots(figsize=[16, 9])
 
@@ -1965,17 +2096,7 @@ class Takwim:
         ax.scatter(sun_az, sun_al, ratio_x_y*20, c= 'yellow',
                 edgecolor='black', linewidth=0.25, zorder=2)
         
-        ax.set(
-                aspect=1.0,
-                title='Kedudukan Hilal pada ' + self.convert_julian_from_time(),
-                xlabel='Azimuth (°)',
-                ylabel='Altitude (°)',
-                xlim=((sun_az-abs(sun_az-moon_az)-8), (sun_az+8+abs(sun_az-moon_az))),
-                ylim=((sun_al-2), (sun_al+abs(moon_al-sun_al)+7)),
-                #xticks=np.arange((x2-abs(x2-x)-8), (x2+8+abs(x2-x)),5) ,
-                #yticks = np.arange((y2-2), (y2+abs(y-y2)+8),1)
-                
-            )
+        
         
         ax.axhline(y=-horizon_dip+0.25, color = 'red', linestyle = '--') #apparent horizon
 
@@ -1994,18 +2115,55 @@ class Takwim:
         #Parameter annotate
         moon_parameter = str(format(elon_moon_sun, '.2f'))
         moon_age = self.moon_age()
-        ax.annotate('Jarak Lengkung: ' + moon_parameter, (moon_az-8, moon_al+1.5), c='black', ha='center', va='center',
-                        textcoords='offset points', xytext=(moon_az-20, moon_al), size=10)
-        ax.annotate('Umur Bulan: ' + moon_age, (moon_az-8, moon_al+0.5), c='black', ha='center', va='center',
-                        textcoords='offset points', xytext=(moon_az-20, moon_al), size=10)
-        moon_parameter_al = str(format(moon_al, '.2f'))
-        ax.annotate('Altitud: ' + moon_parameter_al, (moon_az-8, moon_al+1), c='black', ha='center', va='center',
-                    textcoords='offset points', xytext=(moon_az-20, moon_al), size=10)
 
-        ax.annotate('Mabims 3-6.4', ((sun_az-abs(sun_az-moon_az)-8), 3.1), c='black', ha='center', va='center',
-                    textcoords='offset points', xytext=((sun_az-abs(sun_az-moon_az)-190), 3.1), size=10)
-        ax.annotate('Ufuk Mari\'e - Wujudul Hilal Muhammadiyah', ((sun_az-abs(sun_az-moon_az)-8),-horizon_dip+0.35), c='black', ha='center', va='center',
-                    textcoords='offset points', xytext=((sun_az-abs(sun_az-moon_az)-160), 3.1), size=10)
+        if waktu == 'syuruk' or waktu == 'pagi':
+            ax.annotate('Jarak Lengkung: ' + moon_parameter, (moon_az, moon_al+1.5), c='black', ha='center', va='center',
+                            textcoords='offset points', xytext=(moon_az, moon_al), size=10)
+            ax.annotate('Umur Bulan: ' + moon_age, (moon_az, moon_al+0.5), c='black', ha='center', va='center',
+                            textcoords='offset points', xytext=(moon_az, moon_al), size=10)
+            moon_parameter_al = str(format(moon_al, '.2f'))
+            ax.annotate('Altitud: ' + moon_parameter_al, (moon_az, moon_al+1), c='black', ha='center', va='center',
+                        textcoords='offset points', xytext=(moon_az, moon_al), size=10)
+
+            ax.annotate('Mabims 3-6.4', ((sun_az-abs(sun_az-moon_az)-7), 3.1), c='black', ha='center', va='center',
+                        textcoords='offset points', xytext=((sun_az-abs(sun_az-moon_az)-5), 3.1), size=10)
+            ax.annotate('Ufuk Mari\'e - Wujudul Hilal Muhammadiyah', ((sun_az-abs(sun_az-moon_az)-5),-horizon_dip+0.35), c='black', ha='center', va='center',
+                        textcoords='offset points', xytext=((sun_az-abs(sun_az-moon_az)), 3.1), size=10)
+            ax.set(
+                aspect=1.0,
+                title='Kedudukan Hilal pada syuruk '+self.waktu_syuruk(time_format = 'string') +' ' + self.convert_julian_from_time() + ' di Lat: ' + str(self.latitude) + 'dan Long: '+ str(self.longitude),
+                xlabel='Azimuth (°)',
+                ylabel='Altitude (°)',
+                xlim=((sun_az-abs(sun_az-moon_az)-8), (sun_az+8+abs(sun_az-moon_az))),
+                ylim=((sun_al-2), (sun_al+abs(moon_al-sun_al)+7)),
+                #xticks=np.arange((x2-abs(x2-x)-8), (x2+8+abs(x2-x)),5) ,
+                #yticks = np.arange((y2-2), (y2+abs(y-y2)+8),1)
+                
+            )
+        else:
+            ax.annotate('Jarak Lengkung: ' + moon_parameter, (moon_az-8, moon_al+1.5), c='black', ha='center', va='center',
+                        textcoords='offset points', xytext=(moon_az-20, moon_al), size=10)
+            ax.annotate('Umur Bulan: ' + moon_age, (moon_az-8, moon_al+0.5), c='black', ha='center', va='center',
+                            textcoords='offset points', xytext=(moon_az-20, moon_al), size=10)
+            moon_parameter_al = str(format(moon_al, '.2f'))
+            ax.annotate('Altitud: ' + moon_parameter_al, (moon_az-8, moon_al+1), c='black', ha='center', va='center',
+                        textcoords='offset points', xytext=(moon_az-20, moon_al), size=10)
+
+            ax.annotate('Mabims 3-6.4', ((sun_az-abs(sun_az-moon_az)-8), 3.1), c='black', ha='center', va='center',
+                        textcoords='offset points', xytext=((sun_az-abs(sun_az-moon_az)-190), 3.1), size=10)
+            ax.annotate('Ufuk Mari\'e - Wujudul Hilal Muhammadiyah', ((sun_az-abs(sun_az-moon_az)-8),-horizon_dip+0.35), c='black', ha='center', va='center',
+                        textcoords='offset points', xytext=((sun_az-abs(sun_az-moon_az)-160), 3.1), size=10)
+            ax.set(
+                aspect=1.0,
+                title='Kedudukan Hilal pada maghrib ' + self.waktu_maghrib(time_format='string') +' '+ self.convert_julian_from_time()+' di Lat: ' + str(self.latitude) + ' dan Long: ' + str(self.longitude),
+                xlabel='Azimuth (°)',
+                ylabel='Altitude (°)',
+                xlim=((sun_az-abs(sun_az-moon_az)-8), (sun_az+8+abs(sun_az-moon_az))),
+                ylim=((sun_al-2), (sun_al+abs(moon_al-sun_al)+7)),
+                #xticks=np.arange((x2-abs(x2-x)-8), (x2+8+abs(x2-x)),5) ,
+                #yticks = np.arange((y2-2), (y2+abs(y-y2)+8),1)
+                
+            )
         
         if criteria == 'istanbul2015' or criteria == 'istanbul1978':
             #istanbul 2015
@@ -2037,5 +2195,15 @@ class Takwim:
         extent = ax.get_xlim() + ax.get_ylim()
         ax.imshow([[0,0], [1,1]], cmap=sky, interpolation='bicubic', extent=extent)
 
+        if directory == None:
+            directory = '../Gambar_Hilal_' + str(self.day) +'_' + str(self.month) + '_' + str(self.year) + '.png'
+        else:
+            try:
+                directory = directory
+            except:
+                directory = '../Gambar_Hilal_' + str(self.day) +'_' + str(self.month) + '_' + str(self.year) + '.png'
         fig.savefig(directory)
 
+Penang = Takwim()
+
+print(Penang.waktu_maghrib())
