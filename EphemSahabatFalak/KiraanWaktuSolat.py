@@ -3841,7 +3841,4 @@ class Takwim:
         #ax.figure.savefig(f'../Malaysia2013{self.day}-{self.month}-{self.year}-accuracy-{accuracy}.png')
 
 
-Penang = Takwim(day = 16, month=8, longitude= -88.5, latitude=-0, hour=18, minute=39, second=44)
-print(Penang.visibility_test_composite(accuracy='high'))
-#print(geopandas.datasets.available)
 
