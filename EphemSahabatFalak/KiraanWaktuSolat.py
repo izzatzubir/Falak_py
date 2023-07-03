@@ -3804,8 +3804,8 @@ class Takwim:
         world = geopandas.read_file(get_path("naturalearth.land"))
         ax = world.plot(color="white", edgecolor="black")
         ax.set_title(f'Visibility Map for {self.day}-{self.month}-{self.year}.\n Accuracy: {accuracy}')
-        gdf_alt_3.plot(ax=ax, color="red",markersize = 10, label = 'Alt 2', legend= True)
-        gdf_elon_64.plot(ax=ax, color="red",markersize = 10, label = 'Alt 2', legend= True)
+        gdf_alt_3.plot(ax=ax, color="red",markersize = 10, label = 'Alt 3', legend= True)
+        gdf_elon_64.plot(ax=ax, color="magenta",markersize = 10, label = 'Elon 6.4', legend= True)
         gdf_eight_hours.plot(ax=ax, color="green",markersize = 10, label = '8 Jam', legend= True)
         gdf_twelve_hours.plot(ax=ax, color="blue",markersize = 10, label = '12 Jam', legend= True)
         ax.legend(loc='lower right', fontsize=8, frameon=True) 
@@ -3839,6 +3839,7 @@ class Takwim:
         #print(world.crs)
         plt.show()
         #ax.figure.savefig(f'../Malaysia2013{self.day}-{self.month}-{self.year}-accuracy-{accuracy}.png')
+
 
 
 
