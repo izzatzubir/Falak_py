@@ -1868,7 +1868,7 @@ class Takwim:
 
         return criteria
     
-    def General_criteria(self,time_of_calculation = 'maghrib', elongation = None, elongation_topo = None,
+    def __General_criteria(self,time_of_calculation = 'maghrib', elongation = None, elongation_topo = None,
                          altitude_hilal = None, altitude_hilal_topo = None,
                          moon_age = None,
                          arcv = None, arcv_topo = None,
@@ -1969,7 +1969,7 @@ class Takwim:
     
         return criteria
 
-    def alt_3(self, time_of_calculation = 'maghrib'):
+    def altitude_criteria(self, time_of_calculation = 'maghrib', altitude_value = 3):
         if time_of_calculation == 'maghrib':
             best_time = self.waktu_maghrib(time_format = 'datetime')
         elif time_of_calculation == 'Yallop best time':
@@ -1982,14 +1982,14 @@ class Takwim:
                              hour = best_time.hour, minute = best_time.minute, second = best_time.second)
         alt_bul_topo = alt_2_elon_3.moon_altitude(angle_format = 'degree')
 
-        if alt_bul_topo > 3:
+        if alt_bul_topo > altitude_value:
             criteria = 1
         else:
             criteria = 2
     
         return criteria
 
-    def elon_64(self, time_of_calculation = 'maghrib'):
+    def elongation_criteria(self, time_of_calculation = 'maghrib', elongation_value = 6.4):
         if time_of_calculation == 'maghrib':
             best_time = self.waktu_maghrib(time_format = 'datetime')
         elif time_of_calculation == 'Yallop best time':
@@ -2003,7 +2003,70 @@ class Takwim:
         elon_topo = alt_2_elon_3.elongation_moon_sun(angle_format = 'degree')
         
 
-        if elon_topo > 6.4:
+        if elon_topo > elongation_value:
+            criteria = 1
+        else:
+            criteria = 2
+    
+        return criteria
+    
+    def illumination_criteria(self, time_of_calculation = 'maghrib', illumination_value = 0.52):
+        if time_of_calculation == 'maghrib':
+            best_time = self.waktu_maghrib(time_format = 'datetime')
+        elif time_of_calculation == 'Yallop best time':
+            lag_time = dt.timedelta(days = 4/9 *(self.moon_set() - self.waktu_maghrib()))
+            best_time = lag_time + self.waktu_maghrib(time_format = 'datetime')
+
+        illum = Takwim(latitude=self.latitude, longitude=self.longitude, elevation=self.elevation, 
+                             zone = self.zone_string, temperature=self.temperature, pressure = self.pressure, ephem = self.ephem,
+                             year = best_time.year, month = best_time.month, day = best_time.day, 
+                             hour = best_time.hour, minute = best_time.minute, second = best_time.second)
+        illumination = illum.moon_illumination()
+        
+
+        if illumination > illumination_value:
+            criteria = 1
+        else:
+            criteria = 2
+    
+        return criteria
+
+    def lag_time_criteria(self, time_of_calculation = 'maghrib', lag_time_value = 12):
+        if time_of_calculation == 'maghrib':
+            best_time = self.waktu_maghrib(time_format = 'datetime')
+        elif time_of_calculation == 'Yallop best time':
+            lag_time = dt.timedelta(days = 4/9 *(self.moon_set() - self.waktu_maghrib()))
+            best_time = lag_time + self.waktu_maghrib(time_format = 'datetime')
+
+        lag = Takwim(latitude=self.latitude, longitude=self.longitude, elevation=self.elevation, 
+                             zone = self.zone_string, temperature=self.temperature, pressure = self.pressure, ephem = self.ephem,
+                             year = best_time.year, month = best_time.month, day = best_time.day, 
+                             hour = best_time.hour, minute = best_time.minute, second = best_time.second)
+        lag_time_moon = lag.lag_time(time_format = 'second') #in seconds
+        
+
+        if lag_time_moon/60 > lag_time_value: #in minutes
+            criteria = 1
+        else:
+            criteria = 2
+    
+        return criteria
+    
+    def crescent_width_criteria(self, time_of_calculation = 'maghrib', crescent_width_value = 0.05): #in arcminutes
+        if time_of_calculation == 'maghrib':
+            best_time = self.waktu_maghrib(time_format = 'datetime')
+        elif time_of_calculation == 'Yallop best time':
+            lag_time = dt.timedelta(days = 4/9 *(self.moon_set() - self.waktu_maghrib()))
+            best_time = lag_time + self.waktu_maghrib(time_format = 'datetime')
+
+        crescent_width = Takwim(latitude=self.latitude, longitude=self.longitude, elevation=self.elevation, 
+                             zone = self.zone_string, temperature=self.temperature, pressure = self.pressure, ephem = self.ephem,
+                             year = best_time.year, month = best_time.month, day = best_time.day, 
+                             hour = best_time.hour, minute = best_time.minute, second = best_time.second)
+        crescent_width_moon = crescent_width.lunar_crescent_width(angle_format = 'degree')*60 #in arc minutes
+        
+
+        if crescent_width_moon > crescent_width_value: 
             criteria = 1
         else:
             criteria = 2
@@ -3281,19 +3344,19 @@ class Takwim:
         print(longitude_mabims_list)
         return latitude_mabims_list, longitude_mabims_list
 
-    def __binary_search_alt_3(self,lat, high_long, low_long, accuracy = 'low'):
+    def __binary_search_alt(self,lat, high_long, low_long, accuracy = 'low', altitude_value = 3):
 
         New_place = Takwim(latitude=lat, longitude=high_long,
                            day=self.day, month= self.month, year=self.year,
                            elevation = self.elevation, hour = self.hour, minute = self.minute, second = self.second,
                             temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
-        high = New_place.alt_3()
+        high = New_place.altitude_criteria(altitude_value=altitude_value)
 
         New_place = Takwim(latitude=lat, longitude=low_long,
                            day=self.day, month= self.month, year=self.year,
                            hour = self.hour, minute = self.minute, second = self.second,
                             temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
-        low = New_place.alt_3()
+        low = New_place.altitude_criteria(altitude_value=altitude_value)
         if accuracy == 'low':
             high_low_diff = 5
         elif accuracy == 'medium':
@@ -3309,7 +3372,7 @@ class Takwim:
                            day=self.day, month= self.month, year=self.year,
                            hour = self.hour, minute = self.minute, second = self.second,
                             temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
-                mid = New_place.alt_3()
+                mid = New_place.altitude_criteria(altitude_value=altitude_value)
                 
                 if  mid == 1 :
                     low_long = mid_long 
@@ -3317,14 +3380,14 @@ class Takwim:
                            day=self.day, month= self.month, year=self.year,
                            hour = self.hour, minute = self.minute, second = self.second,
                             temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
-                    low = New_place.alt_3()
+                    low = New_place.altitude_criteria(altitude_value=altitude_value)
                 elif mid == 2:
                     high_long = mid_long 
                     New_place = Takwim(latitude=lat, longitude=high_long,
                            day=self.day, month= self.month, year=self.year,
                            hour = self.hour, minute = self.minute, second = self.second,
                             temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
-                    high = New_place.alt_3()
+                    high = New_place.altitude_criteria(altitude_value=altitude_value)
                 
                 print(f'low long: {low_long} high long: {high_long}')
                 print( f'low: {low} mid: {mid} high: {high}')
@@ -3341,7 +3404,7 @@ class Takwim:
         
         return mid_long, int(low_long), int(high_long)
 
-    def __iterate_alt_3(self, accuracy = 'low'):
+    def __iterate_alt(self, accuracy = 'low',altitude_value= 3):
         latitude_list = []
         if accuracy == 'low':
             lat_range = 10
@@ -3352,7 +3415,7 @@ class Takwim:
         elif accuracy == 'high':
             lat_range = 1
             lat_range_secondary = 1
-        mid, low, high = self.__binary_search_alt_3(lat = 0, low_long = -170, high_long = 170, accuracy = accuracy)
+        mid, low, high = self.__binary_search_alt(lat = 0, low_long = -170, high_long = 170, accuracy = accuracy,altitude_value=altitude_value)
         
         high_longitude = 170
 
@@ -3373,7 +3436,7 @@ class Takwim:
         longitude_mabims_list.append(mid)
         
         for lat in latitude_list:
-            long = self.__binary_search_alt_3(lat = lat, low_long = -170, high_long = high_longitude, accuracy = accuracy)
+            long = self.__binary_search_alt(lat = lat, low_long = -170, high_long = high_longitude, accuracy = accuracy,altitude_value=altitude_value)
             if abs(long[1]-long[2])<(lat_range+3):
                 latitude_mabims_list.append(lat)
                 longitude_mabims_list.append(long[0])
@@ -3382,19 +3445,19 @@ class Takwim:
         print(longitude_mabims_list)
         return latitude_mabims_list, longitude_mabims_list
 
-    def __binary_search_elon_64(self,lat, high_long, low_long, accuracy = 'low'):
+    def __binary_search_elon(self,lat, high_long, low_long, accuracy = 'low', elongation_value = 6.4):
 
         New_place = Takwim(latitude=lat, longitude=high_long,
                            day=self.day, month= self.month, year=self.year,
                            elevation = self.elevation, hour = self.hour, minute = self.minute, second = self.second,
                             temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
-        high = New_place.elon_64()
+        high = New_place.elongation_criteria(elongation_value = elongation_value)
 
         New_place = Takwim(latitude=lat, longitude=low_long,
                            day=self.day, month= self.month, year=self.year,
                            hour = self.hour, minute = self.minute, second = self.second,
                             temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
-        low = New_place.elon_64()
+        low = New_place.elongation_criteria(elongation_value = elongation_value)
         if accuracy == 'low':
             high_low_diff = 5
         elif accuracy == 'medium':
@@ -3410,7 +3473,7 @@ class Takwim:
                            day=self.day, month= self.month, year=self.year,
                            hour = self.hour, minute = self.minute, second = self.second,
                             temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
-                mid = New_place.elon_64()
+                mid = New_place.elongation_criteria(elongation_value = elongation_value)
                 
                 if  mid == 1 :
                     low_long = mid_long 
@@ -3418,14 +3481,14 @@ class Takwim:
                            day=self.day, month= self.month, year=self.year,
                            hour = self.hour, minute = self.minute, second = self.second,
                             temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
-                    low = New_place.elon_64()
+                    low = New_place.elongation_criteria(elongation_value = elongation_value)
                 elif mid == 2:
                     high_long = mid_long 
                     New_place = Takwim(latitude=lat, longitude=high_long,
                            day=self.day, month= self.month, year=self.year,
                            hour = self.hour, minute = self.minute, second = self.second,
                             temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
-                    high = New_place.elon_64()
+                    high = New_place.elongation_criteria(elongation_value = elongation_value)
                 
                 print(f'low long: {low_long} high long: {high_long}')
                 print( f'low: {low} mid: {mid} high: {high}')
@@ -3442,7 +3505,7 @@ class Takwim:
         
         return mid_long, int(low_long), int(high_long)
 
-    def __iterate_elon_64(self, accuracy = 'low'):
+    def __iterate_elon(self, accuracy = 'low',elongation_value = 6.4):
         latitude_list = []
         if accuracy == 'low':
             lat_range = 10
@@ -3453,7 +3516,7 @@ class Takwim:
         elif accuracy == 'high':
             lat_range = 1
             lat_range_secondary = 1
-        mid, low, high = self.__binary_search_elon_64(lat = 0, low_long = -170, high_long = 170, accuracy = accuracy)
+        mid, low, high = self.__binary_search_elon(lat = 0, low_long = -170, high_long = 170, accuracy = accuracy, elongation_value=elongation_value)
         
         high_longitude = 170
 
@@ -3474,7 +3537,208 @@ class Takwim:
         longitude_mabims_list.append(mid)
         
         for lat in latitude_list:
-            long = self.__binary_search_elon_64(lat = lat, low_long = -170, high_long = high_longitude, accuracy = accuracy)
+            long = self.__binary_search_elon(lat = lat, low_long = -170, high_long = high_longitude, accuracy = accuracy,elongation_value=elongation_value)
+            if abs(long[1]-long[2])<(lat_range+3):
+                latitude_mabims_list.append(lat)
+                longitude_mabims_list.append(long[0])
+        
+        print(latitude_mabims_list)
+        print(longitude_mabims_list)
+        return latitude_mabims_list, longitude_mabims_list
+
+    def __binary_search_illumination(self,lat, high_long, low_long, accuracy = 'low', illumination_value = 0.52):
+
+        New_place = Takwim(latitude=lat, longitude=high_long,
+                           day=self.day, month= self.month, year=self.year,
+                           elevation = self.elevation, hour = self.hour, minute = self.minute, second = self.second,
+                            temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
+        high = New_place.illumination_criteria(illumination_value = illumination_value)
+
+        New_place = Takwim(latitude=lat, longitude=low_long,
+                           day=self.day, month= self.month, year=self.year,
+                           hour = self.hour, minute = self.minute, second = self.second,
+                            temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
+        low = New_place.illumination_criteria(illumination_value = illumination_value)
+        if accuracy == 'low':
+            high_low_diff = 5
+        elif accuracy == 'medium':
+            high_low_diff = 2
+        elif accuracy == 'high':
+            high_low_diff = 0.5
+
+        #print(f'Current latitude: {lat} High longitude: {high_long} Low longitude: {low_long}')
+        if high != low:
+            while abs(high_long - low_long)> high_low_diff:
+                mid_long = (low_long+high_long)/2
+                New_place = Takwim(latitude=lat, longitude=mid_long,
+                           day=self.day, month= self.month, year=self.year,
+                           hour = self.hour, minute = self.minute, second = self.second,
+                            temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
+                mid = New_place.illumination_criteria(illumination_value = illumination_value)
+                
+                if  mid == 1 :
+                    low_long = mid_long 
+                    New_place = Takwim(latitude=lat, longitude=low_long,
+                           day=self.day, month= self.month, year=self.year,
+                           hour = self.hour, minute = self.minute, second = self.second,
+                            temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
+                    low = New_place.illumination_criteria(illumination_value = illumination_value)
+                elif mid == 2:
+                    high_long = mid_long 
+                    New_place = Takwim(latitude=lat, longitude=high_long,
+                           day=self.day, month= self.month, year=self.year,
+                           hour = self.hour, minute = self.minute, second = self.second,
+                            temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
+                    high = New_place.illumination_criteria(illumination_value = illumination_value)
+                
+                print(f'low long: {low_long} high long: {high_long}')
+                print( f'low: {low} mid: {mid} high: {high}')
+                print(f'high - low: {high_long - low_long}')
+                print(f'mid longitude is: {mid_long}')
+                print(f'criteria for low: {low} mid: {mid} high: {high}' )
+                print(f'Current Latitude is: {lat}')
+                print('')
+        else: 
+            print(f' high = low')
+            mid_long = (low_long+high_long)/2
+            print(f'low: {low_long} mid: {mid_long} high: {high_long}')
+            return mid_long, int(low_long), int(high_long)
+        
+        return mid_long, int(low_long), int(high_long)
+
+    def __iterate_illumination(self, accuracy = 'low',illumination_value = 0.52):
+        latitude_list = []
+        if accuracy == 'low':
+            lat_range = 10
+            lat_range_secondary = 15
+        elif accuracy == 'medium':
+            lat_range = 5
+            lat_range_secondary = 10
+        elif accuracy == 'high':
+            lat_range = 1
+            lat_range_secondary = 1
+        mid, low, high = self.__binary_search_illumination(lat = 0, low_long = -170, high_long = 170, accuracy = accuracy, illumination_value =illumination_value)
+        
+
+        for i in range(-25,25, lat_range):
+            if i == 0:
+                pass
+            else:
+                latitude_list.append(i)
+        for i in range (26,60, lat_range_secondary):
+            latitude_list.append(i)
+        for i in range (-26,-60, -lat_range_secondary):
+            latitude_list.append(i)
+
+        longitude_mabims_list = []
+        latitude_mabims_list = []
+
+        latitude_mabims_list.append(0)
+        longitude_mabims_list.append(mid)
+        
+        for lat in latitude_list:
+            long = self.__binary_search_illumination(lat = lat, low_long = -170, high_long = 170, accuracy = accuracy,illumination_value =illumination_value)
+            if abs(long[1]-long[2])<(lat_range+3):
+                latitude_mabims_list.append(lat)
+                longitude_mabims_list.append(long[0])
+        
+        print(latitude_mabims_list)
+        print(longitude_mabims_list)
+        return latitude_mabims_list, longitude_mabims_list
+
+    def __binary_search_lag_time(self,lat, high_long, low_long, accuracy = 'low', lag_time_value = 12):
+
+        New_place = Takwim(latitude=lat, longitude=high_long,
+                           day=self.day, month= self.month, year=self.year,
+                           elevation = self.elevation, hour = self.hour, minute = self.minute, second = self.second,
+                            temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
+        high = New_place.lag_time_criteria(lag_time_value = lag_time_value)
+
+        New_place = Takwim(latitude=lat, longitude=low_long,
+                           day=self.day, month= self.month, year=self.year,
+                           hour = self.hour, minute = self.minute, second = self.second,
+                            temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
+        low = New_place.lag_time_criteria(lag_time_value = lag_time_value)
+        if accuracy == 'low':
+            high_low_diff = 5
+        elif accuracy == 'medium':
+            high_low_diff = 2
+        elif accuracy == 'high':
+            high_low_diff = 0.5
+
+        #print(f'Current latitude: {lat} High longitude: {high_long} Low longitude: {low_long}')
+        if high != low:
+            while abs(high_long - low_long)> high_low_diff:
+                mid_long = (low_long+high_long)/2
+                New_place = Takwim(latitude=lat, longitude=mid_long,
+                           day=self.day, month= self.month, year=self.year,
+                           hour = self.hour, minute = self.minute, second = self.second,
+                            temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
+                mid = New_place.lag_time_criteria(lag_time_value = lag_time_value)
+                
+                if  mid == 1 :
+                    low_long = mid_long 
+                    New_place = Takwim(latitude=lat, longitude=low_long,
+                           day=self.day, month= self.month, year=self.year,
+                           hour = self.hour, minute = self.minute, second = self.second,
+                            temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
+                    low = New_place.lag_time_criteria(lag_time_value = lag_time_value)
+                elif mid == 2:
+                    high_long = mid_long 
+                    New_place = Takwim(latitude=lat, longitude=high_long,
+                           day=self.day, month= self.month, year=self.year,
+                           hour = self.hour, minute = self.minute, second = self.second,
+                            temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
+                    high = New_place.lag_time_criteria(lag_time_value = lag_time_value)
+                
+                print(f'low long: {low_long} high long: {high_long}')
+                print( f'low: {low} mid: {mid} high: {high}')
+                print(f'high - low: {high_long - low_long}')
+                print(f'mid longitude is: {mid_long}')
+                print(f'criteria for low: {low} mid: {mid} high: {high}' )
+                print(f'Current Latitude is: {lat}')
+                print('')
+        else: 
+            print(f' high = low')
+            mid_long = (low_long+high_long)/2
+            print(f'low: {low_long} mid: {mid_long} high: {high_long}')
+            return mid_long, int(low_long), int(high_long)
+        
+        return mid_long, int(low_long), int(high_long)
+
+    def __iterate_lag_time(self, accuracy = 'low',lag_time_value = 12):
+        latitude_list = []
+        if accuracy == 'low':
+            lat_range = 10
+            lat_range_secondary = 15
+        elif accuracy == 'medium':
+            lat_range = 5
+            lat_range_secondary = 10
+        elif accuracy == 'high':
+            lat_range = 1
+            lat_range_secondary = 1
+        mid, low, high = self.__binary_search_lag_time(lat = 0, low_long = -170, high_long = 170, accuracy = accuracy,lag_time_value = lag_time_value)
+        
+        high_longitude = 170
+
+        for i in range(-25,25, lat_range):
+            if i == 0:
+                pass
+            else:
+                latitude_list.append(i)
+        for i in range (26,60, lat_range_secondary):
+            latitude_list.append(i)
+        for i in range (-26,-60, -lat_range_secondary):
+            latitude_list.append(i)
+
+        longitude_mabims_list = []
+        latitude_mabims_list = []
+
+        latitude_mabims_list.append(0)
+        longitude_mabims_list.append(mid)
+        
+        for lat in latitude_list:
+            long = self.__binary_search_lag_time(lat = lat, low_long = -170, high_long = high_longitude, accuracy = accuracy,lag_time_value =lag_time_value)
             if abs(long[1]-long[2])<(lat_range+3):
                 latitude_mabims_list.append(lat)
                 longitude_mabims_list.append(long[0])
@@ -3689,7 +3953,107 @@ class Takwim:
         print(longitude_mabims_list)
         return latitude_mabims_list, longitude_mabims_list
 
-    def visibility_map_Composite(self, accuracy, odeh_criteria_value = 3):
+    def __binary_search_crescent_width(self,lat, high_long, low_long, accuracy = 'low', crescent_width_value = 0.05):
+
+        New_place = Takwim(latitude=lat, longitude=high_long,
+                           day=self.day, month= self.month, year=self.year,
+                           elevation = self.elevation, hour = self.hour, minute = self.minute, second = self.second,
+                            temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
+        high = New_place.crescent_width_criteria(crescent_width_value = crescent_width_value)
+
+        New_place = Takwim(latitude=lat, longitude=low_long,
+                           day=self.day, month= self.month, year=self.year,
+                           hour = self.hour, minute = self.minute, second = self.second,
+                            temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
+        low = New_place.crescent_width_criteria(crescent_width_value = crescent_width_value)
+        if accuracy == 'low':
+            high_low_diff = 5
+        elif accuracy == 'medium':
+            high_low_diff = 2
+        elif accuracy == 'high':
+            high_low_diff = 0.5
+
+        #print(f'Current latitude: {lat} High longitude: {high_long} Low longitude: {low_long}')
+        if high != low:
+            while abs(high_long - low_long)> high_low_diff:
+                mid_long = (low_long+high_long)/2
+                New_place = Takwim(latitude=lat, longitude=mid_long,
+                           day=self.day, month= self.month, year=self.year,
+                           hour = self.hour, minute = self.minute, second = self.second,
+                            temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
+                mid = New_place.crescent_width_criteria(crescent_width_value = crescent_width_value)
+                
+                if  mid == 1 :
+                    low_long = mid_long 
+                    New_place = Takwim(latitude=lat, longitude=low_long,
+                           day=self.day, month= self.month, year=self.year,
+                           hour = self.hour, minute = self.minute, second = self.second,
+                            temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
+                    low = New_place.crescent_width_criteria(crescent_width_value = crescent_width_value)
+                elif mid == 2:
+                    high_long = mid_long 
+                    New_place = Takwim(latitude=lat, longitude=high_long,
+                           day=self.day, month= self.month, year=self.year,
+                           hour = self.hour, minute = self.minute, second = self.second,
+                            temperature=self.temperature, pressure=self.pressure, ephem= self.ephem)
+                    high = New_place.crescent_width_criteria(crescent_width_value = crescent_width_value)
+                
+                print(f'low long: {low_long} high long: {high_long}')
+                print( f'low: {low} mid: {mid} high: {high}')
+                print(f'high - low: {high_long - low_long}')
+                print(f'mid longitude is: {mid_long}')
+                print(f'criteria for low: {low} mid: {mid} high: {high}' )
+                print(f'Current Latitude is: {lat}')
+                print('')
+        else: 
+            print(f' high = low')
+            print(f'Latitude: {lat}')
+            mid_long = (low_long+high_long)/2
+            print(f'low: {low_long} mid: {mid_long} high: {high_long}')
+            return mid_long, int(low_long), int(high_long)
+        
+        return mid_long, int(low_long), int(high_long)
+
+    def __iterate_crescent_width(self, accuracy = 'low',crescent_width_value = 0.05):
+        latitude_list = []
+        if accuracy == 'low':
+            lat_range = 10
+            lat_range_secondary = 15
+        elif accuracy == 'medium':
+            lat_range = 5
+            lat_range_secondary = 10
+        elif accuracy == 'high':
+            lat_range = 1
+            lat_range_secondary = 1
+        mid, low, high = self.__binary_search_crescent_width(lat = 0, low_long = -170, high_long = 170, accuracy = accuracy, crescent_width_value = crescent_width_value)
+
+        for i in range(-25,25, lat_range):
+            if i == 0:
+                pass
+            else:
+                latitude_list.append(i)
+        for i in range (26,60, lat_range_secondary):
+            latitude_list.append(i)
+        for i in range (-26,-60, -lat_range_secondary):
+            latitude_list.append(i)
+
+        longitude_mabims_list = []
+        latitude_mabims_list = []
+
+        latitude_mabims_list.append(0)
+        longitude_mabims_list.append(mid)
+        
+        for lat in latitude_list:
+            long = self.__binary_search_crescent_width(lat = lat, low_long = -170, high_long = 170, accuracy = accuracy, crescent_width_value = crescent_width_value)
+            if abs(long[1]-long[2])<(lat_range+3):
+                latitude_mabims_list.append(lat)
+                longitude_mabims_list.append(long[0])
+        
+        print(latitude_mabims_list)
+        print(longitude_mabims_list)
+        return latitude_mabims_list, longitude_mabims_list
+
+    def visibility_map_Composite_all_criteria(self, accuracy = 'low', odeh_criteria_value = 3):
         iteration_malaysia2013 = self.__iterate_Malaysia_2013(accuracy = accuracy)
         df_malaysia = pd.DataFrame(list(zip(iteration_malaysia2013[0],
                                    iteration_malaysia2013[1])),
@@ -3731,14 +4095,14 @@ class Takwim:
         ax.set_title(f'Visibility Map for {self.day}-{self.month}-{self.year}.\n Accuracy: {accuracy}')
         gdf_malaysia2013.plot(ax=ax, color="red",markersize = 10, label = 'Malaysia 2013', legend= True)
         gdf_Muhammadiyah.plot(ax=ax, color="green",markersize = 10, label = 'Muhammadiyah', legend= True)
-        gdf_Istanbul.plot(ax=ax, color="blue",markersize = 10, label = 'Istanbul 2015', legend= True)
+        gdf_Istanbul.plot(ax=ax, color="blue",markersize = 10, label = 'Istanbul 2016', legend= True)
         gdf_Odeh.plot(ax=ax, color="magenta",markersize = 10, label = 'Odeh 2004', legend= True)
         gdf_mabims.plot(ax=ax, color="orange",markersize = 10, label = 'Mabims 2021', legend= True)
         ax.legend(loc='lower right', fontsize=8, frameon=True) 
         plt.show()
         ax.figure.savefig(f'../CompositeMap{self.day}-{self.month}-{self.year}-accuracy-{accuracy}.png')   
 
-    def visibility_test_composite(self,accuracy):
+    def visibility_test_composite_mabims1995(self,accuracy = 'low'):
         iteration_2_3 = self.__iterate_2_3(accuracy = accuracy)
         df_alt_2_elon_3 = pd.DataFrame(list(zip(iteration_2_3[0],
                                    iteration_2_3[1])),
@@ -3771,46 +4135,72 @@ class Takwim:
         plt.show()
         ax.figure.savefig(f'../CompositeMap{self.day}-{self.month}-{self.year}-accuracy-{accuracy}.png')   
 
-    def visibility_test_composite_mabims(self,accuracy):
-        iteration_alt_3 = self.__iterate_alt_3(accuracy = accuracy)
-        df_alt_3 = pd.DataFrame(list(zip(iteration_alt_3[0],
-                                   iteration_alt_3[1])),
-                                     columns=['Latitude', 'Longitude'])
-        gdf_alt_3 = geopandas.GeoDataFrame(
-            df_alt_3, geometry=geopandas.points_from_xy(df_alt_3.Longitude, df_alt_3.Latitude), crs="EPSG:4326")
-        
-        iteration_elon_64 = self.__iterate_elon_64(accuracy = accuracy)
-        df_elon_64 = pd.DataFrame(list(zip(iteration_elon_64[0],
-                                   iteration_elon_64[1])),
-                                     columns=['Latitude', 'Longitude'])
-        gdf_elon_64 = geopandas.GeoDataFrame(
-            df_elon_64, geometry=geopandas.points_from_xy(df_elon_64.Longitude, df_elon_64.Latitude), crs="EPSG:4326")
-        
-        iteration_eight_hours = self.__iterate_eight_hours(accuracy = accuracy)
-        df_eight_hours = pd.DataFrame(list(zip(iteration_eight_hours[0],
-                                   iteration_eight_hours[1])),
-                                     columns=['Latitude', 'Longitude'])
-        gdf_eight_hours = geopandas.GeoDataFrame(
-            df_eight_hours, geometry=geopandas.points_from_xy(df_eight_hours.Longitude, df_eight_hours.Latitude), crs="EPSG:4326")
-        
-        iteration_twelve_hours = self.__iterate_twelve_hours(accuracy = accuracy)
-        df_twelve_hours = pd.DataFrame(list(zip(iteration_twelve_hours[0],
-                                   iteration_twelve_hours[1])),
-                                     columns=['Latitude', 'Longitude'])
-        gdf_twelve_hours = geopandas.GeoDataFrame(
-            df_twelve_hours, geometry=geopandas.points_from_xy(df_twelve_hours.Longitude, df_twelve_hours.Latitude), crs="EPSG:4326")
-        
+    def visibility_test_composite_single_parameters(self,accuracy = 'low',altitude_value=None,elongation_value =None
+                                         ,illumination_value =None,lag_time_value = None,crescent_width_value = None
+                                         ):
         __, ax = plt.subplots()
         world = geopandas.read_file(get_path("naturalearth.land"))
         ax = world.plot(color="white", edgecolor="black")
         ax.set_title(f'Visibility Map for {self.day}-{self.month}-{self.year}.\n Accuracy: {accuracy}')
-        gdf_alt_3.plot(ax=ax, color="red",markersize = 10, label = 'Alt 3', legend= True)
-        gdf_elon_64.plot(ax=ax, color="magenta",markersize = 10, label = 'Elon 6.4', legend= True)
-        gdf_eight_hours.plot(ax=ax, color="green",markersize = 10, label = '8 Jam', legend= True)
-        gdf_twelve_hours.plot(ax=ax, color="blue",markersize = 10, label = '12 Jam', legend= True)
+
+        if altitude_value is None:
+            pass
+        else:
+            iteration_altitude = self.__iterate_alt(accuracy = accuracy, altitude_value=altitude_value)
+            df_altitude = pd.DataFrame(list(zip(iteration_altitude[0],
+                                    iteration_altitude[1])),
+                                        columns=['Latitude', 'Longitude'])
+            gdf_altitude = geopandas.GeoDataFrame(
+                df_altitude, geometry=geopandas.points_from_xy(df_altitude.Longitude, df_altitude.Latitude), crs="EPSG:4326")
+            gdf_altitude.plot(ax=ax, color="orange",markersize = 10, label = f'Altitude {altitude_value}', legend= True)
+
+        if elongation_value is None:
+            pass
+        else:
+            iteration_elongation = self.__iterate_elon(accuracy = accuracy, elongation_value=elongation_value)
+            df_elongation = pd.DataFrame(list(zip(iteration_elongation[0],
+                                    iteration_elongation[1])),
+                                        columns=['Latitude', 'Longitude'])
+            gdf_elongation = geopandas.GeoDataFrame(
+                df_elongation, geometry=geopandas.points_from_xy(df_elongation.Longitude, df_elongation.Latitude), crs="EPSG:4326")
+            gdf_elongation.plot(ax=ax, color="red",markersize = 10, label = f'Elongation {elongation_value}', legend= True)
+
+        if crescent_width_value is None:
+            pass
+        else:
+            iteration_crescent_width = self.__iterate_crescent_width(accuracy = accuracy, crescent_width_value = crescent_width_value)
+            df_crescent_width = pd.DataFrame(list(zip(iteration_crescent_width[0],
+                                    iteration_crescent_width[1])),
+                                        columns=['Latitude', 'Longitude'])
+            gdf_crescent_width = geopandas.GeoDataFrame(
+                df_crescent_width, geometry=geopandas.points_from_xy(df_crescent_width.Longitude, df_crescent_width.Latitude), crs="EPSG:4326")
+            gdf_crescent_width.plot(ax=ax, color="magenta",markersize = 10, label = f'Crescent Width {crescent_width_value}', legend= True)
+
+        if illumination_value is None:
+            pass
+        else:
+            iteration_illumination = self.__iterate_illumination(accuracy = accuracy,illumination_value = illumination_value)
+            df_illumination = pd.DataFrame(list(zip(iteration_illumination[0],
+                                    iteration_illumination[1])),
+                                        columns=['Latitude', 'Longitude'])
+            gdf_illumination = geopandas.GeoDataFrame(
+                df_illumination, geometry=geopandas.points_from_xy(df_illumination.Longitude, df_illumination.Latitude), crs="EPSG:4326")
+            gdf_illumination.plot(ax=ax, color="green",markersize = 10, label = f'Illumination {illumination_value}%', legend= True)
+
+        if lag_time_value is None:
+            pass
+        else:
+            iteration_lag_time = self.__iterate_lag_time(accuracy = accuracy, lag_time_value= lag_time_value)
+            df_lag_time = pd.DataFrame(list(zip(iteration_lag_time[0],
+                                    iteration_lag_time[1])),
+                                        columns=['Latitude', 'Longitude'])
+            gdf_lag_time = geopandas.GeoDataFrame(
+                df_lag_time, geometry=geopandas.points_from_xy(df_lag_time.Longitude, df_lag_time.Latitude), crs="EPSG:4326")
+            gdf_lag_time.plot(ax=ax, color="blue",markersize = 10, label = f'Lag Time {lag_time_value} minit', legend= True)
+        
         ax.legend(loc='lower right', fontsize=8, frameon=True) 
-        plt.show()
         ax.figure.savefig(f'../CompositeMap{self.day}-{self.month}-{self.year}-accuracy-{accuracy}.png')
+        plt.show()
 
     def visibility_map_test(self):
         df = pd.DataFrame(list(zip([0, -25, -24, -23, -22, -21, -20, -19, -18, -17, -16, -15, -14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, -26, -27, -28, -29, -30, -31, -32, -33, -34, -35, -36, -37, -38],
@@ -3839,5 +4229,62 @@ class Takwim:
         #print(world.crs)
         plt.show()
         #ax.figure.savefig(f'../Malaysia2013{self.day}-{self.month}-{self.year}-accuracy-{accuracy}.png')
+
+class Data_Hilal:
+    def __init__(self, day,month,year, data = None):
+        self.day = day
+        self.month = month
+        self.year = year
+        self.data = data
+    
+    def choose_date(self):
+        filtered_date = self.data[self.data['Day'] == self.day]
+        filtered_date2 = filtered_date[filtered_date['Month'] == self.month]
+        filtered_date3 = filtered_date2[filtered_date2['Year'] == self.year]
+        print(f'Total data is {len(filtered_date3)}')
+
+        latitude_visible = []
+        longitude_visible = []
+        latitude_not_visible = []
+        longitude_not_visible = []
+        for i in range(len(filtered_date3)):
+            if filtered_date3.iloc[i][7] == 'V':
+                lat_v = filtered_date3.iloc[i][4]
+                long_v = filtered_date3.iloc[i][5]
+                latitude_visible.append(lat_v)
+                longitude_visible.append(long_v)
+            else:
+                lat_iv = filtered_date3.iloc[i][4]
+                long_iv = filtered_date3.iloc[i][5]
+                latitude_not_visible.append(lat_iv)
+                longitude_not_visible.append(long_iv)
+
+        return latitude_visible, longitude_visible, latitude_not_visible, longitude_not_visible
+
+    def visibility_hilal_data(self):
+
+        all_data = self.choose_date()
+        df_visible = pd.DataFrame(list(zip(all_data[0],all_data[1])),columns=['Latitude', 'Longitude'])
+        gdf_visible = geopandas.GeoDataFrame(
+            df_visible, geometry=geopandas.points_from_xy(df_visible.Longitude, df_visible.Latitude), crs="EPSG:4326")
+        
+        df_not_visible = pd.DataFrame(list(zip(all_data[2],all_data[3])),columns=['Latitude', 'Longitude'])
+        gdf_not_visible = geopandas.GeoDataFrame(
+            df_not_visible, geometry=geopandas.points_from_xy(df_not_visible.Longitude, df_not_visible.Latitude), crs="EPSG:4326")
+
+        world = geopandas.read_file(get_path("naturalearth.land"))
+        ax = world.plot(color="white", edgecolor="black")
+
+        ax.set_title(f'Hilal Data Map for {self.day}-{self.month}-{self.year}')
+        gdf_visible.plot(ax=ax, color="green",markersize = 20,label = 'visible', legend= True)
+        gdf_not_visible.plot(ax=ax, color="red",markersize = 20,label = 'Not visible', legend= True)
+
+        ax.legend(loc='lower right', fontsize=8, frameon=True) 
+        ax.figure.savefig(f'../HilalData{self.day}-{self.month}-{self.year}.png')
+        plt.show()
+
+    def __visibility_hilal_with_criteria(self):
+        takwim_class = Takwim(day=self.day, month=self.month, year=self.year)
+        return None
 
 
