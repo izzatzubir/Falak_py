@@ -13,7 +13,6 @@ from matplotlib.colors import LinearSegmentedColormap
 from timezonefinder import TimezoneFinder
 import geopandas
 from geodatasets import get_path
-import contextily as cx
 
 
 class Takwim:
@@ -910,7 +909,7 @@ class Takwim:
     
     __iteration_waktu_syuruk.step_days = 1/4
     
-    def waktu_syuruk(self, altitude = 'default', time_format = 'default'):
+    def waktu_syuruk(self, altitude = 'default', time_format = 'default', kaedah = 'Izzat'):
         eph = api.load(self.ephem)
         eph.segments = eph.segments[:14]
         earth, sun = eph['earth'], eph['sun']
@@ -922,6 +921,7 @@ class Takwim:
         t0 = ts.from_datetime(midnight)
         t1 = ts.from_datetime(next_midnight)
         self.altitude_syuruk = altitude
+
         
         if altitude == 'default':
 
@@ -988,6 +988,12 @@ class Takwim:
             syuruk = str("altitude is above 0 degrees or below 4 degrees")
             return syuruk
         
+        if 'alim' in kaedah:
+            self.elevation = 0
+            f = almanac.dark_twilight_day(eph, self.location())
+            syur, nilai = almanac.find_discrete(t0,t1,f)
+            syuruk = syur[3].astimezone(self.zone)
+
         if time_format == 'datetime':
             syuruk = syuruk
             
@@ -1015,7 +1021,7 @@ class Takwim:
     
     __iteration_waktu_maghrib.step_days = 1/4
     
-    def waktu_maghrib(self, altitude = 'default', time_format = 'default'):
+    def waktu_maghrib(self, altitude = 'default', time_format = 'default', kaedah = 'Izzat'):
         eph = api.load(self.ephem)
         eph.segments = eph.segments[:14]
         earth, sun = eph['earth'], eph['sun']
@@ -1026,6 +1032,7 @@ class Takwim:
         next_midnight = midnight + dt.timedelta(days =1)
         t0 = ts.from_datetime(midnight)
         t1 = ts.from_datetime(next_midnight)
+
         
         
         if altitude == 'default':
@@ -1089,6 +1096,12 @@ class Takwim:
             maghrib = str("altitude is above 0 degrees or below 4 degrees")
             return maghrib
         
+        if 'alim' in kaedah:
+            self.elevation = 0
+            f = almanac.dark_twilight_day(eph, self.location())
+            magh, nilai = almanac.find_discrete(t0,t1,f)
+            maghrib = magh[4].astimezone(self.zone)
+
         if time_format == 'datetime':
             maghrib = maghrib
             
@@ -1544,12 +1557,13 @@ class Takwim:
         
         return rounded_up_waktu
     def __round_down(self,waktu):
-        rounded_down_waktu = str((waktu - dt.timedelta(minutes=1.0)).replace(second= 0))[11:16]
+        rounded_down_waktu = str((waktu).replace(second= 0))[11:16]
         
         return rounded_down_waktu
     
     def takwim_solat_bulanan(self, altitud_subuh ='default', altitud_syuruk ='default', 
-                             altitud_maghrib ='default', altitud_isyak ='default', saat = 'tidak', directory = None):
+                             altitud_maghrib ='default', altitud_isyak ='default',kaedah_syuruk_maghrib = 'Izzat',
+                               saat = 'tidak', directory = None):
         '''
         Returns a monthly prayer timetable. \n
         The timetable contains Subuh, Syuruk, Zohor, Asar, Maghrib and Isyak prayer. \n
@@ -1596,17 +1610,17 @@ class Takwim:
                 continue
             print('Calculating for day: ' + str(i))
             if altitud_subuh != 'default' and (altitud_subuh > -12 or altitud_subuh) < -24:
-                print("Altitude subuh is below 24 degrees, or above 12 degrees")
-                break
+                raise Exception ("Altitude subuh is below 24 degrees, or above 12 degrees")
+
             if altitud_syuruk != 'default' and (altitud_syuruk > 0 or altitud_subuh) < -4:
-                print("Altitude syuruk is below -4 degrees, or above 0 degrees")
-                break
+                raise Exception ("Altitude syuruk is below -4 degrees, or above 0 degrees")
+
             if altitud_maghrib != 'default' and (altitud_maghrib > 0 or altitud_maghrib) < -4:
-                print("Altitude maghrib is below -4 degrees, or above 0 degrees")
-                break
+                raise Exception ("Altitude maghrib is below -4 degrees, or above 0 degrees")
+
             if altitud_isyak != 'default' and (altitud_isyak > -12 or altitud_isyak < -24):
-                print("Altitude isyak is below 24 degrees, or above 12 degrees")
-                break
+                raise Exception ("Altitude isyak is below 24 degrees, or above 12 degrees")
+
             
             self.day = i
 
@@ -1642,10 +1656,10 @@ class Takwim:
 
             #syuruk
             if saat == 'tidak' or saat == 'no':
-                waktu_syuruk = self.waktu_syuruk(time_format='datetime', altitude=altitud_syuruk)
+                waktu_syuruk = self.waktu_syuruk(time_format='datetime', altitude=altitud_syuruk,kaedah = kaedah_syuruk_maghrib)
                 syuruk.append(self.__round_down(waktu_syuruk))
             else:
-                waktu_syuruk = self.waktu_syuruk(time_format = 'string', altitude=altitud_syuruk)
+                waktu_syuruk = self.waktu_syuruk(time_format = 'string', altitude=altitud_syuruk,kaedah = kaedah_syuruk_maghrib)
                 syuruk.append(waktu_syuruk)
             
             #zohor
@@ -1667,15 +1681,15 @@ class Takwim:
 
             #maghrib
             if saat == 'tidak' or saat == 'no':
-                waktu_maghrib = self.waktu_maghrib(time_format='datetime', altitude=altitud_maghrib)
-                maghrib.append(self.__round_down(waktu_maghrib))
+                waktu_maghrib = self.waktu_maghrib(time_format='datetime', altitude=altitud_maghrib, kaedah = kaedah_syuruk_maghrib)
+                maghrib.append(self.__round_up(waktu_maghrib))
             else:
-                waktu_maghrib = self.waktu_maghrib(time_format='string', altitude=altitud_maghrib)
+                waktu_maghrib = self.waktu_maghrib(time_format='string', altitude=altitud_maghrib, kaedah = kaedah_syuruk_maghrib)
                 maghrib.append(waktu_maghrib)
             #isyak
             if saat == 'tidak' or saat == 'no':
                 waktu_isyak = self.waktu_isyak(time_format='datetime', altitude=altitud_isyak)
-                isyak.append(self.__round_down(waktu_isyak))
+                isyak.append(self.__round_up(waktu_isyak))
             else:
                 waktu_isyak = self.waktu_isyak(time_format='string', altitude = altitud_isyak)
                 isyak.append(waktu_isyak)
@@ -1688,15 +1702,133 @@ class Takwim:
         
         filename = '../Takwim_Solat_' + str(self.month) + '_' + str(self.year) + '.xlsx'
         if directory == None:
-            pass
+            takwim_bulanan.to_excel(filename)
         else:
             try:
-                takwim_bulanan_excel = takwim_bulanan.to_excel(directory)
+                takwim_bulanan.to_excel(directory)
             except:
-                takwim_bulanan_excel = takwim_bulanan.to_excel(filename)
+                takwim_bulanan.to_excel(filename)
         
         return takwim_bulanan
     
+    def takwim_solat_bulanan_multipoint(self, altitud_subuh ='default', altitud_syuruk ='default', 
+                             altitud_maghrib ='default', altitud_isyak ='default', saat = 'tidak', kaedah_syuruk_maghrib = 'Izzat',
+                               directory = None, **kwargs):
+        
+        tarikh = []
+        subuh = []
+        bayang_kiblat_mula = []
+        bayang_kiblat_tamat = []
+        syuruk = []
+        zohor = []
+        asar = []
+        maghrib = []
+        isyak = []
+
+        for i in range (1,32):
+            
+            errormessage = "not triggered"
+            if self.month in [2,4,6,9,11] and i >30:
+                continue
+            elif self.month == 2 and i > 28:
+                try:
+                    self.day = i
+                    self.current_time()
+                except:
+                    errormessage = "triggered"
+                
+            if errormessage == "triggered":
+                continue
+            print('Calculating for day: ' + str(i))
+            if altitud_subuh != 'default' and (altitud_subuh > -12 or altitud_subuh) < -24:
+                raise Exception ("Altitude subuh is below 24 degrees, or above 12 degrees")
+
+            if altitud_syuruk != 'default' and (altitud_syuruk > 0 or altitud_subuh) < -4:
+                raise Exception ("Altitude syuruk is below -4 degrees, or above 0 degrees")
+
+            if altitud_maghrib != 'default' and (altitud_maghrib > 0 or altitud_maghrib) < -4:
+                raise Exception ("Altitude maghrib is below -4 degrees, or above 0 degrees")
+
+            if altitud_isyak != 'default' and (altitud_isyak > -12 or altitud_isyak < -24):
+                raise Exception ("Altitude isyak is below 24 degrees, or above 12 degrees")
+
+            
+            self.day = i
+
+            #masa
+            masa = self.current_time(time_format='string')[:11]
+            tarikh.append(masa)
+
+            if saat == 'tidak' or saat == 'no':
+                waktu_bayang_searah_kiblat = self.bayang_searah_kiblat(time_format='datetime')
+
+                try:
+                    bayang_kiblat_mula.append(self.__round_up(waktu_bayang_searah_kiblat[0]))
+                    bayang_kiblat_tamat.append(self.__round_down(waktu_bayang_searah_kiblat[1]))
+                except TypeError:
+                    bayang_kiblat_mula.append(waktu_bayang_searah_kiblat[0])
+                    bayang_kiblat_tamat.append(waktu_bayang_searah_kiblat[1])
+            
+            else: 
+                waktu_bayang_searah_kiblat = self.bayang_searah_kiblat(time_format='string')
+                bayang_kiblat_mula.append(waktu_bayang_searah_kiblat[0])
+                bayang_kiblat_tamat.append(waktu_bayang_searah_kiblat[1])
+
+            compare_subuh = []
+            compare_syuruk = []
+            compare_zohor = []
+            compare_asar = []
+            compare_maghrib = []
+            compare_isyak = []
+            for __,location in kwargs.items():
+                try:
+                    kawasan_pilihan = Takwim(latitude = location[0], longitude= location[1], elevation=location[2], 
+                                             day = i, month = self.month,zone = self.zone_string, year = self.year,
+                               temperature=self.temperature, pressure = self.pressure, ephem = self.ephem)
+                    waktusubuh = kawasan_pilihan.waktu_subuh(time_format = 'datetime')
+                    waktusyuruk = kawasan_pilihan.waktu_syuruk(time_format = 'datetime', kaedah = kaedah_syuruk_maghrib)
+                    waktuzohor = kawasan_pilihan.waktu_zohor(time_format = 'datetime')
+                    waktuasar = kawasan_pilihan.waktu_asar(time_format = 'datetime')
+                    waktumaghrib = kawasan_pilihan.waktu_maghrib(time_format = 'datetime', kaedah = kaedah_syuruk_maghrib)
+                    waktuisyak = kawasan_pilihan.waktu_isyak(time_format = 'datetime')
+
+                    compare_subuh.append(self.__round_up(waktusubuh))
+                    compare_syuruk.append(self.__round_down(waktusyuruk))
+                    compare_zohor.append(self.__round_up(waktuzohor))
+                    compare_asar.append(self.__round_up(waktuasar))
+                    compare_maghrib.append(self.__round_up(waktumaghrib))
+                    compare_isyak.append(self.__round_up(waktuisyak))
+                except Exception as error:
+                    raise f'{error}: Lokasi perlu mempunyai 3 maklumat dalam format berikut (Latitud, Longitud, Ketinggian)'
+            print(f'Waktu Subuh: {compare_subuh}')
+            print(f'Waktu Syuruk: {compare_syuruk}')
+            print(f'Waktu Zohor: {compare_zohor}')
+            print(f'Waktu Asar: {compare_asar}')
+            print(f'Waktu Maghrib: {compare_maghrib}')
+            print(f'Waktu Isyak: {compare_isyak}')
+            subuh.append(max(compare_subuh))
+            syuruk.append(min(compare_syuruk))
+            zohor.append(max(compare_zohor))
+            asar.append(max(compare_asar))
+            maghrib.append(max(compare_maghrib))
+            isyak.append(max(compare_isyak))
+
+        takwim_bulanan = pd.DataFrame(list(zip(bayang_kiblat_mula, bayang_kiblat_tamat, 
+                                               subuh, syuruk, zohor, asar, maghrib, isyak)), index = tarikh, 
+                                               columns=["Bayang mula", "Bayang tamat", "Subuh", "Syuruk", "Zohor", "Asar", 
+                                                        "Maghrib", "Isyak"])
+        
+        filename = '../Takwim_Solat_multipoint_' + str(self.month) + '_' + str(self.year) + '.xlsx'
+        if directory == None:
+            takwim_bulanan.to_excel(filename)
+        else:
+            try:
+                takwim_bulanan.to_excel(directory)
+            except:
+                takwim_bulanan.to_excel(filename)
+        
+        return takwim_bulanan
+
     def takwim_solat_tahunan(self, altitud_subuh ='default', altitud_syuruk ='default', 
                              altitud_maghrib ='default', altitud_isyak ='default', saat = 'tidak'):
         """
@@ -2414,7 +2546,7 @@ class Takwim:
                 
             )
         
-        if criteria == 'istanbul2015' or criteria == 'istanbul1978':
+        if 'stanbul' in criteria:
             #istanbul 2015
             x_angle2 = 8*np.sin(np.arccos((5+horizon_dip)/8))
             y_init = sun_az-abs(sun_az-moon_az)-8
@@ -2445,15 +2577,75 @@ class Takwim:
         ax.imshow([[0,0], [1,1]], cmap=sky, interpolation='bicubic', extent=extent)
 
         if directory == None:
-            directory = '../Gambar_Hilal_' + str(self.day) +'_' + str(self.month) + '_' + str(self.year) + '.png'
+            directory = f'../Gambar_Hilal_pada_{self.day}_{self.month}_{self.year}.png'
         else:
             try:
                 directory = directory
             except:
-                directory = '../Gambar_Hilal_' + str(self.day) +'_' + str(self.month) + '_' + str(self.year) + '.png'
+                directory = f'../Gambar_Hilal_pada_{self.day}_{self.month}_{self.year}.png'
         fig.savefig(directory)
 
-    #Visibility Map
+class Data_Hilal:
+    def __init__(self, day,month,year, data = None):
+        self.day = day
+        self.month = month
+        self.year = year
+        self.data = data
+    
+    def choose_date(self):
+        filtered_date = self.data[self.data['Day'] == self.day]
+        filtered_date2 = filtered_date[filtered_date['Month'] == self.month]
+        filtered_date3 = filtered_date2[filtered_date2['Year'] == self.year]
+        print(f'Total data is {len(filtered_date3)}')
+
+        latitude_visible = []
+        longitude_visible = []
+        latitude_not_visible = []
+        longitude_not_visible = []
+        for i in range(len(filtered_date3)):
+            if filtered_date3.iloc[i][7] == 'V':
+                lat_v = filtered_date3.iloc[i][4]
+                long_v = filtered_date3.iloc[i][5]
+                latitude_visible.append(lat_v)
+                longitude_visible.append(long_v)
+            else:
+                lat_iv = filtered_date3.iloc[i][4]
+                long_iv = filtered_date3.iloc[i][5]
+                latitude_not_visible.append(lat_iv)
+                longitude_not_visible.append(long_iv)
+
+        return latitude_visible, longitude_visible, latitude_not_visible, longitude_not_visible
+
+    def visibility_hilal_data(self):
+
+        all_data = self.choose_date()
+        df_visible = pd.DataFrame(list(zip(all_data[0],all_data[1])),columns=['Latitude', 'Longitude'])
+        gdf_visible = geopandas.GeoDataFrame(
+            df_visible, geometry=geopandas.points_from_xy(df_visible.Longitude, df_visible.Latitude), crs="EPSG:4326")
+        
+        df_not_visible = pd.DataFrame(list(zip(all_data[2],all_data[3])),columns=['Latitude', 'Longitude'])
+        gdf_not_visible = geopandas.GeoDataFrame(
+            df_not_visible, geometry=geopandas.points_from_xy(df_not_visible.Longitude, df_not_visible.Latitude), crs="EPSG:4326")
+
+        world = geopandas.read_file(get_path("naturalearth.land"))
+        ax = world.plot(color="white", edgecolor="black")
+
+        ax.set_title(f'Hilal Data Map for {self.day}-{self.month}-{self.year}')
+        gdf_visible.plot(ax=ax, color="green",markersize = 20,label = 'visible', legend= True)
+        gdf_not_visible.plot(ax=ax, color="red",markersize = 20,label = 'Not visible', legend= True)
+
+        ax.legend(loc='lower right', fontsize=8, frameon=True) 
+        ax.figure.savefig(f'../HilalData{self.day}-{self.month}-{self.year}.png')
+        plt.show()
+
+    def __visibility_hilal_with_criteria(self):
+        takwim_class = Takwim(day=self.day, month=self.month, year=self.year)
+        return None
+    
+class visibility_map(Takwim):
+    def __init__(self, latitude=5.41144, longitude=100.19672, elevation=40, year=datetime.now().year, month=datetime.now().month, day=datetime.now().day, hour=datetime.now().hour, minute=datetime.now().minute, second=datetime.now().second, zone=None, temperature=27, pressure=None, ephem='de440s.bsp'):
+        super().__init__(latitude, longitude, elevation, year, month, day, hour, minute, second, zone, temperature, pressure, ephem)
+
     def __binary_search_longitude_Odeh(self, day, month, year, criteria_value, lati = 0, accuracy = 'low'):
         print(f'Latitude is: {lati}')
         low_long = -170 #Choose a west-limit longitude
@@ -4225,66 +4417,96 @@ class Takwim:
         gdf.plot(ax=ax, color="red",markersize = 10, label = 'test1',legend= True)
         gdf2.plot(ax=ax, color="cyan",markersize = 10, label = 'test2', legend= True)
         ax.legend(loc='lower right', fontsize=8, frameon=True) 
-        cx.add_basemap(ax, crs = gdf.crs)
         #print(world.crs)
         plt.show()
         #ax.figure.savefig(f'../Malaysia2013{self.day}-{self.month}-{self.year}-accuracy-{accuracy}.png')
 
-class Data_Hilal:
-    def __init__(self, day,month,year, data = None):
-        self.day = day
-        self.month = month
-        self.year = year
-        self.data = data
+class Perlis(Takwim):
+    def __init__(self, latitude= 6.421944, longitude=100.121667, elevation=0, year=datetime.now().year, month=datetime.now().month, day=datetime.now().day, hour=datetime.now().hour, minute=datetime.now().minute, second=datetime.now().second, zone=None, temperature=27, pressure=None, ephem='de440s.bsp'):
+        super().__init__(latitude, longitude, elevation, year, month, day, hour, minute, second, zone, temperature, pressure, ephem)
+
+class Kedah(Takwim):
+    def __init__(self, latitude=6.25, longitude=100.191667, zon = 1, elevation=0, year=datetime.now().year, month=datetime.now().month, day=datetime.now().day, hour=datetime.now().hour, minute=datetime.now().minute, second=datetime.now().second, zone=None, temperature=27, pressure=None, ephem='de440s.bsp'):
+        super().__init__(latitude, longitude, elevation, year, month, day, hour, minute, second, zone, temperature, pressure, ephem)
+
+        if zon == 1 or any(elem in zon for elem in ['Kota Setar', 'Pokok Sena','Kubang Pasu']):
+            self.latitude = 6.25
+            self.longitude = 100.121667
+            self.zon = zon
+        elif zon == 2 or any(elem in zon for elem in ['Kuala Muda', 'Pendang', 'Yan']):
+            self.latitude = 5.583333
+            self.longitude = 100.341667
+            self.zon = zon
+        elif zon == 3 or zon == 'Padang Terap' or zon == 'Sik' or zon == 'Padang Terap dan Sik':
+            self.latitude = 6.258333
+            self.longitude = 100.508333
+            self.zon = zon
+        elif zon == 4 or zon == 'Baling':
+            self.latitude = 5.55
+            self.longitude = 100.608333
+            self.zon = zon
+        elif zon == 5 or any(elem in zon for elem in ['Kulim', 'Bandar Baru']):
+            self.latitude = 5.133333
+            self.longitude =  100.491667
+            self.zon = zon
+        elif zon == 6 or zon == 'Langkawi':
+            self.latitude = 6.45
+            self.longitude = 99.633333
+            self.zon = zon
+        elif zon == 7 or zon == 'Gunung Jerai':
+            self.latitude = 5.783333
+            self.longitude = 100.441667
+            self.elevation = 1214
+            self.zon = zon
     
-    def choose_date(self):
-        filtered_date = self.data[self.data['Day'] == self.day]
-        filtered_date2 = filtered_date[filtered_date['Month'] == self.month]
-        filtered_date3 = filtered_date2[filtered_date2['Year'] == self.year]
-        print(f'Total data is {len(filtered_date3)}')
+class Pulau_Pinang(Takwim):
+    def __init__(self, latitude=5.416667, longitude=100.2, elevation=0, zon = 1, year=datetime.now().year, month=datetime.now().month, day=datetime.now().day, hour=datetime.now().hour, minute=datetime.now().minute, second=datetime.now().second, zone=None, temperature=27, pressure=None, ephem='de440s.bsp'):
+        super().__init__(latitude, longitude, elevation, year, month, day, hour, minute, second, zone, temperature, pressure, ephem)
 
-        latitude_visible = []
-        longitude_visible = []
-        latitude_not_visible = []
-        longitude_not_visible = []
-        for i in range(len(filtered_date3)):
-            if filtered_date3.iloc[i][7] == 'V':
-                lat_v = filtered_date3.iloc[i][4]
-                long_v = filtered_date3.iloc[i][5]
-                latitude_visible.append(lat_v)
-                longitude_visible.append(long_v)
-            else:
-                lat_iv = filtered_date3.iloc[i][4]
-                long_iv = filtered_date3.iloc[i][5]
-                latitude_not_visible.append(lat_iv)
-                longitude_not_visible.append(long_iv)
+        if zon == 1:
+            pass
+        elif zon == 2 or zon == 'Bukit Bendera':
+            self.elevation = 833
 
-        return latitude_visible, longitude_visible, latitude_not_visible, longitude_not_visible
+class Perak(Takwim):
+    def __init__(self, latitude=4.259722, longitude=101.075,zon = 1, elevation=40, year=datetime.now().year, month=datetime.now().month, day=datetime.now().day, hour=datetime.now().hour, minute=datetime.now().minute, second=datetime.now().second, zone=None, temperature=27, pressure=None, ephem='de440s.bsp'):
+        super().__init__(latitude, longitude, elevation, year, month, day, hour, minute, second, zone, temperature, pressure, ephem)
 
-    def visibility_hilal_data(self):
+        if zon == 1 or zon == 'Tapah' or zon == 'Slim River' or zon == 'Tanjung Malim':
+            self.zon = zon
+            pass
+        elif zon == 2 or zon == 'Ipoh' or zon == 'Batu Gajah' or zon == 'Kampar' or zon == 'Sg.Siput' or zon == 'Kuala Kangsar':
+            self.zon = zon
+            self.latitude = 4.516667
+            self.longitude = 100.7125
 
-        all_data = self.choose_date()
-        df_visible = pd.DataFrame(list(zip(all_data[0],all_data[1])),columns=['Latitude', 'Longitude'])
-        gdf_visible = geopandas.GeoDataFrame(
-            df_visible, geometry=geopandas.points_from_xy(df_visible.Longitude, df_visible.Latitude), crs="EPSG:4326")
+        elif zon == 3 or zon == 'Pengkalan Hulu' or zon == 'Gerik' or zon == 'Lenggong':
+            self.zon = zon
+            self.latitude = 5.458333
+            self.longitude = 100.870833
+
+        elif zon == 4 or zon == 'Temengor' or zon == 'Belum':
+            self.zon = zon
+            self.latitude = 5.570833
+            self.longitude = 101.209722
+
+        elif zon == 5 or zon == 'Teluk Intan' or zon =='Bagan Datuk' or zon =='Kg. Gajah' or zon == 'Seri Iskandar' or zon == 'Beruas' or zon == 'Parit' or zon == 'Lumut' or zon == 'Sitiawan' or zon == 'Pulau Pangkor':
+            self.latitude = 4.2
+            self.longitude = 100.533333
+            self.zon = zon
         
-        df_not_visible = pd.DataFrame(list(zip(all_data[2],all_data[3])),columns=['Latitude', 'Longitude'])
-        gdf_not_visible = geopandas.GeoDataFrame(
-            df_not_visible, geometry=geopandas.points_from_xy(df_not_visible.Longitude, df_not_visible.Latitude), crs="EPSG:4326")
+        elif zon == 6 or zon == 'Selama' or zon =='Taiping' or zon == 'Bagan Serai' or zon == 'Parit Buntar':
+            self.latitude = 5.075
+            self.longitude = 100.23
+            self.zon = zon
+        
+        elif zon == 7 or zon == 'Bukit Larut':
+            self.latitude = 4.866667
+            self.longitude = 100.8
+            self.elevation = 945
+            self.zon = zon
 
-        world = geopandas.read_file(get_path("naturalearth.land"))
-        ax = world.plot(color="white", edgecolor="black")
-
-        ax.set_title(f'Hilal Data Map for {self.day}-{self.month}-{self.year}')
-        gdf_visible.plot(ax=ax, color="green",markersize = 20,label = 'visible', legend= True)
-        gdf_not_visible.plot(ax=ax, color="red",markersize = 20,label = 'Not visible', legend= True)
-
-        ax.legend(loc='lower right', fontsize=8, frameon=True) 
-        ax.figure.savefig(f'../HilalData{self.day}-{self.month}-{self.year}.png')
-        plt.show()
-
-    def __visibility_hilal_with_criteria(self):
-        takwim_class = Takwim(day=self.day, month=self.month, year=self.year)
-        return None
-
+class Selangor(Takwim):
+    def __init__(self, latitude=5.41144, longitude=100.19672,zon =1, elevation=40, year=datetime.now().year, month=datetime.now().month, day=datetime.now().day, hour=datetime.now().hour, minute=datetime.now().minute, second=datetime.now().second, zone=None, temperature=27, pressure=None, ephem='de440s.bsp'):
+        super().__init__(latitude, longitude, elevation, year, month, day, hour, minute, second, zone, temperature, pressure, ephem)
 
