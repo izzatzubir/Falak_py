@@ -825,6 +825,19 @@ class Takwim:
     __iteration_waktu_subuh.step_days = 1/4
     
     def waktu_subuh(self, altitude = 'default', time_format = 'default'):
+        """Metod waktu_subuh() ini akan memberikan waktu subuh pada tarikh yang ditetapkan pada kelas. 
+        Dari sudut hitungan, metod ini akan memberikan waktu apabila Matahari berada pada altitud -18 darjah. \n
+        
+        Terdapat dua parameter yang boleh diubah iaitu altitude dan time_format. \n
+        
+        Altitude: \n
+        'default' -> waktu ketika Matahari berada pada altitud -18 darjah\n
+        Anda boleh memilih nilai altitud lain di antara -12 hingga -24 darjah.\n
+        
+        time_format:\n
+        'default' -> waktu dalam format julian date\n
+        'string' -> waktu dalam format hh:mm:ss"""
+
         eph = api.load(self.ephem)
         eph.segments = eph.segments[:14]
         earth, sun = eph['earth'], eph['sun']
@@ -1022,6 +1035,30 @@ class Takwim:
     __iteration_waktu_maghrib.step_days = 1/4
     
     def waktu_maghrib(self, altitude = 'default', time_format = 'default', kaedah = 'Izzat'):
+        """Metod ini akan memberikan waktu maghrib pada tarikh yang ditetapkan pada kelas. 
+        Dari sudut hitungan, metod ini akan memberikan waktu apabila piring Matahari berada di bawah ufuk lokasi pilihan.
+        Hitungan ini mengambil kira tiga faktor iaitu saiz piring Matahari, pembiasan, dan sudut junaman ufuk. \n
+        
+        Terdapat tiga parameter yang boleh diubah iaitu altitude, time_format dan kaedah. \n
+        
+        Altitude: \n
+        'default' -> waktu ketika piring Matahari berada di bawah ufuk tempatan\n
+        Anda boleh memilih nilai altitud lain di antara -0 hingga -4 darjah.\n
+        
+        time_format:\n
+        'default' -> waktu dalam format julian date\n
+        'datetime' -> waktu dalam format Skyfield.datetime\n
+        'string' -> waktu dalam format hh:mm:ss\n
+        
+        kaedah:\n
+        'Izzat' -> Kaedah ini adalah kaedah asal/default. Kaedah ini menghitung sudut junaman dan tekanan atmosfera berdasarkan ketinggian
+        pemerhati, dan seterusnya menghitung kadar pembiasan berdasarkan tekanan atmosfera ini. Kemudian, saiz piring matahari dihitung
+        berdasarkan jarak Bumi-Matahari semasa. Nilai altitud sebenar Matahari diambil daripada sudut junaman + pembiasan + sudut jejari
+        piring Matahari. \n
+        'Abdul Halim' atau 'JAKIM' atau 'JUPEM' -> Kaedah ini merupakan kaedah yang biasa digunakan dalam kiraan Takwim rasmi. Ia mengandaikan
+        dengan 3 andaian iaitu kedudukan pemerhati = 0m (aras laut), pembiasan = 34 arka minit dan saiz piring matahari = 16 arka minit. 
+        Kaedah ini tidak menggambarkan keadaan sebenar bagi pencerap, namun mencukupi bagi menghasilkan waktu solat. 
+        """
         eph = api.load(self.ephem)
         eph.segments = eph.segments[:14]
         earth, sun = eph['earth'], eph['sun']
@@ -1096,7 +1133,7 @@ class Takwim:
             maghrib = str("altitude is above 0 degrees or below 4 degrees")
             return maghrib
         
-        if 'alim' in kaedah:
+        if 'alim' in kaedah or 'tradisional' or 'JAKIM' or 'JUPEM':
             self.elevation = 0
             f = almanac.dark_twilight_day(eph, self.location())
             magh, nilai = almanac.find_discrete(t0,t1,f)
@@ -4509,4 +4546,46 @@ class Perak(Takwim):
 class Selangor(Takwim):
     def __init__(self, latitude=5.41144, longitude=100.19672,zon =1, elevation=40, year=datetime.now().year, month=datetime.now().month, day=datetime.now().day, hour=datetime.now().hour, minute=datetime.now().minute, second=datetime.now().second, zone=None, temperature=27, pressure=None, ephem='de440s.bsp'):
         super().__init__(latitude, longitude, elevation, year, month, day, hour, minute, second, zone, temperature, pressure, ephem)
+
+        
+# test = Takwim()
+# test.takwim_solat_bulanan_multipoint(kaedah_syuruk_maghrib= 'Dr. Halim', lokasi_1 = (5.260323, 101.551633,0), lokasi_2 = (4.669782, 101.492119,0), lokasi_3 = (4.869859, 102.439507,0),
+#                                      lokasi_4 = (5.268974,102.400512,0))
+
+hari = 22
+bulan = 12
+
+titik_1 = Takwim(latitude=5.260323, longitude = 101.551633, day = hari, month= bulan)
+titik_2 = Takwim(latitude = 4.669782, longitude = 101.492119, day = hari, month= bulan)
+titik_3 = Takwim(latitude=4.869859, longitude= 102.439507, day = hari, month= bulan)
+titik_4 = Takwim(latitude=5.268974, longitude = 102.400512, day = hari, month= bulan)
+
+titik_5 = Takwim(latitude= 5.753587, longitude= 101.740925, day = hari, month= bulan)
+titik_6 = Takwim(latitude=6.016667, longitude= 101.983333, day = hari, month= bulan)
+titik_7 = Takwim(latitude = 6.231345, longitude = 102.092894, day = hari, month= bulan)
+titik_8 = Takwim(latitude=5.849786, longitude= 102.529848, day = hari, month= bulan)
+titik_9 = Takwim(latitude=6.165523, longitude= 102.345294, day = hari, month= bulan)
+
+titik_10 = Takwim(latitude=4.919397, longitude= 102.175555, day = hari, month=bulan) #Masjid Al-Muttaqim Felda 2 Chiku
+titik_11 = Takwim(latitude=4.995560, longitude= 102.232610, day = hari, month=bulan)
+titik_12 = Takwim(latitude=5.308528, longitude = 102.158251, day = hari, month=bulan)
+# print('Zon 1')
+print(f"Tarikh: {titik_1.current_time(time_format='string')[:11]}")
+print(f"Titik Rujukan Zon 1: {titik_6.waktu_maghrib(time_format = 'string')}")
+print(f"Titik Rujukan Zon 2: {titik_1.waktu_maghrib(time_format = 'string')}")
+# print(titik_2.waktu_maghrib(time_format = 'string'))
+# print(titik_3.waktu_maghrib(time_format = 'string'))
+# print(titik_4.waktu_maghrib(time_format = 'string'))
+print('Masjid di Zon 1')
+print(f"Masjid Al-Muttaqim Felda 2 Chiku: {titik_10.waktu_maghrib(time_format = 'string')}")
+print(f"Masjid Keputeraan Paloh 2, Chiku: {titik_11.waktu_maghrib(time_format = 'string')}")
+print(f"Masjid Kg Slow Temiang, K.Krai: {titik_12.waktu_maghrib(time_format = 'string')}")
+
+# print('Zon 2')
+# print(titik_5.waktu_maghrib(time_format = 'string'))
+#print(f"{titik_6.waktu_maghrib(time_format = 'string')} Titik Rujukan Zon 1")
+# print(titik_7.waktu_maghrib(time_format = 'string'))
+# print(titik_8.waktu_maghrib(time_format = 'string'))
+# print(titik_9.waktu_maghrib(time_format = 'string'))
+
 
