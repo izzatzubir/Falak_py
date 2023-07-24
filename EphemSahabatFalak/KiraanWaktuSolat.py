@@ -1342,6 +1342,21 @@ class Takwim:
         return difference_azimut < 0.3
     __iteration_bayang_searah_kiblat.step_days = 20/86400
     def bayang_searah_kiblat(self, time_format = 'default', objek = 'matahari'): #tambah tolak 0.3 darjah atau 18 arkaminit
+        """
+        Metod ini memberikan waktu mula dan waktu akhir bagi kedudukan objek samawi pilihan dari arah kiblat. Hitungan bagi
+        metod ini mengambil nilai selisih 0.3 darjah dari arah kiblat sebenar. \n
+        
+        Parameter:\n
+        time_format:\n
+        'default' -> waktu dalam format julian date\n
+        'string' -> waktu dalam format hh:mm:ss\n
+
+        objek:\n
+        'matahari'\n
+        'bulan'\n
+        'zuhrah'\n
+        """
+        
         t0 = self.waktu_syuruk()
         t1 = self.waktu_maghrib()
         self.objek = objek
@@ -1443,9 +1458,9 @@ class Takwim:
             pass
         else:
             try:
-                efemeris_kiblat_excel = efemeris_kiblat.to_excel(directory)
+                efemeris_kiblat.to_excel(directory)
             except:
-                efemeris_kiblat_excel = efemeris_kiblat.to_excel(filename)
+                efemeris_kiblat.to_excel(filename)
         return efemeris_kiblat
     
     def efemeris_hilal(self, topo = 'topo', directory = None):
@@ -1601,7 +1616,7 @@ class Takwim:
         return rounded_down_waktu
     
     def takwim_solat_bulanan(self, altitud_subuh ='default', altitud_syuruk ='default', 
-                             altitud_maghrib ='default', altitud_isyak ='default',kaedah_syuruk_maghrib = 'Izzat',
+                             altitud_maghrib ='default', altitud_isyak ='default', kaedah_asar = 'Syafie' ,kaedah_syuruk_maghrib = 'Izzat',
                                saat = 'tidak', directory = None):
         '''
         Returns a monthly prayer timetable. \n
@@ -1712,10 +1727,10 @@ class Takwim:
 
             #asar
             if saat == 'tidak' or saat == 'no':
-                waktu_asar = self.waktu_asar(time_format='datetime')
+                waktu_asar = self.waktu_asar(time_format='datetime', kaedah = kaedah_asar)
                 asar.append(self.__round_up(waktu_asar))
             else:
-                waktu_asar = self.waktu_asar(time_format = 'string')
+                waktu_asar = self.waktu_asar(time_format = 'string',kaedah = kaedah_asar)
                 asar.append(waktu_asar)
 
             #maghrib
@@ -1751,8 +1766,8 @@ class Takwim:
         return takwim_bulanan
     
     def takwim_solat_bulanan_multipoint(self, altitud_subuh ='default', altitud_syuruk ='default', 
-                             altitud_maghrib ='default', altitud_isyak ='default', saat = 'tidak', kaedah_syuruk_maghrib = 'Izzat',
-                               directory = None, **kwargs):
+                             altitud_maghrib ='default', altitud_isyak ='default', saat = 'tidak',kaedah_asar = 'Syafie',
+                               kaedah_syuruk_maghrib = 'Izzat', directory = None, **kwargs):
         
         tarikh = []
         subuh = []
@@ -1827,7 +1842,7 @@ class Takwim:
                     waktusubuh = kawasan_pilihan.waktu_subuh(altitude=altitud_subuh, time_format = 'datetime')
                     waktusyuruk = kawasan_pilihan.waktu_syuruk(altitude = altitud_syuruk,time_format = 'datetime', kaedah = kaedah_syuruk_maghrib)
                     waktuzohor = kawasan_pilihan.waktu_zohor(time_format = 'datetime')
-                    waktuasar = kawasan_pilihan.waktu_asar(time_format = 'datetime')
+                    waktuasar = kawasan_pilihan.waktu_asar(time_format = 'datetime',kaedah = kaedah_asar)
                     waktumaghrib = kawasan_pilihan.waktu_maghrib(altitude = altitud_maghrib, time_format = 'datetime', kaedah = kaedah_syuruk_maghrib)
                     waktuisyak = kawasan_pilihan.waktu_isyak(altitude = altitud_isyak,time_format = 'datetime')
 
@@ -1870,7 +1885,7 @@ class Takwim:
 
     def takwim_solat_tahunan(self, altitud_subuh ='default', altitud_syuruk ='default', 
                              altitud_maghrib ='default', altitud_isyak ='default', saat = 'tidak',directory = None,
-                             kaedah_syuruk_maghrib= 'Izzat'):
+                             kaedah_syuruk_maghrib= 'Izzat', kaedah_asar = 'Syafie'):
         """
         Returns similar timetable as in takwim_solat_bulanan, but for one-year."""
         tarikh = []
@@ -1963,10 +1978,10 @@ class Takwim:
 
                 #asar
                 if saat == 'tidak' or saat == 'no':
-                    waktu_asar = self.waktu_asar(time_format='datetime')
+                    waktu_asar = self.waktu_asar(time_format='datetime',kaedah = kaedah_asar)
                     asar.append(self.__round_up(waktu_asar))
                 else:
-                    waktu_asar = self.waktu_asar(time_format = 'string')
+                    waktu_asar = self.waktu_asar(time_format = 'string',kaedah = kaedah_asar)
                     asar.append(waktu_asar)
 
                 #maghrib
@@ -2003,7 +2018,7 @@ class Takwim:
     
     def takwim_solat_tahunan_multipoint(self, altitud_subuh ='default', altitud_syuruk ='default', 
                              altitud_maghrib ='default', altitud_isyak ='default', saat = 'tidak', kaedah_syuruk_maghrib = 'Izzat',
-                               directory = None, **kwargs):
+                               kaedah_asar = 'Syafie',directory = None, **kwargs):
         tarikh = []
         subuh = []
         bayang_kiblat_mula = []
@@ -2079,7 +2094,7 @@ class Takwim:
                         waktusubuh = kawasan_pilihan.waktu_subuh(time_format = 'datetime')
                         waktusyuruk = kawasan_pilihan.waktu_syuruk(time_format = 'datetime', kaedah = kaedah_syuruk_maghrib)
                         waktuzohor = kawasan_pilihan.waktu_zohor(time_format = 'datetime')
-                        waktuasar = kawasan_pilihan.waktu_asar(time_format = 'datetime')
+                        waktuasar = kawasan_pilihan.waktu_asar(time_format = 'datetime',kaedah = kaedah_asar)
                         waktumaghrib = kawasan_pilihan.waktu_maghrib(time_format = 'datetime', kaedah = kaedah_syuruk_maghrib)
                         waktuisyak = kawasan_pilihan.waktu_isyak(time_format = 'datetime')
 
@@ -4985,9 +5000,5 @@ class Selangor(Takwim):
         super().__init__(latitude, longitude, elevation, year, month, day, hour, minute, second, zone, temperature, pressure, ephem)
 
 
-stamm = Takwim(latitude=2.4450, longitude= 101.8547, elevation=20,
-               day = 29, month=6, year=1984)
-
-syuruk = stamm.waktu_maghrib()
-stamm.pressure = 0
-print(stamm.moon_altitude(t = syuruk))
+Penang = Takwim(day = 16, month=8)
+Penang.gambar_hilal_mabims()
