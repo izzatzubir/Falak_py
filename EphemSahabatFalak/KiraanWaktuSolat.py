@@ -5089,7 +5089,4 @@ class Selangor(Takwim):
         super().__init__(latitude, longitude, elevation, year, month, day, hour, minute, second, zone, temperature, pressure, ephem)
 
 
-Penang = Takwim(day =23, month=6, latitude=23.3)
-istiwa = Penang.waktu_istiwa()
-print(Penang.sun_altitude(t=istiwa))
-print(Penang.tarikh_istiwa(time_format = 'secret'))
+
