@@ -184,8 +184,8 @@ class Takwim:
         elif angle_format == 'degree':
             sun_altitude = sun_altitude.degrees
             
-        return sun_altitude
-    
+        return sun_altitude  
+
     def sun_azimuth(self, t = None, angle_format = 'skylib'):
         """
         Returns the azimuth of the Sun.\n
@@ -269,6 +269,15 @@ class Takwim:
                 sun_distance = earth.at(t).observe(sun).apparent().distance()
             return sun_distance 
 
+    def __sun_dec(self,t=None):
+        eph = api.load(self.ephem)
+        eph.segments = eph.segments[:14]
+        earth, sun = eph['earth'], eph['sun']
+        current_topo = earth + self.location()
+
+        s_dec= current_topo.at(t).observe(sun).radec() 
+        sun_declination = s_dec[1]
+        return sun_declination
     
     def moon_altitude(self, t = None, angle_format = 'skylib', temperature = None, pressure = None, topo = 'topo'):
         """
@@ -747,7 +756,7 @@ class Takwim:
             lag_time = lag_time.total_seconds()
         return lag_time
       
-    def waktu_zawal(self, time_format = 'default'):
+    def waktu_istiwa(self, time_format = 'default'):
         eph = api.load(self.ephem)
         eph.segments = eph.segments[:14]
         earth, sun = eph['earth'], eph['sun']
@@ -1245,8 +1254,88 @@ class Takwim:
                     
         return isya
     
+    def __iteration_tarikh_matahari_istiwa(self, t):
+
+        sun_altitude_at_meridian = self.sun_altitude(t=t)
+
+        return sun_altitude_at_meridian.radians> 1.5693418916
+    
+    __iteration_tarikh_matahari_istiwa.step_days = 1
+
+    def __tarikh_istiwa_2(self, time_format = 'string'):
+        ts = load.timescale()
+        now = self.current_time().astimezone(self.zone)
+        this_year = now.replace(year = self.year, month = 1, day = 1, hour = 0, minute = 0, second = 0, microsecond = 0)
+        next_year = this_year + dt.timedelta(days =366)
+        t0 = ts.from_datetime(this_year)
+        t1 = ts.from_datetime(next_year)
+        
+        tarikh, nilai = find_discrete(t0, t1, self.__iteration_tarikh_matahari_istiwa)
+
+        julat_tarikh = []
+        for tarikh, vi in zip(tarikh, nilai):
+            
+            if time_format == 'datetime':
+                tarikh_istiwa = tarikh.astimezone(self.zone)
+                
+            elif time_format == 'string':
+                tarikh_istiwa = tarikh.astimezone(self.zone).strftime('%Y:%m:%d %H:%M:%S')
+                
+            else:
+                tarikh_istiwa = tarikh
+
+            julat_tarikh.append(tarikh_istiwa)
+        
+        return julat_tarikh
+
+    def __iteration_matahari_istiwa(self, t=None):
+
+        return (abs(self.__sun_dec(t).radians - radians(self.latitude))<0.003)
+    
+    __iteration_matahari_istiwa.step_days = 1
+
+    def tarikh_istiwa(self, time_format = 'string'):
+        """
+        Metod ini memberikan tarikh-tarikh ketika Matahari berada tegak di atas kepala di lokasi yang dipilih. Metod
+        ini hanya akan memberikan nilai bagi kawasan yang berada pada latitud antara sekitar 23.5 Utara dan 23.5 Selatan.\n
+
+        Hasil yang diperoleh adalah sama ada sifar bagi kawasan di luar 23.5 Utara/Selatan, atau 2 tarikh bagi kawasan hampir
+        dengan 23.5 Utara/Selatan, atau 4 tarikh bagi kawasan yang berada di antara 23.3 Utara atau Selatan. \n
+
+        Metod ini melaksanakan hitungan dengan mencari tarikh yang mempunyai selisih deklinasi Matahari dan latitud tempatan
+        kurang daripada 17.18 arka minit.
+
+        """
+        ts = load.timescale()
+        now = self.current_time().astimezone(self.zone)
+        this_year = now.replace(year = self.year, month = 1, day = 1, hour = 0, minute = 0, second = 0, microsecond = 0)
+        next_year = this_year + dt.timedelta(days =366)
+        t0 = ts.from_datetime(this_year)
+        t1 = ts.from_datetime(next_year)
+        
+        tarikh, nilai = find_discrete(t0, t1, self.__iteration_matahari_istiwa)
+
+        julat_tarikh = []
+        for i, vi in zip(tarikh, nilai):
+            
+            if time_format == 'datetime':
+                tarikh_istiwa = i.astimezone(self.zone)
+                
+            elif time_format == 'string':
+                tarikh_istiwa = i.astimezone(self.zone).strftime('%Y-%m-%d')
+
+            elif time_format == 'secret':
+                tarikh_istiwa = i.astimezone(self.zone).strftime('%Y-%m-%d %H:%M:%S')
+                
+            else:
+                tarikh_istiwa = i
+
+            julat_tarikh.append(tarikh_istiwa)
+        
+        return julat_tarikh
+
     def __iteration_waktu_asar(self, t = None):
-        transit_time = self.waktu_zawal()
+        transit_time = self.waktu_istiwa()
         sun_altitude_at_meridian = self.sun_altitude(transit_time).radians
         if 'anafi' in self.kaedah:
             sun_altitude_at_asr = degrees(acot(cot(sun_altitude_at_meridian)+2))    
@@ -1266,7 +1355,7 @@ class Takwim:
         
     __iteration_waktu_asar.step_days = 1/4
     def waktu_asar(self, time_format = 'default', kaedah = 'Syafie'):
-        transit_time = self.waktu_zawal()
+        transit_time = self.waktu_istiwa()
         ts = load.timescale()
         self.kaedah = kaedah
         
@@ -5000,5 +5089,7 @@ class Selangor(Takwim):
         super().__init__(latitude, longitude, elevation, year, month, day, hour, minute, second, zone, temperature, pressure, ephem)
 
 
-Penang = Takwim(day = 16, month=8)
-Penang.gambar_hilal_mabims()
+Penang = Takwim(day =23, month=6, latitude=23.3)
+istiwa = Penang.waktu_istiwa()
+print(Penang.sun_altitude(t=istiwa))
+print(Penang.tarikh_istiwa(time_format = 'secret'))
