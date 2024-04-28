@@ -1,1 +1,3 @@
-from EphemSahabatFalak.KiraanWaktuSolat import Takwim,  Data_Hilal, visibility_map
+from EphemSahabatFalak.kiraan_waktu_solat import Takwim
+from EphemSahabatFalak.data_hilal import Data_Hilal
+from EphemSahabatFalak.negeri import (Pulau_Pinang, Perlis, Selangor)
