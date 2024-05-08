@@ -448,7 +448,7 @@ class Takwim:
             return earth.at(t).observe(moon).apparent().distance()
 
     def moon_illumination(self, t=None, topo='topo'):
-        earth, moon, sun = self.earth_sun_moon_ephemeris()
+        earth, sun, moon = self.earth_sun_moon_ephemeris()
         current_topo = earth + self.location()
 
         if t is None:
@@ -642,7 +642,7 @@ class Takwim:
                     str(self.month) + "-" + str(self.year))
 
     def elongation_moon_sun(self, t=None, topo='topo', angle_format='skylib'):
-        earth, moon, sun = self.earth_sun_moon_ephemeris()
+        earth, sun, moon = self.earth_sun_moon_ephemeris()
         current_topo = earth + self.location()
 
         if t is None:
@@ -677,7 +677,7 @@ class Takwim:
         return elongation_moon_sun
 
     def moon_phase(self, t=None, topo='topo', angle_format='skylib'):
-        earth, moon, sun = self.earth_sun_moon_ephemeris()
+        earth, sun, moon = self.earth_sun_moon_ephemeris()
         current_topo = earth + self.location()
 
         if t is None:
@@ -715,7 +715,7 @@ class Takwim:
 
     def lunar_crescent_width(self, t=None, topo='topo', angle_format='skylib',
                              method='modern'):
-        earth, moon, sun = self.earth_sun_moon_ephemeris()
+        earth, sun, moon = self.earth_sun_moon_ephemeris()
         current_topo = earth + self.location()
         radius_of_the_Moon = 1738.1  # at equator. In reality, this should be
         # the radius of the moon along the thickest part of the crescent
@@ -1568,18 +1568,18 @@ class Takwim:
         return d/1000
 
     def __iteration_bayang_searah_kiblat(self, t):
-
+        kiblat = self.azimut_kiblat()
         if self.objek == 'venus' or self.objek == 'zuhrah':
             current_venus_azimut = self.__venus_azimuth(
                 t, angle_format='degree')
             difference_azimut = abs(
-                current_venus_azimut - self.azimut_kiblat())
+                current_venus_azimut - kiblat)
         elif self.objek == 'bulan':
             current_moon_azimut = self.moon_azimuth(t, angle_format='degree')
-            difference_azimut = abs(current_moon_azimut - self.azimut_kiblat())
+            difference_azimut = abs(current_moon_azimut - kiblat)
         else:
             current_sun_azimut = self.sun_azimuth(t, angle_format='degree')
-            difference_azimut = abs(current_sun_azimut - self.azimut_kiblat())
+            difference_azimut = abs(current_sun_azimut - kiblat)
 
         return difference_azimut < 0.3
 
@@ -1601,7 +1601,7 @@ class Takwim:
             difference_azimut = abs(
                 current_sun_azimut + 180 - self.azimut_kiblat())
 
-        return difference_azimut < 0.5
+        return difference_azimut < 0.3
 
     __iteration_bayang_searah_kiblat_pagi.step_days = 2/1440
 
@@ -1716,25 +1716,20 @@ class Takwim:
         az_objek_list = []
         masa_list = []
         self.second = 0
+        masa_sekarang = self.current_time()
         for i in range(60):
-            delta_time = self.current_time(
-                time_format='default') + (i/1440)
-            hour = delta_time.astimezone(self.zone).hour
-            minute = delta_time.astimezone(self.zone).minute
-            self.hour = hour
-            self.minute = minute
-            self.second = 0
-
-            az_objek = self.sun_azimuth(angle_format='string')
+            masa = masa_sekarang+dt.timedelta(minutes=i)
+            az_objek = self.sun_azimuth(
+                t=masa, angle_format='string')
 
             if objek == 'bulan':
-                az_objek = self.moon_azimuth(angle_format='string')
+                az_objek = self.moon_azimuth(t=masa, angle_format='string')
             elif objek == 'venus' or objek == 'zuhrah':
-                az_objek = self.__venus_azimuth(angle_format='string')
+                az_objek = self.__venus_azimuth(t=masa, angle_format='string')
 
-            masa = self.current_time(time_format='string')
             az_objek_list.append(az_objek)
-            masa_list.append(masa)
+
+            masa_list.append(str(masa.astimezone(self.zone))[:19])
 
         efemeris_kiblat = pd.DataFrame(
             az_objek_list, index=masa_list, columns=['Azimut'])
@@ -1742,6 +1737,8 @@ class Takwim:
                     '_' + str(self.minute) + '.xlsx')
         if directory is None:
             pass
+        elif directory == "web":
+            return efemeris_kiblat
         else:
             try:
                 efemeris_kiblat.to_excel(directory)
@@ -1890,6 +1887,7 @@ class Takwim:
             list(zip(
                 elon_bulanMat, alt_bulan_list, azm_bul, alt_mat, azm_mat,
                 illumination_bulan, lebar_sabit, az_diff, arc_vision)),
+            index=tarikh,
             columns=["Elongasi", "Alt Bulan", "Az Bulan",
                      "Alt Matahari", "Az Matahari",
                      "Illuminasi bulan(%)", "Lebar Hilal",
@@ -1899,6 +1897,8 @@ class Takwim:
                     '_' + str(self.month) + '.xlsx')
         if directory is None:
             pass
+        elif directory == "web":
+            return ephem_bulan
         else:
             try:
                 ephem_bulan.to_excel(directory)
@@ -2095,6 +2095,8 @@ class Takwim:
                     '_' + str(self.year) + '.xlsx')
         if directory is None:
             takwim_bulanan.to_excel(filename)
+        elif directory == "web":
+            return takwim_bulanan
         else:
             try:
                 takwim_bulanan.to_excel(directory)
@@ -2240,6 +2242,8 @@ class Takwim:
                     str(self.month) + '_' + str(self.year) + '.xlsx')
         if directory is None:
             takwim_bulanan.to_excel(filename)
+        elif directory == "web":
+            return takwim_bulanan
         else:
             try:
                 takwim_bulanan.to_excel(directory)
@@ -2814,6 +2818,17 @@ class Takwim:
                 analisis_perbandingan_julat_isyak.to_excel(
                     writer, sheet_name="Perbandingan",
                     startcol=perbandingan_julat.shape[1]+7, index=False)
+        elif directory == "web":
+            return (
+                takwim_tahunan, lokasi_pilihan, perbandingan_julat,
+                analisis_subuh, analisis_syuruk, analisis_zohor,
+                analisis_asar, analisis_maghrib, analisis_isyak,
+                analisis_perbandingan_julat_subuh,
+                analisis_perbandingan_julat_syuruk,
+                analisis_perbandingan_julat_zohor,
+                analisis_perbandingan_julat_asar,
+                analisis_perbandingan_julat_maghrib,
+                analisis_perbandingan_julat_isyak)
         else:
             try:
                 with pd.ExcelWriter(directory) as writer:
@@ -3915,13 +3930,13 @@ class Takwim:
 
         if directory is None:
             directory = (f'../Gambar_Hilal_pada_{self.day}_'
-                         '{self.month}_{self.year}.png')
+                         f'{self.month}_{self.year}.png')
         else:
             try:
                 directory = directory
             except Exception:
                 directory = (f'../Gambar_Hilal_pada_{self.day}_{self.month}_'
-                             '{self.year}.png')
+                             f'{self.year}.png')
         fig.savefig(directory)
 
     def gambar_hilal_composite(
@@ -4190,13 +4205,13 @@ class Takwim:
 
         if directory is None:
             directory = (f'../Gambar_Hilal_pada_{self.day}_'
-                         '{self.month}_{self.year}.png')
+                         f'{self.month}_{self.year}.png')
         else:
             try:
                 directory = directory
             except Exception:
                 directory = (f'../Gambar_Hilal_pada_{self.day}_{self.month}_'
-                             '{self.year}.png')
+                             f'{self.year}.png')
         plt.show()
         fig.savefig(directory)
 
@@ -4206,8 +4221,6 @@ def main():
     """
     Execute functions here
     """
-    for i in range(100):
-        print(Takwim().waktu_maghrib())
 
 
 if __name__ == "__main__":

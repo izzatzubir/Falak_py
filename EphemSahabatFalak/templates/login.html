@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Login page{% endblock %}
+
+{% block content %}
+<form action="/" method="post">
+    <label for="Latitud">Latitud:</label>
+    <input type="number" id="latitud" name="latitud" placeholder="5.41144"><br><br>
+    <label for="Longitud">Longitud:</label>
+    <input type="number" id="longitud" name="longitud" placeholder="100.19672"><br><br>
+    <input type="submit" value="Submit">
+  </form>
+{% endblock %}

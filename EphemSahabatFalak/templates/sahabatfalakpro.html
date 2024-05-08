@@ -1,0 +1,428 @@
+{% extends "base.html" %}
+{% block title %}{% endblock %}
+{% block content %}
+
+<h3>Waktu Solat Panca Titik</h3>
+
+<form action="/sahabatfalakpro" method="post">
+    <div class="row">
+        <div class="col-6">
+            <label for="tahun">Tahun: </label>
+            <input class="form-control" type="number" name="tahun" id="tahun" placeholder="2024">
+        </div>
+        <div class="col-6">
+            <label for="negeri">Negeri: </label>
+            <select class="form-select form-select" id="negeri" name="negeri">
+                <option selected value="Tiada">Tidak berkenaan</option>
+                <option value="Penang">Pulau Pinang</option>
+                <!-- <option value="Selangor1">Selangor Zon 1</option>
+                <option value="Selangor2">Selangor Zon 2</option>
+                <option value="Selangor3">Selangor Zon 3</option> -->
+              </select>
+        </div>
+    </div>
+    <div id="coordinates-container">
+        <div class="coordinates row pt-2">
+            <div class="col-md-3">
+                <label for="titik0">Lokasi:</label>
+                <input type="text" name="titik0" id="titik0" value="Lokasi 1" readonly>
+            </div>
+            <div class="col-md-3">
+                <label for="latitude0">Latitud:</label>
+                <input type="text" name="latitude0" id="latitude0" required>
+            </div>
+            <div class="col-md-3">
+                <label for="longitude0">Longitud:</label>
+                <input type="text" name="longitude0" id="longitude0" required>
+            </div>
+            <div class="col-md-3">
+                <label for="elevation0">Ketinggian:</label>
+                <input type="text" name="elevation0" id="elevation0" required>
+            </div>
+
+            <!-- <button class="delete-button">Delete</button> -->
+        </div>
+    </div>
+    <br>
+    <button id="add-button" class="btn btn-secondary">Tambah Lokasi</button>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% if takwim_multipoint is defined %}
+<hr>
+<br>
+<table class="table table-striped-columns">
+    <tr>
+        <th>Lokasi</th>
+        <th>Latitud</th>
+        <th>Longitud</th>
+        <th>Ketinggian</th>
+    </tr>
+    {% for location, values in lokasi_dic.items() %}
+    <tr>
+        <td>{{ location }}</td>
+        <td>{{ values[0] }}</td>
+        <td>{{ values[1] }}</td>
+        <td>{{ values[2] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+<br>
+<div>
+    <div class="container">
+        <div class="tab_box">
+            <button class="tab_btn active">Waktu Solat</button>
+            <button class="tab_btn">Pemilihan Lokasi</button>
+            <button class="tab_btn">Julat Waktu</button>
+            <button class="tab_btn">Analisis Lokasi</button>
+            <button class="tab_btn">Analisis Julat</button>
+            <div class="line"></div>
+        </div>
+        <div class="content_box">
+            <div class="content active">
+                <table class="table table-striped-columns">
+                    <thead>
+                        <tr>
+                            <th scope="col">Tarikh</th>
+                            <th scope="col">Subuh</th>
+                            <th scope="col">Syuruk</th>
+                            <th scope="col">Zohor</th>
+                            <th scope="col">Asar</th>
+                            <th scope="col">Maghrib</th>
+                            <th scope="col">Isyak</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in range(takwim_multipoint|length) %}
+                        <tr>
+                            <td>{{takwim_multipoint.index[i]}}</td>
+                            <td>{{takwim_multipoint["Subuh"][i]}}</td>
+                            <td>{{takwim_multipoint["Syuruk"][i]}}</td>
+                            <td>{{takwim_multipoint["Zohor"][i]}}</td>
+                            <td>{{takwim_multipoint["Asar"][i]}}</td>
+                            <td>{{takwim_multipoint["Maghrib"][i]}}</td>
+                            <td>{{takwim_multipoint["Isyak"][i]}}</td>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="content_box">
+            <div class="content">
+                <table class="table table-striped-columns">
+                    <thead>
+                        <tr>
+                            <th scope="col">Tarikh</th>
+                            <th scope="col">Subuh</th>
+                            <th scope="col">Syuruk</th>
+                            <th scope="col">Zohor</th>
+                            <th scope="col">Asar</th>
+                            <th scope="col">Maghrib</th>
+                            <th scope="col">Isyak</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in range(takwim_multipoint|length) %}
+                        <tr>
+                            <td>{{takwim_multipoint.index[i]}}</td>
+                            <td>{{lokasi_pilihan["Subuh"][i]}}</td>
+                            <td>{{lokasi_pilihan["Syuruk"][i]}}</td>
+                            <td>{{lokasi_pilihan["Zohor"][i]}}</td>
+                            <td>{{lokasi_pilihan["Asar"][i]}}</td>
+                            <td>{{lokasi_pilihan["Maghrib"][i]}}</td>
+                            <td>{{lokasi_pilihan["Isyak"][i]}}</td>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="content_box">
+            <div class="content">
+                <table class="table table-striped-columns">
+                    <thead>
+                        <tr>
+                            <th scope="col">Tarikh</th>
+                            <th scope="col">Subuh(s)</th>
+                            <th scope="col">Syuruk(s)</th>
+                            <th scope="col">Zohor(s)</th>
+                            <th scope="col">Asar(s)</th>
+                            <th scope="col">Maghrib(s)</th>
+                            <th scope="col">Isyak(s)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in range(takwim_multipoint|length) %}
+                        <tr>
+                            <td>{{takwim_multipoint.index[i]}}</td>
+                            <td>{{perbandingan_julat["Julat Subuh"][i]}}</td>
+                            <td>{{perbandingan_julat["Julat Syuruk"][i]}}</td>
+                            <td>{{perbandingan_julat["Julat Zohor"][i]}}</td>
+                            <td>{{perbandingan_julat["Julat Asar"][i]}}</td>
+                            <td>{{perbandingan_julat["Julat Maghrib"][i]}}</td>
+                            <td>{{perbandingan_julat["Julat Isyak"][i]}}</td>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="content_box">
+            <div class="content active">
+                <div class="row">
+                    <div class="col-2">
+                        <table class="table table-striped-columns">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Subuh</th>
+                                    <th scope="col">Bilangan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in range(analisis_subuh["Lokasi Subuh"]|length) %}
+                                <tr>
+                                    <td>{{analisis_subuh["Lokasi Subuh"][i]}}</td>
+                                    <td>{{analisis_subuh["Bilangan"][i]}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-2">
+                        <table class="table table-striped-columns">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Syuruk</th>
+                                    <th scope="col">Bilangan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in range(analisis_syuruk["Lokasi Syuruk"]|length) %}
+                                <tr>
+                                    <td>{{analisis_syuruk["Lokasi Syuruk"][i]}}</td>
+                                    <td>{{analisis_syuruk["Bilangan"][i]}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-2">
+                        <table class="table table-striped-columns">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Zohor</th>
+                                    <th scope="col">Bilangan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in range(analisis_zohor["Lokasi Zohor"]|length) %}
+                                <tr>
+                                    <td>{{analisis_zohor["Lokasi Zohor"][i]}}</td>
+                                    <td>{{analisis_zohor["Bilangan"][i]}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-2">
+                        <table class="table table-striped-columns">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Asar</th>
+                                    <th scope="col">Bilangan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in range(analisis_asar["Lokasi Asar"]|length) %}
+                                <tr>
+                                    <td>{{analisis_asar["Lokasi Asar"][i]}}</td>
+                                    <td>{{analisis_asar["Bilangan"][i]}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-2">
+                        <table class="table table-striped-columns">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Maghrib</th>
+                                    <th scope="col">Bilangan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in range(analisis_maghrib["Lokasi Maghrib"]|length) %}
+                                <tr>
+                                    <td>{{analisis_maghrib["Lokasi Maghrib"][i]}}</td>
+                                    <td>{{analisis_maghrib["Bilangan"][i]}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-2">
+                        <table class="table table-striped-columns">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Isyak</th>
+                                    <th scope="col">Bilangan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in range(analisis_isyak["Lokasi Isyak"]|length) %}
+                                <tr>
+                                    <td>{{analisis_isyak["Lokasi Isyak"][i]}}</td>
+                                    <td>{{analisis_isyak["Bilangan"][i]}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="content_box">
+            <div class="content active">
+                <table class="table table-striped-columns">
+                    <thead>
+                        <tr>
+                            <th scope="col">Subuh(s)</th>
+                            <th scope="col">Syuruk(s)</th>
+                            <th scope="col">Zohor(s)</th>
+                            <th scope="col">Asar(s)</th>
+                            <th scope="col">Maghrib(s)</th>
+                            <th scope="col">Isyak(s)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{analisis_perbandingan_julat_subuh["Subuh"][0]}}</td>
+                            <td>{{analisis_perbandingan_julat_syuruk["Syuruk"][0]}}</td>
+                            <td>{{analisis_perbandingan_julat_zohor["Zohor"][0]}}</td>
+                            <td>{{analisis_perbandingan_julat_asar["Asar"][0]}}</td>
+                            <td>{{analisis_perbandingan_julat_maghrib["Maghrib"][0]}}</td>
+                            <td>{{analisis_perbandingan_julat_isyak["Isyak"][0]}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+{% endif %}
+<script>
+    // Function to add a new set of inputs
+    let counter = 0;
+    function addSet() {
+        var container = document.getElementById('coordinates-container');
+        var lastSet = container.lastElementChild;
+        var newSet = lastSet.cloneNode(true);
+        container.appendChild(newSet);
+        var inputs = newSet.getElementsByTagName('input');
+        for (var i = 0; i < inputs.length; i++) {
+            inputs[i].value = ''; // Clear input values
+            if (inputs[i].name === 'latitude' + counter) {
+                inputs[i].name = 'latitude' + (counter + 1);
+                inputs[i].id = 'latitude' + (counter + 1);
+            }
+            else if (inputs[i].name === 'longitude' + counter) {
+                inputs[i].name = 'longitude' + (counter + 1);
+                inputs[i].id = 'longitude' + (counter + 1);
+            }
+            else if (inputs[i].name === 'titik' + counter) {
+                inputs[i].name = 'titik' + (counter + 1);
+                inputs[i].id = 'titik' + (counter + 1);
+                inputs[i].value = 'Lokasi ' + (counter + 2);
+            }
+            else {
+                inputs[i].name = 'elevation' + (counter + 1);
+                inputs[i].id = 'elevation' + (counter + 1);
+            }
+
+        }
+        counter++;
+        // var deleteButton = newSet.querySelector('.delete-button');
+        // deleteButton.addEventListener('click', deleteSet);
+    }
+
+    // Function to delete a set of inputs
+    function deleteSet() {
+        var container = document.getElementById('coordinates-container');
+        var children = container.children;
+        for (var i = children.length - 1; i > 0; i--) {
+            var child = children[i];
+            container.removeChild(child);
+        }
+        counter = 0;
+    }
+
+    // Add event listener to the Add button
+    var addButton = document.getElementById('add-button');
+    addButton.addEventListener('click', addSet);
+
+    // Add event listener to the Delete buttons of existing sets
+    var deleteButtons = document.querySelectorAll('.delete-button');
+    deleteButtons.forEach(function(button) {
+        button.addEventListener('click', deleteSet);
+    });
+    function toggleAddButton() {
+        var addButton = document.getElementById('add-button');
+        var negeri = document.getElementById('negeri').value;
+        if (negeri === "Tiada") {
+            addButton.disabled = false; // Enable the button
+        } else {
+            addButton.disabled = true; // Disable the button
+            deleteSet();
+        }
+    }
+    var negeriDropdown = document.getElementById('negeri');
+    negeriDropdown.addEventListener('change', toggleAddButton);
+    toggleAddButton();
+</script>
+<script>
+    const tabs=document.querySelectorAll(".tab_btn");
+    const all_content=document.querySelectorAll(".content");
+
+    tabs.forEach((tab, index)=>{
+        tab.addEventListener('click', (e)=>{
+            tabs.forEach(tab=>{tab.classList.remove('active')});
+            tab.classList.add('active');
+            var line=document.querySelector('.line');
+            line.style.width = e.target.offsetWidth + "px";
+            line.style.left = e.target.offsetLeft + "px";
+
+            all_content.forEach(content=>{content.classList.remove('active')})
+            all_content[index].classList.add('active');
+        })
+    })
+    document.getElementById("negeri").addEventListener("change", function() {
+        var negeri = this.value;
+        var latitudeInput = document.getElementById("latitude0");
+        var longitudeInput = document.getElementById("longitude0");
+        var elevationInput = document.getElementById("elevation0");
+
+        if (negeri !== "Tiada") {
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("disabled", "disabled");
+            longitudeInput.setAttribute("disabled", "disabled");
+            elevationInput.setAttribute("disabled", "disabled");
+        } else {
+            latitudeInput.setAttribute("required", "required");
+            longitudeInput.setAttribute("required", "required");
+            elevationInput.setAttribute("required", "required");
+            latitudeInput.removeAttribute("disabled");
+            longitudeInput.removeAttribute("disabled");
+            elevationInput.removeAttribute("disabled");
+        }
+    });
+
+
+</script>
+{% endblock %}

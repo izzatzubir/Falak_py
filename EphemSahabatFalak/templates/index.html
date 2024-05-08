@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}{% endblock %}
+{% block content %}
+<div>
+    <form action="/" method="post">
+        <div class="row pt-3">
+            <h5>Masukkan nilai-nilai berikut</h5>
+            <div class="col-md-4">
+                <label for="latitud" class="form-label">Latitud (°U)</label>
+                {% if latitud is defined %}
+                <input type="number" step="0.0001" class="form-control" id="latitud" placeholder={{latitud}} value="{{latitud}}" name="latitud" >
+                {% else %}
+                <input type="number" step="0.0001" class="form-control" id="latitud" placeholder="5.41144" name="latitud" >
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                <label for="longitud" class="form-label">Longitud (°T)</label>
+                {% if latitud is defined %}
+                <input type="number" step="0.0001" class="form-control" id="longitud" name="longitud" placeholder={{longitud}} value="{{longitud}}">
+                {% else %}
+                <input type="number" step="0.0001" class="form-control" id="longitud" name="longitud" placeholder="100.19672" >
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                <label for="elevation" class="form-label">Elevation (m)</label>
+                {% if latitud is defined %}
+                <input type="number" step="1" class="form-control" id="elevation" name="elevation" placeholder={{elevation}} value="{{elevation}}">
+                {% else %}
+                <input type="number" step="1" class="form-control" id="elevation" name="elevation" placeholder="40">
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                <label for="datetime" class="form-label">Date and Time:</label>
+                <input type="datetime-local" class="form-control" id="datetime" name="datetime"  step="1">
+            </div>
+            <div class="col-md-4">
+                <label for="temperature" class="form-label">Temperature (°C)</label>
+                {% if temperature is defined %}
+                <input type="number" step="0.1" class="form-control" id="temperature" name="temperature" placeholder={{temperature}} value="{{temperature}}">
+                {% else %}
+                <input type="number" step="0.1" class="form-control" id="temperature" name="temperature" placeholder="27.0">
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                <label for="pressure" class="form-label">Pressure (mbar)</label>
+                {% if pressure is defined %}
+                <input type="number" step="0.1" class="form-control" id="pressure" name="pressure" placeholder={{pressure}} value="{{pressure}}">
+                {% else %}
+                <input type="number" step="0.1" class="form-control" id="pressure" name="pressure" placeholder="27.0">
+                {% endif %}
+            </div>
+            <div class="pt-3">
+                <select class="form-select form-select-lg mb-3" name="pilihan">
+                    <option selected value="waktu-solat">Waktu Solat</option>
+                    <option value="Kiblat">Kiblat</option>
+                    <option value="efemerisKiblat">Jadual Kiblat</option>
+                    <option value="waktuSolatBulanan">Waktu Solat Bulanan</option>
+                  </select>
+            </div>
+            <div class="pt-2">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+    </form>
+    <div>
+        {% if maghrib is defined %}
+        <h2>Waktu Solat</h2>
+        <div class="p-2">
+            <table class="table table-striped-columns">
+                <thead>
+                    <tr>
+                        <th scope="col">Solat</th>
+                        <th scope="col">Waktu</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Subuh</td>
+                        <td>{{subuh}}</td>
+                    </tr>
+                    <tr>
+                        <td>Syuruk</td>
+                        <td>{{syuruk}}</td>
+                    </tr>
+                    <tr>
+                        <td>Zohor</td>
+                        <td>{{zohor}}</td>
+                    </tr>
+                    <tr>
+                        <td>Asar</td>
+                        <td>{{asar}}</td>
+                    </tr>
+                    <tr>
+                        <td>Maghrib</td>
+                        <td>{{maghrib}}</td>
+                    </tr>
+                    <tr>
+                        <td>Isyak</td>
+                        <td>{{isyak}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        {% elif azimut is defined %}
+        <h2>Kiblat</h2>
+        <p>Azimut Kiblat: {{azimut}} °U</p>
+        <p>Jarak ke Kaabah: {{jarak}} km</p>
+        <li>Waktu bayang searah kiblat bermula: {{waktu_bayang[0]}}</li>
+        <li>Waktu bayang searah kiblat berakhir: {{waktu_bayang[1]}}</li>
+        <br>
+        {% elif efemeris_kiblat is defined %}
+        <div class="p-2">
+            <table class="table table-striped-columns">
+                <thead>
+                    <tr>
+                        <th scope="col">Masa</th>
+                        <th scope="col">Azimut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in range(efemeris_kiblat|length) %}
+                    <tr>
+                        <td>{{efemeris_kiblat.index[i]}}</td>
+                        <td>{{efemeris_kiblat["Azimut"][i]}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% elif takwim_bulanan is defined %}
+        <div>
+            <table class="table table-striped-columns">
+                <thead>
+                    <tr>
+                        <th scope="col">Tarikh</th>
+                        <th scope="col">Subuh</th>
+                        <th scope="col">Syuruk</th>
+                        <th scope="col">Zohor</th>
+                        <th scope="col">Asar</th>
+                        <th scope="col">Maghrib</th>
+                        <th scope="col">Isyak</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in range(takwim_bulanan|length) %}
+                    <tr>
+                        <td>{{takwim_bulanan.index[i]}}</td>
+                        <td>{{takwim_bulanan["Subuh"][i]}}</td>
+                        <td>{{takwim_bulanan["Syuruk"][i]}}</td>
+                        <td>{{takwim_bulanan["Zohor"][i]}}</td>
+                        <td>{{takwim_bulanan["Asar"][i]}}</td>
+                        <td>{{takwim_bulanan["Maghrib"][i]}}</td>
+                        <td>{{takwim_bulanan["Isyak"][i]}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% endif %}
+
+    </div>
+</div>
+<script>
+    const tabs=document.querySelectorAll(".tab_btn");
+    const all_content=document.querySelectorAll(".content");
+
+    tabs.forEach((tab, index)=>{
+        tab.addEventListener('click', (e)=>{
+            tabs.forEach(tab=>{tab.classList.remove('active')});
+            tab.classList.add('active');
+            var line=document.querySelector('.line');
+            line.style.width = e.target.offsetWidth + "px";
+            line.style.left = e.target.offsetLeft + "px";
+
+            all_content.forEach(content=>{content.classList.remove('active')})
+            all_content[index].classList.add('active');
+        })
+    })
+
+
+
+</script>
+{% endblock %}
+
