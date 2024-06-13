@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+{% block title %}{% endblock %}
+{% block content %}
+<style>
+    .responsive-img {
+      width: 100%;
+      height: auto;
+      max-width: 900px; /* Adjust max-width as needed */
+    }
+
+    @media (max-width: 1200px) {
+      .responsive-img {
+        max-width: 800px;
+      }
+    }
+
+    @media (max-width: 992px) {
+      .responsive-img {
+        max-width: 800px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .responsive-img {
+        max-width: 600px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .responsive-img {
+        max-width: 100%;
+      }
+    }
+</style>
+<h3>Almanak Anak Bulan</h3>
+
+<div>
+    <form action="/sahabatfalakplus" method="post">
+        <div class="row pt-3">
+            <h5>Masukkan nilai-nilai berikut</h5>
+            <div class="col-md-4">
+                <label for="latitud" class="form-label">Latitud (°U)</label>
+                {% if latitud is defined %}
+                <input type="number" step="0.0001" class="form-control" id="latitud" placeholder={{latitud}} value="{{latitud}}" name="latitud" >
+                {% else %}
+                <input type="number" step="0.0001" class="form-control" id="latitud" placeholder="5.41144" name="latitud" >
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                <label for="longitud" class="form-label">Longitud (°T)</label>
+                {% if latitud is defined %}
+                <input type="number" step="0.0001" class="form-control" id="longitud" name="longitud" placeholder={{longitud}} value="{{longitud}}">
+                {% else %}
+                <input type="number" step="0.0001" class="form-control" id="longitud" name="longitud" placeholder="100.19672" >
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                <label for="elevation" class="form-label">Elevation (m)</label>
+                {% if latitud is defined %}
+                <input type="number" step="1" class="form-control" id="elevation" name="elevation" placeholder={{elevation}} value="{{elevation}}">
+                {% else %}
+                <input type="number" step="1" class="form-control" id="elevation" name="elevation" placeholder="40">
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                <label for="datetime" class="form-label">Date and Time:</label>
+                {% if original_date is defined %}
+                <input type="datetime-local" class="form-control" id="datetime" name="datetime"  step="1" placeholder="{{original_date}}" value="{{original_date}}">
+                {% else %}
+                <input type="datetime-local" class="form-control" id="datetime" name="datetime"  step="1">
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                <label for="temperature" class="form-label">Temperature (°C)</label>
+                {% if temperature is defined %}
+                <input type="number" step="0.1" class="form-control" id="temperature" name="temperature" placeholder={{temperature}} value="{{temperature}}">
+                {% else %}
+                <input type="number" step="0.1" class="form-control" id="temperature" name="temperature" placeholder="27.0">
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                <label for="pressure" class="form-label">Pressure (mbar)</label>
+                {% if pressure is defined %}
+                <input type="number" step="0.1" class="form-control" id="pressure" name="pressure" placeholder={{pressure}} value="{{pressure}}">
+                {% else %}
+                <input type="number" step="0.1" class="form-control" id="pressure" name="pressure" placeholder="27.0">
+                {% endif %}
+            </div>
+            <div class="row pt-3">
+                <div class="col-md-4">
+                    <label for="pilihan" class="form-label">Pilih Jenis Data</label>
+                    <select class="form-select form-select-lg mb-3" name="pilihan" id="pilihan">
+                        {% if pilihan == 'dataHilalRingkas' %}
+                        <option selected value="dataHilalRingkas">Data Hilal Ringkas</option>
+                        <option value="PerbandinganElongasi">Perbandingan Jarak Lengkung dan Fasa Bulan</option>
+                        <option value="dataHilalPenuh">Data Hilal Penuh</option>
+                        {% elif pilihan == 'PerbandinganElongasi' %}
+                        <option selected value="PerbandinganElongasi">Perbandingan Jarak Lengkung dan Fasa Bulan</option>
+                        <option value="dataHilalRingkas">Data Hilal Ringkas</option>
+                        <option value="dataHilalPenuh">Data Hilal Penuh</option>
+                        {% elif pilihan == 'dataHilalPenuh' %}
+                        <option selected value="dataHilalPenuh">Data Hilal Penuh</option>
+                        <option value="dataHilalRingkas">Data Hilal Ringkas</option>
+                        <option value="PerbandinganElongasi">Perbandingan Jarak Lengkung dan Fasa Bulan</option>
+                        {% else %}
+                        <option selected value="dataHilalRingkas">Data Hilal Ringkas</option>
+                        <option value="PerbandinganElongasi">Perbandingan Jarak Lengkung dan Fasa Bulan</option>
+                        <option value="dataHilalPenuh">Data Hilal Penuh</option>
+                        {% endif %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="topo_pilihan" class="form-label">Pilih titik rujukan</label>
+                    <select class="form-select form-select-lg mb-3" name="topo_pilihan" id="topo_pilihan">
+                        {% if topo == 'geocentric' %}
+                        <option selected value="geocentric">Geosentrik</option>
+                        <option value="topocentric">Toposentrik</option>
+                        {% else %}
+                        <option selected value="topocentric">Toposentrik</option>
+                        <option value="geocentric">Geosentrik</option>
+                        {% endif %}
+                    </select>
+                </div>
+            </div>
+            <div class="pt-2">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+
+        </div>
+    </form>
+    <div>
+        {% if pilihan == 'dataHilalRingkas' %}
+        <h2>Data Hilal</h2>
+        <p>Tarikh: {{parsed_date}}</p>
+        <p>Rujukan: {{topo}}</p>
+        <div class="row pt-3">
+            <div class="col-md-6">
+                <table class="table table-striped-columns">
+                    <thead>
+                        <tr>
+                            <th scope="col">Data</th>
+                            <th scope="col">Nilai</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Maghrib</td>
+                            <td>{{maghrib}}</td>
+                        </tr>
+                        <tr>
+                            <td>Bulan Terbenam</td>
+                            <td>{{moon_set}}</td>
+                        </tr>
+                        <tr>
+                            <td>Ijtimak</td>
+                            <td>{{ijtimak}}</td>
+                        </tr>
+                        <tr>
+                            <td>Umur Bulan</td>
+                            <td>{{moon_age}}</td>
+                        </tr>
+                        <tr>
+                            <td>Jarak Lengkung</td>
+                            <td>{{elongation}}</td>
+                        </tr>
+                        <tr>
+                            <td>Altitud Bulan</td>
+                            <td>{{altitude}}</td>
+                        </tr>
+                        <tr>
+                            <td>Beza Azimut</td>
+                            <td>{{azimuth_difference}}</td>
+                        </tr>
+                        <tr>
+                            <td>Kecerahan</td>
+                            <td>{{illumination}}</td>
+                        </tr>
+                        <tr>
+                            <td>Tempoh Bulan Terbenam</td>
+                            <td>{{lag_time}}</td>
+                        </tr>
+                        <tr>
+                            <td>Lebar Hilal</td>
+                            <td>{{crescent_width}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <table class="table table-striped-columns">
+                    <thead>
+                        <tr>
+                            <th scope="col">Kriteria</th>
+                            <th scope="col">Nilai</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Odeh 2004</td>
+                            <td>{{odeh}}</td>
+                        </tr>
+                        <tr>
+                            <td>Yallop 1997</td>
+                            <td>{{yallop}}</td>
+                        </tr>
+                        <tr>
+                            <td>Mabims 2021</td>
+                            <td>{{mabims2021}}</td>
+                        </tr>
+                        <tr>
+                            <td>Malaysia 2013</td>
+                            <td>{{malaysia2013}}</td>
+                        </tr>
+                        <tr>
+                            <td>Muhammadiyyah</td>
+                            <td>{{muhammadiyah}}</td>
+                        </tr>
+                        <tr>
+                            <td>Istanbul 1978</td>
+                            <td>{{istanbul78}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div>
+                <h4>Simulasi Langit</h4>
+                <img src="data:image/png;base64,{{ gambar_Hilal }}" alt="{{ gambar_Hilal }}" class="responsive-img">
+            </div>
+        </div>
+
+        {% elif pilihan == 'PerbandinganElongasi' %}
+        <div>
+            <h2>Perbandingan Fasa Bulan dan Jarak Lengkung</h2>
+            <p>Tarikh: {{parsed_date}}</p>
+            <p>Rujukan: {{topo}}</p>
+            <div class="row-p-2">
+                <div class="col-md-4">
+                    <table class="table table-striped-columns">
+                        <thead>
+                            <tr>
+                                <th scope="col">Data</th>
+                                <th scope="col">Nilai</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Fasa Bulan</td>
+                                <td>{{fasa}}</td>
+                            </tr>
+                            <tr>
+                                <td>Jarak Lengkung</td>
+                                <td>{{elong}}</td>
+                            </tr>
+                            <tr>
+                                <td>Jarak Lengkung Minimum (Tarikh)</td>
+                                <td>{{elong_min}}</td>
+                            </tr>
+                            <tr>
+                                <td>Ijtimak</td>
+                                <td>{{conj}}</td>
+                            </tr>
+                            <tr>
+                                <td>Jarak Lengkung Maksimum (Tarikh)</td>
+                                <td>{{elong_max}}</td>
+                            </tr>
+                            <tr>
+                                <td>Purnama</td>
+                                <td>{{opp}}</td>
+                            </tr>
+                            <tr>
+                                <td>Jarak Lengkung Minimum (Sudut)</td>
+                                <td>{{sudut_min}}</td>
+                            </tr>
+                            <tr>
+                                <td>Jarak Lengkung Maksimum (Sudut)</td>
+                                <td>{{sudut_max}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% elif pilihan == 'dataHilalPenuh' %}
+        <div>
+            <h2>Efemeris Hilal</h2>
+            <p>Tarikh: {{parsed_date}}</p>
+            <p>Rujukan: {{topo}}</p>
+            <p>Maghrib: {{maghrib}}</p>
+            <p>Bulan Terbenam: {{moon_set}}</p>
+            <div class="pt-2">
+                <table class="table table-striped-columns">
+                    <thead>
+                        <tr>
+                            <th scope="col">Waktu</th>
+                            <th scope="col">Jarak Lengkung(°)</th>
+                            <th scope="col">Alt Bulan(°)</th>
+                            <th scope="col">Az Bulan(°)</th>
+                            <th scope="col">Alt Matahari(°)</th>
+                            <th scope="col">Az Matahari(°)</th>
+                            <th scope="col">Kecerahan (%)</th>
+                            <th scope="col">Lebar Hilal (')</th>
+                            <th scope="col">Beza Altitud(°)</th>
+                            <th scope="col">ARCV (°)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in range(efemeris_hilal|length) %}
+                        <tr>
+                            <td>{{efemeris_hilal.index[i]}}</td>
+                            <td>{{efemeris_hilal["Elongasi"][i]}}</td>
+                            <td>{{efemeris_hilal["Alt Bulan"][i]}}</td>
+                            <td>{{efemeris_hilal["Az Bulan"][i]}}</td>
+                            <td>{{efemeris_hilal["Alt Matahari"][i]}}</td>
+                            <td>{{efemeris_hilal["Az Matahari"][i]}}</td>
+                            <td>{{efemeris_hilal["Illuminasi bulan(%)"][i]}}</td>
+                            <td>{{efemeris_hilal["Lebar Hilal"][i]}}</td>
+                            <td>{{efemeris_hilal["DAZ"][i]}}</td>
+                            <td>{{efemeris_hilal["ARCV"][i]}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const selectElement = document.getElementById('pilihan');
+        const pressureContainer = document.getElementById('pressure-container');
+
+        selectElement.addEventListener('change', function() {
+            if (this.value === 'Bulan') {
+                pressureContainer.innerHTML = `
+                    <select class="form-select form-select-lg mb-3" name="topo_pilihan" id="topo_pilihan">
+                    <option selected value="topocentric">Toposentrik</option>
+                    <option value="geocentric">Geosentrik</option>
+                  </select>
+                `;
+            } else {
+                pressureContainer.innerHTML = '';
+            }
+        });
+    });
+</script>
+
+{% endblock %}
