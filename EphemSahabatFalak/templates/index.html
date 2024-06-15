@@ -31,7 +31,11 @@
             </div>
             <div class="col-md-4">
                 <label for="datetime" class="form-label">Date and Time:</label>
+                {% if original_date is defined %}
+                <input type="datetime-local" class="form-control" id="datetime" name="datetime"  step="1" placeholder="{{original_date}}" value="{{original_date}}">
+                {% else %}
                 <input type="datetime-local" class="form-control" id="datetime" name="datetime"  step="1">
+                {% endif %}
             </div>
             <div class="col-md-4">
                 <label for="temperature" class="form-label">Temperature (°C)</label>

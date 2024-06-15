@@ -70,11 +70,13 @@ class Takwim:
         # The default is part 1, which runs until 1969.
         # Skyfield claims to provide a fix through issue #691 but we are not
         # able to fix it.
-        if self.year < 1550 or self.year > 2650:
-            self.ephem = 'de441.bsp'
+        if self.year < 1550:
+            self.ephem = 'de441_shortened.bsp'
         elif (self.year >= 1550 and self.year < 1849 or
               self.year > 2150 and self.year <= 2650):
             self.ephem = 'de440.bsp'
+        elif self.year > 2650:
+            self.ephem = 'de441_shortened-par-2.bsp'
         else:
             self.ephem = ephem
         self.eph = load(self.ephem)
@@ -107,6 +109,12 @@ class Takwim:
     def radius_at_location(self):
         return length_of(self.location().itrs_xyz.km)
 
+    @staticmethod
+    def timescale_with_cutoff():
+        ts = load.timescale()
+        ts.julian_calendar_cutoff = GREGORIAN_START
+        return ts
+
     def current_time(self, time_format='skylib'):
         """
         Returns the 'current time' of the class. This can be changed by
@@ -124,6 +132,7 @@ class Takwim:
         now = zone.localize(dt.datetime(self.year, self.month, self.day,
                                         self.hour, self.minute, self.second))
         ts = load.timescale()
+        ts.julian_calendar_cutoff = GREGORIAN_START
 
         current_time = ts.from_datetime(now)
 
@@ -1985,19 +1994,17 @@ class Takwim:
         arc_vision = []
 
         total_minutes = int(self.lag_time(time_format='seconds')//60)
-        print(f'Maghrib: {self.waktu_maghrib(time_format="string")}')
-        print(f'Moonset: {self.moon_set(time_format="string")}')
+        maghrib = self.waktu_maghrib()
 
         if total_minutes < 0:
             min_in_day = -1/1440
             total_minutes = range(abs(total_minutes)-1, -2, -1)
         else:
             min_in_day = 1/1440
-            total_minutes = range(total_minutes+2)
+            total_minutes = range(-60, total_minutes+2, 1)
 
         for i in (total_minutes):
-            print(i)
-            delta_time = self.waktu_maghrib() + i*min_in_day
+            delta_time = maghrib + i*min_in_day
             hour = delta_time.astimezone(self.zone).hour
             minute = delta_time.astimezone(self.zone).minute
 
@@ -3813,18 +3820,11 @@ class Takwim:
             takwim_hijri.day = time_in_datetime.day
             time_in_jd += 1
             islamic_lunation_day += 1
-            tarikh_masihi.append(takwim_hijri.convert_julian_from_time())
+            tarikh_masihi.append(takwim_hijri.current_time('string'))
             day_of_the_week.append(takwim_hijri.day_of_the_week())
             hari_hijri_list.append(hari_hijri)
             bulan_hijri_list.append(bulan_hijri)
             tahun_hijri_list.append(tahun_hijri)
-            if takwim_hijri.year < 1550 or takwim_hijri.year > 2650:
-                takwim_hijri.ephem = 'de441.bsp'
-            elif (takwim_hijri.year >= 1550 and takwim_hijri.year < 1850
-                    or takwim_hijri.year > 2149 and takwim_hijri.year <= 2650):
-                takwim_hijri.ephem = 'de440.bsp'
-            else:
-                takwim_hijri.ephem = 'de440s.bsp'
             if hari_hijri < 29:  # for each day on every month except 29 and 30
                 hari_hijri += 1
 
@@ -4045,7 +4045,7 @@ class Takwim:
                 aspect=1.0,
                 title=('Kedudukan Hilal pada syuruk ' +
                        self.waktu_syuruk(time_format='string') + ' ' +
-                       self.convert_julian_from_time() + ' di Lat: ' +
+                       self.current_time('string') + ' di Lat: ' +
                        str(self.latitude) + 'dan Long: ' +
                        str(self.longitude)),
                 xlabel='Azimuth (°)',
@@ -4087,7 +4087,7 @@ class Takwim:
                 aspect=1.0,
                 title=('Kedudukan Hilal pada maghrib ' +
                        self.waktu_maghrib(time_format='string') + ' ' +
-                       self.convert_julian_from_time()+' di Lat: ' +
+                       self.current_time('string')+' di Lat: ' +
                        str(self.latitude) + ' dan Long: ' +
                        str(self.longitude)),
                 xlabel='Azimuth (°)',
@@ -4253,7 +4253,7 @@ class Takwim:
                 aspect=1.0,
                 title=('Kedudukan Hilal pada syuruk ' +
                        self.waktu_syuruk(time_format='string') + ' ' +
-                       self.convert_julian_from_time() + ' di Lat: ' +
+                       self.current_time('string') + ' di Lat: ' +
                        str(self.latitude) + 'dan Long: ' +
                        str(self.longitude)),
                 xlabel='Difference in Azimuth (°)',

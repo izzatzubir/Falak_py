@@ -86,6 +86,18 @@
                 <input type="number" step="0.1" class="form-control" id="pressure" name="pressure" placeholder="27.0">
                 {% endif %}
             </div>
+            <div class="col-md-4">
+                <label for="timezone" class="form-label">Zon Waktu</label>
+                <select class="form-select form-select-lg mb-3" name="timezone" id="timezone">
+                    {% if timezone == 'lain' %}
+                    <option value="asia_KL">Asia/Kuala_Lumpur</option>
+                    <option selected ="lain">Lain-lain</option>
+                    {% else %}
+                    <option selected value="asia_KL">Asia/Kuala Lumpur</option>
+                    <option value="lain">Lain-lain</option>
+                    {% endif %}
+                </select>
+            </div>
             <div class="row pt-3">
                 <div class="col-md-4">
                     <label for="pilihan" class="form-label">Pilih Jenis Data</label>
