@@ -70,13 +70,14 @@ class Takwim:
         # The default is part 1, which runs until 1969.
         # Skyfield claims to provide a fix through issue #691 but we are not
         # able to fix it.
-        if self.year < 1550:
+        if (self.year < 1550 and self.year > 999):
             self.ephem = 'de441_shortened.bsp'
-        elif (self.year >= 1550 and self.year < 1849 or
-              self.year > 2150 and self.year <= 2650):
-            self.ephem = 'de440.bsp'
-        elif self.year > 2650:
-            self.ephem = 'de441_shortened-par-2.bsp'
+        elif (self.year < 1000):
+            self.ephem = 'de441_shortened_2.bsp'
+        elif (self.year >= 1550 and self.year < 1849):
+            self.ephem = 'de440_part1.bsp'
+        elif (self.year > 2150 and self.year <= 2649):
+            self.ephem = 'de440_part2.bsp'
         else:
             self.ephem = ephem
         self.eph = load(self.ephem)
