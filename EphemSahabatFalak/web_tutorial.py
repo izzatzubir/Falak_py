@@ -13,17 +13,18 @@ app = Flask(__name__)
 @app.route("/", methods=["POST", "GET"])
 def home():
     if request.method == "POST":
-        print("Method is post")
         pemerhati = Takwim()
         latitude = 5.41144
         longitude = 100.19672
         elevation = 40.0
-        year = datetime.now().year
-        month = datetime.now().month
-        day = datetime.now().day
-        hour = datetime.now().hour
-        minute = datetime.now().minute
-        second = datetime.now().second
+        now = datetime.now()
+        year = now.year
+        month = now.month
+        day = now.day
+        hour = now.hour
+        minute = now.minute
+        second = now.second
+        original_date = now.strftime("%Y-%m-%dT%H:%M:%S")
         temperature = 27.0
         pressure = None
 
@@ -39,7 +40,7 @@ def home():
         if request.form["temperature"] != "":
             temperature = float(request.form["temperature"])
 
-        if request.form["pressure"] != "":
+        if request.form["pressure"] != "None":
             pressure = float(request.form["pressure"])
 
         if request.form['datetime'] != "":
@@ -52,18 +53,25 @@ def home():
                 parsed_date = datetime.strptime(request.form['datetime'],
                                                 "%Y-%m-%dT%H:%M")
                 second = 0
+            finally:
+                year = parsed_date.year
+                month = parsed_date.month
+                day = parsed_date.day
+                hour = parsed_date.hour
+                minute = parsed_date.minute
 
-            year = parsed_date.year
-            month = parsed_date.month
-            day = parsed_date.day
-            hour = parsed_date.hour
-            minute = parsed_date.minute
-            second = parsed_date.second
+        if request.form['timezone'] == "lain":
+            zone = None
+            timezone = 'lain'
+        else:
+            zone = 'Asia/Kuala_Lumpur'
+            timezone = 'asia_KL'
 
         pemerhati = Takwim(
             latitude=latitude, longitude=longitude, elevation=elevation,
             temperature=temperature, pressure=pressure, year=year,
-            month=month, day=day, hour=hour, minute=minute, second=second
+            month=month, day=day, hour=hour, minute=minute, second=second,
+            zone=zone
         )
         if request.form["pilihan"] == "waktu-solat":
             subuh = pemerhati.waktu_subuh(time_format='string')
@@ -76,7 +84,8 @@ def home():
                 "index.html", subuh=subuh, syuruk=syuruk, zohor=zohor,
                 asar=asar, maghrib=maghrib, isyak=isyak, latitud=latitude,
                 longitud=longitude, elevation=elevation,
-                temperature=temperature, pressure=pressure,
+                temperature=temperature, pressure=pemerhati.pressure,
+                timezone=timezone,
                 original_date=original_date)
         elif request.form["pilihan"] == "Kiblat":
             azimut_degree = float(pemerhati.azimut_kiblat())
@@ -88,8 +97,8 @@ def home():
                 "index.html", azimut=azimut, jarak=jarak,
                 waktu_bayang=waktu_bayang, latitud=latitude,
                 longitud=longitude, elevation=elevation,
-                temperature=temperature, pressure=pressure,
-                original_date=original_date
+                temperature=temperature, pressure=pemerhati.pressure,
+                original_date=original_date, timezone=timezone
             )
 
         elif request.form["pilihan"] == "efemerisKiblat":
@@ -97,8 +106,8 @@ def home():
             return render_template(
                 "index.html", efemeris_kiblat=efemeris_kiblat,
                 latitud=latitude, longitud=longitude, elevation=elevation,
-                temperature=temperature, pressure=pressure,
-                original_date=original_date)
+                temperature=temperature, pressure=pemerhati.pressure,
+                original_date=original_date, timezone=timezone)
 
         elif request.form["pilihan"] == "waktuSolatBulanan":
             takwim_bulanan = pemerhati.takwim_solat_bulanan(
@@ -107,8 +116,8 @@ def home():
             return render_template(
                 "index.html", takwim_bulanan=takwim_bulanan, latitud=latitude,
                 longitud=longitude, elevation=elevation,
-                temperature=temperature, pressure=pressure,
-                original_date=original_date)
+                temperature=temperature, pressure=pemerhati.pressure,
+                original_date=original_date, timezone=timezone)
 
     else:
         return render_template("index.html")
@@ -121,6 +130,12 @@ def sahabatfalakpro():
         lokasi_dic = {}
         if request.form["tahun"] != "":
             year = int(request.form["tahun"])
+        if request.form['timezone'] == "lain":
+            zone = None
+            timezone = 'lain'
+        else:
+            zone = 'Asia/Kuala_Lumpur'
+            timezone = 'asia_KL'
 
         if request.form["negeri"] != "Tiada":
             if request.form["negeri"] == "Penang":
@@ -151,10 +166,11 @@ def sahabatfalakpro():
                     analisis_perbandingan_julat_zohor=multipoint[11],
                     analisis_perbandingan_julat_asar=multipoint[12],
                     analisis_perbandingan_julat_maghrib=multipoint[13],
-                    analisis_perbandingan_julat_isyak=multipoint[14]
+                    analisis_perbandingan_julat_isyak=multipoint[14],
+                    timezone=timezone
                     )
 
-        pemerhati = Takwim(year=year)
+        pemerhati = Takwim(year=year, zone=zone)
         if request.form["latitude0"] != "":
             for key, value in request.form.items():
                 if key.startswith('titik'):
@@ -186,7 +202,8 @@ def sahabatfalakpro():
             analisis_perbandingan_julat_zohor=multipoint[11],
             analisis_perbandingan_julat_asar=multipoint[12],
             analisis_perbandingan_julat_maghrib=multipoint[13],
-            analisis_perbandingan_julat_isyak=multipoint[14]
+            analisis_perbandingan_julat_isyak=multipoint[14],
+            timezone=timezone
             )
     return render_template("sahabatfalakpro.html")
 
@@ -194,18 +211,19 @@ def sahabatfalakpro():
 @app.route("/sahabatfalakplus", methods=["POST", "GET"])
 def sahabatfalakplus():
     if request.method == "POST":
-        pemerhati = Takwim()
         latitude = 5.41144
         longitude = 100.19672
         elevation = 40.0
-        year = datetime.now().year
-        month = datetime.now().month
-        day = datetime.now().day
-        hour = datetime.now().hour
-        minute = datetime.now().minute
-        second = datetime.now().second
+        now = datetime.now()
+        year = now.year
+        month = now.month
+        day = now.day
+        hour = now.hour
+        minute = now.minute
+        second = now.second
         temperature = 27.0
         pressure = None
+        original_date = now.strftime("%Y-%m-%dT%H:%M:%S")
 
         if request.form["latitud"] != "":
             latitude = float(request.form["latitud"])
@@ -232,6 +250,12 @@ def sahabatfalakplus():
                 parsed_date = datetime.strptime(request.form['datetime'],
                                                 "%Y-%m-%dT%H:%M")
                 second = 0
+            finally:
+                year = parsed_date.year
+                month = parsed_date.month
+                day = parsed_date.day
+                hour = parsed_date.hour
+                minute = parsed_date.minute
 
         if request.form['timezone'] == "lain":
             zone = None
@@ -240,20 +264,14 @@ def sahabatfalakplus():
             zone = 'Asia/Kuala_Lumpur'
             timezone = 'asia_KL'
 
-            year = parsed_date.year
-            month = parsed_date.month
-            day = parsed_date.day
-            hour = parsed_date.hour
-            minute = parsed_date.minute
-
         pemerhati = Takwim(
             latitude=latitude, longitude=longitude, elevation=elevation,
             temperature=temperature, pressure=pressure, year=year,
             month=month, day=day, hour=hour, minute=minute, second=second,
             zone=zone
         )
-        # Tambah pilihan zon waktu jika selain Asia/Kuala_Lumpur
 
+        # Tambah pilihan zon waktu jika selain Asia/Kuala_Lumpur
         topo = request.form["topo_pilihan"]
         maghrib_0 = pemerhati.waktu_maghrib
         maghrib_1 = maghrib_0()
@@ -306,13 +324,15 @@ def sahabatfalakplus():
                 azimuth_difference=azimuth_difference, ijtimak=ijtimak,
                 illumination=illumination,
                 lag_time=lag_time, crescent_width=crescent_width,
-                parsed_date=str(parsed_date)[:11], odeh=odeh, yallop=yallop,
+                parsed_date=pemerhati.current_time('string'),
+                odeh=odeh, yallop=yallop,
                 mabims2021=mabims2021, malaysia2013=malaysia2013,
                 muhammadiyah=muhammadiyah, istanbul78=istanbul78, topo=topo,
                 original_date=original_date, pilihan=pilihan,
                 gambar_Hilal=img_base64, latitud=latitude,
                 longitud=longitude, elevation=elevation,
-                temperature=temperature, pressure=pressure, timezone=timezone)
+                temperature=temperature, pressure=pemerhati.pressure,
+                timezone=timezone)
 
         elif request.form["pilihan"] == "PerbandinganElongasi":
             fasa = pemerhati.moon_phase(topo=topo, angle_format='degree')
@@ -331,20 +351,23 @@ def sahabatfalakplus():
 
             return render_template(
                 "sahabatfalakplus.html", topo=topo, fasa=fasa, elong=elong,
-                parsed_date=str(parsed_date)[:19], original_date=original_date,
-                pilihan=pilihan, elong_min=elong_min, elong_max=elong_max,
-                conj=conj, opp=opp, sudut_min=sudut_min, sudut_max=sudut_max,
+                parsed_date=pemerhati.current_time('string'),
+                original_date=original_date, pilihan=pilihan,
+                elong_min=elong_min, elong_max=elong_max, conj=conj, opp=opp,
+                sudut_min=sudut_min, sudut_max=sudut_max,
                 latitud=latitude, longitud=longitude, elevation=elevation,
-                temperature=temperature, pressure=pressure, timezone=timezone)
+                temperature=temperature, pressure=pemerhati.pressure,
+                timezone=timezone)
 
         elif request.form["pilihan"] == "dataHilalPenuh":
             efemeris_hilal = pemerhati.efemeris_hilal(topo, 'Yes')
             moon_set = pemerhati.moon_set(time_format='string')
             return render_template(
                 "sahabatfalakplus.html", efemeris_hilal=efemeris_hilal,
-                topo=topo, parsed_date=str(parsed_date)[:19], pilihan=pilihan,
+                topo=topo, parsed_date=pemerhati.current_time('string'),
+                pilihan=pilihan,
                 latitud=latitude, longitud=longitude, elevation=elevation,
-                temperature=temperature, pressure=pressure,
+                temperature=temperature, pressure=pemerhati.pressure,
                 original_date=original_date, maghrib=maghrib,
                 moon_set=moon_set, timezone=timezone)
     return render_template(
