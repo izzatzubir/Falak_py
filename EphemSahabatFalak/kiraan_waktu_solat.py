@@ -131,13 +131,11 @@ class Takwim:
         zone = self.zone
         now = zone.localize(dt.datetime(self.year, self.month, self.day,
                                         self.hour, self.minute, self.second))
-        ts = load.timescale()
-        ts.julian_calendar_cutoff = GREGORIAN_START
 
-        current_time = ts.from_datetime(now)
+        current_time = self.timescale_with_cutoff().from_datetime(now)
 
         if time_format == 'string':
-            return now.strftime("%d-%m-%Y %H:%M:%S")
+            return now.strftime("%d-%m-%Y %H:%M:%S %Z %A")
 
         elif time_format == 'datetime':
             return current_time.astimezone(self.zone)
@@ -151,7 +149,6 @@ class Takwim:
         This method will automatically switch to Gregorian calendar
         at 15 October 1582.
         """
-
         ts = load.timescale()
         ts.julian_calendar_cutoff = GREGORIAN_START
         greenwich = Takwim(
@@ -596,10 +593,9 @@ class Takwim:
         now = self.current_time().astimezone(self.zone)
         midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
         next_midnight = midnight + dt.timedelta(days=1)
-        ts = load.timescale()
 
-        t0 = ts.from_datetime(midnight)
-        t1 = ts.from_datetime(next_midnight)
+        t0 = self.timescale_with_cutoff().from_datetime(midnight)
+        t1 = self.timescale_with_cutoff().from_datetime(next_midnight)
         moon_set_time, y = almanac.find_settings(
             observer, moon, t0, t1, -Angle(
                     degrees=self.__horizon_dip_refraction_semid()).degrees)
@@ -621,10 +617,9 @@ class Takwim:
         now = self.current_time().astimezone(self.zone)
         midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
         next_midnight = midnight + dt.timedelta(days=1)
-        ts = load.timescale()
 
-        t0 = ts.from_datetime(midnight)
-        t1 = ts.from_datetime(next_midnight)
+        t0 = self.timescale_with_cutoff().from_datetime(midnight)
+        t1 = self.timescale_with_cutoff().from_datetime(next_midnight)
         surface = Takwim(
             latitude=self.latitude, longitude=self.longitude,
             day=self.day, month=self.month, year=self.year,
@@ -659,7 +654,8 @@ class Takwim:
                 return str(moon_set_time.astimezone(self.zone))[11:19]
 
             else:
-                return ts.from_datetime(moon_set_time)
+                return self.timescale_with_cutoff().from_datetime(
+                    moon_set_time)
         except Exception:
             return ("Moon does not set on " + str(self.day) + "-" +
                     str(self.month) + "-" + str(self.year))
@@ -670,10 +666,9 @@ class Takwim:
         now = self.current_time().astimezone(self.zone)
         midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
         next_midnight = midnight + dt.timedelta(days=1)
-        ts = load.timescale()
 
-        t0 = ts.from_datetime(midnight)
-        t1 = ts.from_datetime(next_midnight)
+        t0 = self.timescale_with_cutoff().from_datetime(midnight)
+        t1 = self.timescale_with_cutoff().from_datetime(next_midnight)
         moon_set_time, y = almanac.find_risings(
             observer, moon, t0, t1, -Angle(
                     degrees=self.__horizon_dip_refraction_semid()).degrees)
@@ -692,10 +687,9 @@ class Takwim:
         now = self.current_time().astimezone(self.zone)
         midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
         next_midnight = midnight + dt.timedelta(days=1)
-        ts = load.timescale()
 
-        t0 = ts.from_datetime(midnight)
-        t1 = ts.from_datetime(next_midnight)
+        t0 = self.timescale_with_cutoff().from_datetime(midnight)
+        t1 = self.timescale_with_cutoff().from_datetime(next_midnight)
         surface = Takwim(
             day=self.day, month=self.month, year=self.year,
             hour=self.hour, minute=self.minute, second=self.second,
@@ -732,7 +726,8 @@ class Takwim:
                 return str(moon_set_time.astimezone(self.zone))[11:19]
 
             else:
-                return ts.from_datetime(moon_set_time)
+                return self.timescale_with_cutoff().from_datetime(
+                    moon_set_time)
         except Exception:
             return ("Moon does not rise on " + str(self.day) + "-" +
                     str(self.month) + "-" + str(self.year))
@@ -870,12 +865,11 @@ class Takwim:
     def moon_conjunction(self, time_format='skyfield', topo='geo'):
         earth, sun, moon = self.earth_sun_moon_ephemeris()
         current_topo = earth + self.location()
-        ts = load.timescale()
         now = self.current_time().astimezone(self.zone)
         half_month_before = now - dt.timedelta(days=15)
         half_month_after = now + dt.timedelta(days=15)
-        t0 = ts.from_datetime(half_month_before)
-        t1 = ts.from_datetime(half_month_after)
+        t0 = self.timescale_with_cutoff().from_datetime(half_month_before)
+        t1 = self.timescale_with_cutoff().from_datetime(half_month_after)
 
         if topo in ('geo', 'geocentric'):
             reference = earth.at
@@ -893,23 +887,22 @@ class Takwim:
         leading_or_trailing.step_days = 14
         t, y = almanac.find_discrete(t0, t1, leading_or_trailing)
         new_moon = t[y == 1][0].astimezone(self.zone)
-        select_moon_age = ts.from_datetime(new_moon)
+        select_moon_age = self.timescale_with_cutoff().from_datetime(new_moon)
 
         if time_format == 'datetime':
             return new_moon
         elif time_format == 'string':
-            return str(new_moon)[:19]
+            return new_moon.strftime(format='%d-%m-%Y %H:%M:%S %Z %A')
         return select_moon_age
 
     def moon_opposition(self, time_format='skyfield', topo='geo'):
         earth, sun, moon = self.earth_sun_moon_ephemeris()
         current_topo = earth + self.location()
-        ts = load.timescale()
         now = self.current_time().astimezone(self.zone)
         half_month_before = now - dt.timedelta(days=15)
         half_month_after = now + dt.timedelta(days=15)
-        t0 = ts.from_datetime(half_month_before)
-        t1 = ts.from_datetime(half_month_after)
+        t0 = self.timescale_with_cutoff().from_datetime(half_month_before)
+        t1 = self.timescale_with_cutoff().from_datetime(half_month_after)
 
         if topo in ('geo', 'geocentric'):
             reference = earth.at
@@ -927,7 +920,7 @@ class Takwim:
         leading_or_trailing.step_days = 14
         t, y = almanac.find_discrete(t0, t1, leading_or_trailing)
         new_moon = t[y == 0][0].astimezone(self.zone)
-        select_moon_age = ts.from_datetime(new_moon)
+        select_moon_age = self.timescale_with_cutoff().from_datetime(new_moon)
 
         if time_format == 'datetime':
             return new_moon
@@ -936,13 +929,12 @@ class Takwim:
         return select_moon_age
 
     def moon_max_elongation(self, time_format='default', topo='topo'):
-        ts = load.timescale()
 
         now = self.current_time().astimezone(self.zone)
         half_month_before = now - dt.timedelta(days=15)
         half_month_after = now + dt.timedelta(days=15)
-        t0 = ts.from_datetime(half_month_before)
-        t1 = ts.from_datetime(half_month_after)
+        t0 = self.timescale_with_cutoff().from_datetime(half_month_before)
+        t1 = self.timescale_with_cutoff().from_datetime(half_month_after)
 
         def __iteration_moon_elongation(t):
             return self.elongation_moon_sun(t, topo, angle_format='degree')
@@ -959,13 +951,12 @@ class Takwim:
         return times[0], elongations[0]
 
     def moon_min_elongation(self, time_format='default', topo='topo'):
-        ts = load.timescale()
 
         now = self.current_time().astimezone(self.zone)
         half_month_before = now - dt.timedelta(days=15)
         half_month_after = now + dt.timedelta(days=15)
-        t0 = ts.from_datetime(half_month_before)
-        t1 = ts.from_datetime(half_month_after)
+        t0 = self.timescale_with_cutoff().from_datetime(half_month_before)
+        t1 = self.timescale_with_cutoff().from_datetime(half_month_after)
 
         def __iteration_moon_elongation(t):
             return self.elongation_moon_sun(t, topo, angle_format='degree')
@@ -1030,14 +1021,14 @@ class Takwim:
 
     def waktu_istiwa(self, time_format='default'):
         earth, sun, __ = self.earth_sun_moon_ephemeris()
-        ts = load.timescale()
+
         observer = earth + self.location()
 
         now = self.current_time().astimezone(self.zone)
         midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
         next_midnight = midnight + dt.timedelta(days=1)
-        t0 = ts.from_datetime(midnight)
-        t1 = ts.from_datetime(next_midnight)
+        t0 = self.timescale_with_cutoff().from_datetime(midnight)
+        t1 = self.timescale_with_cutoff().from_datetime(next_midnight)
 
         istiwa = almanac.find_transits(observer, sun, t0, t1)[0]
 
@@ -1050,14 +1041,13 @@ class Takwim:
 
     def waktu_istiwa_lama(self, time_format='default'):
         __, sun, __ = self.earth_sun_moon_ephemeris()
-        ts = load.timescale()
 
         transit_Sun = almanac.meridian_transits(self.eph, sun, self.location())
         now = self.current_time().astimezone(self.zone)
         midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
         next_midnight = midnight + dt.timedelta(days=1)
-        t0 = ts.from_datetime(midnight)
-        t1 = ts.from_datetime(next_midnight)
+        t0 = self.timescale_with_cutoff().from_datetime(midnight)
+        t1 = self.timescale_with_cutoff().from_datetime(next_midnight)
         t, position = almanac.find_discrete(t0, t1, transit_Sun)
 
         choose_zawal = t[position == 1]
@@ -1072,14 +1062,13 @@ class Takwim:
 
     def waktu_zohor_lama(self, time_format='default'):
         __, sun, __ = self.earth_sun_moon_ephemeris()
-        ts = load.timescale()
 
         transit_Sun = almanac.meridian_transits(self.eph, sun, self.location())
         now = self.current_time().astimezone(self.zone)
         midnight = now.replace(hour=0, minute=0, second=0,  microsecond=0)
         next_midnight = midnight + dt.timedelta(days=1)
-        t0 = ts.from_datetime(midnight)
-        t1 = ts.from_datetime(next_midnight)
+        t0 = self.timescale_with_cutoff().from_datetime(midnight)
+        t1 = self.timescale_with_cutoff().from_datetime(next_midnight)
         t, position = almanac.find_discrete(t0, t1, transit_Sun)
         # find the meridian & anti-meridian
 
@@ -1097,7 +1086,7 @@ class Takwim:
         elif time_format == 'string':
             return str(zohor_datetime.astimezone(self.zone))[11:19]
 
-        return ts.from_datetime(zohor_datetime)
+        return self.timescale_with_cutoff().from_datetime(zohor_datetime)
 
     def waktu_zohor(self, time_format='default'):
         istiwa = self.waktu_istiwa()
@@ -1142,13 +1131,12 @@ class Takwim:
 
         eph = load(self.ephem)
         eph.segments = eph.segments[:14]
-        ts = load.timescale()
 
         now = self.current_time().astimezone(self.zone)
         midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
         next_midnight = midnight + dt.timedelta(days=1)
-        t0 = ts.from_datetime(midnight)
-        t1 = ts.from_datetime(next_midnight)
+        t0 = self.timescale_with_cutoff().from_datetime(midnight)
+        t1 = self.timescale_with_cutoff().from_datetime(next_midnight)
         self.altitude_subh = altitude
 
         if altitude == 'default' or altitude == -18:
@@ -1173,7 +1161,7 @@ class Takwim:
         elif time_format == 'string':
             return subh.strftime('%H:%M:%S')
 
-        return ts.from_datetime(subh)
+        return self.timescale_with_cutoff().from_datetime(subh)
 
     def __iteration_waktu_syuruk(self, t=None, alt='default'):
 
@@ -1194,13 +1182,12 @@ class Takwim:
     def waktu_syuruk_lama(self, altitude='default',
                           time_format='default', kaedah='Izzat'):
         __, sun, __ = self.earth_sun_moon_ephemeris()
-        ts = load.timescale()
 
         now = self.current_time().astimezone(self.zone)
         midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
         next_midnight = midnight + dt.timedelta(days=1)
-        t0 = ts.from_datetime(midnight)
-        t1 = ts.from_datetime(next_midnight)
+        t0 = self.timescale_with_cutoff().from_datetime(midnight)
+        t1 = self.timescale_with_cutoff().from_datetime(next_midnight)
         self.altitude_syuruk = altitude
 
         if altitude == 'default':
@@ -1236,7 +1223,7 @@ class Takwim:
             end = syuruk_time + timedelta(minutes=5) # ends iteration 5 minutes
             after default sunrise
             while now<end:
-                t0 = ts.from_datetime(now)
+                t0 = self.timescale_with_cutoff().from_datetime(now)
                 y0 = self.sun_altitude(t0)
 
                 if y0.degrees >= altitude:
@@ -1246,7 +1233,6 @@ class Takwim:
                 syuruk = now"""
 
         # starts iteration
-            ts = load.timescale()
 
             twilight_default = almanac.dark_twilight_day(
                 self.eph, self.location())
@@ -1260,8 +1246,8 @@ class Takwim:
             end = syuruk_time + timedelta(minutes=10)
             # ends iteration 10 minutes after default sunrise
 
-            t0 = ts.from_datetime(now)
-            t1 = ts.from_datetime(end)
+            t0 = self.timescale_with_cutoff().from_datetime(now)
+            t1 = self.timescale_with_cutoff().from_datetime(end)
 
             syur, __ = find_discrete(t0, t1, self.__iteration_waktu_syuruk)
             syuruk = syur[0].astimezone(self.zone)
@@ -1284,7 +1270,7 @@ class Takwim:
             syuruk = syuruk.strftime('%H:%M:%S')
 
         else:
-            syuruk = ts.from_datetime(syuruk)
+            syuruk = self.timescale_with_cutoff().from_datetime(syuruk)
 
         return syuruk
 
@@ -1292,13 +1278,12 @@ class Takwim:
             self, altitude='default', time_format='default', kaedah='Izzat'):
         earth, sun, __ = self.earth_sun_moon_ephemeris()
         observer = earth + self.location()
-        ts = load.timescale()
 
         now = self.current_time().astimezone(self.zone)  # python datetime
         midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
         next_midnight = midnight + dt.timedelta(days=1)
-        t0 = ts.from_datetime(midnight)
-        t1 = ts.from_datetime(next_midnight)
+        t0 = self.timescale_with_cutoff().from_datetime(midnight)
+        t1 = self.timescale_with_cutoff().from_datetime(next_midnight)
 
         if altitude == 'default':
             sun_apparent_radius = degrees(0.00475602221)
@@ -1319,7 +1304,7 @@ class Takwim:
         elif altitude <= 0 and altitude >= -4:
 
             # starts iteration
-            ts = load.timescale()
+
             twilight_default = almanac.dark_twilight_day(
                 self.eph, self.location())
             self.temperature = 0
@@ -1332,8 +1317,8 @@ class Takwim:
             end = syuruk_time + timedelta(minutes=10)
             # ends iteration 10 minutes after default sunrise
 
-            t0 = ts.from_datetime(now)
-            t1 = ts.from_datetime(end)
+            t0 = self.timescale_with_cutoff().from_datetime(now)
+            t1 = self.timescale_with_cutoff().from_datetime(end)
 
             syur, nilai = find_discrete(t0, t1, self.__iteration_waktu_syuruk)
             syuruk = syur[0].astimezone(self.zone)
@@ -1355,7 +1340,7 @@ class Takwim:
             return syuruk.strftime('%H:%M:%S')
 
         else:
-            return ts.from_datetime(syuruk)
+            return self.timescale_with_cutoff().from_datetime(syuruk)
 
     def __iteration_waktu_maghrib(self, t=None, alt='default'):
 
@@ -1413,13 +1398,12 @@ class Takwim:
         mencukupi bagi menghasilkan waktu solat.
         """
         __, sun, __ = self.earth_sun_moon_ephemeris()
-        ts = load.timescale()
 
         now = self.current_time().astimezone(self.zone)  # python datetime
         midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
         next_midnight = midnight + dt.timedelta(days=1)
-        t0 = ts.from_datetime(midnight)
-        t1 = ts.from_datetime(next_midnight)
+        t0 = self.timescale_with_cutoff().from_datetime(midnight)
+        t1 = self.timescale_with_cutoff().from_datetime(next_midnight)
 
         if altitude == 'default':
             radius_at_topo = self.radius_at_location()
@@ -1444,7 +1428,6 @@ class Takwim:
         elif altitude <= 0 and altitude >= -4:
             self.altitude_maghrib = altitude
             # starts iteration
-            ts = load.timescale()
 
             twilight_default = almanac.dark_twilight_day(
                 self.eph, self.location())
@@ -1456,8 +1439,8 @@ class Takwim:
             end = maghrib_time + timedelta(minutes=28)
             # ends iteration 28 minutes after default sunset
 
-            t0 = ts.from_datetime(now)
-            t1 = ts.from_datetime(end)
+            t0 = self.timescale_with_cutoff().from_datetime(now)
+            t1 = self.timescale_with_cutoff().from_datetime(end)
 
             magh, nilai = find_discrete(t0, t1, self.__iteration_waktu_maghrib)
             maghrib = magh[0].astimezone(self.zone)
@@ -1482,20 +1465,19 @@ class Takwim:
         elif time_format == 'test':
             return d, horizon_depression, sun_apparent_radius
 
-        return ts.from_datetime(maghrib)
+        return self.timescale_with_cutoff().from_datetime(maghrib)
 
     def waktu_maghrib(
             self, altitude='default', time_format='default',
             kaedah='izzat', accuracy='low'):
         earth, sun, __ = self.earth_sun_moon_ephemeris()
         observer = earth + self.location()
-        ts = load.timescale()
 
         now = self.current_time().astimezone(self.zone)  # python datetime
         midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
         next_midnight = midnight + dt.timedelta(days=1)
-        t0 = ts.from_datetime(midnight)
-        t1 = ts.from_datetime(next_midnight)
+        t0 = self.timescale_with_cutoff().from_datetime(midnight)
+        t1 = self.timescale_with_cutoff().from_datetime(next_midnight)
 
         if altitude == 'default':
             radius_at_topo = 6378
@@ -1522,7 +1504,6 @@ class Takwim:
         elif altitude <= 0 and altitude >= -4:
             self.altitude_maghrib = altitude
             # starts iteration
-            ts = load.timescale()
 
             twilight_default = almanac.dark_twilight_day(
                 self.eph, self.location())
@@ -1534,8 +1515,8 @@ class Takwim:
             end = maghrib_time + timedelta(minutes=28)
             # ends iteration 28 minutes after default sunset
 
-            t0 = ts.from_datetime(now)
-            t1 = ts.from_datetime(end)
+            t0 = self.timescale_with_cutoff().from_datetime(now)
+            t1 = self.timescale_with_cutoff().from_datetime(end)
 
             magh, nilai = find_discrete(t0, t1, self.__iteration_waktu_maghrib)
             maghrib = magh[0].astimezone(self.zone)
@@ -1557,7 +1538,7 @@ class Takwim:
             return maghrib.strftime('%H:%M:%S')
 
         else:
-            return ts.from_datetime(maghrib)
+            return self.timescale_with_cutoff().from_datetime(maghrib)
 
     def __iteration_waktu_isya(self, t=None, alt='default'):
 
@@ -1578,13 +1559,12 @@ class Takwim:
     def waktu_isyak(self, altitude='default', time_format='default'):
         eph = load(self.ephem)
         eph.segments = eph.segments[:14]
-        ts = load.timescale()
 
         now = self.current_time().astimezone(self.zone)
         midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
         next_midnight = midnight + dt.timedelta(days=1)
-        t0 = ts.from_datetime(midnight)
-        t1 = ts.from_datetime(next_midnight)
+        t0 = self.timescale_with_cutoff().from_datetime(midnight)
+        t1 = self.timescale_with_cutoff().from_datetime(next_midnight)
         self.altitude_isya = altitude
 
         if altitude == 'default' or altitude == -18:
@@ -1612,7 +1592,7 @@ class Takwim:
         elif time_format == 'string':
             return isya.strftime('%H:%M:%S')
 
-        return ts.from_datetime(isya)
+        return self.timescale_with_cutoff().from_datetime(isya)
 
     def __iteration_tarikh_matahari_istiwa(self, t):
 
@@ -1623,14 +1603,14 @@ class Takwim:
     __iteration_tarikh_matahari_istiwa.step_days = 1
 
     def __tarikh_istiwa_2(self, time_format='string'):
-        ts = load.timescale()
+
         now = self.current_time().astimezone(self.zone)
         this_year = now.replace(
             year=self.year, month=1, day=1, hour=0,
             minute=0, second=0, microsecond=0)
         next_year = this_year + dt.timedelta(days=366)
-        t0 = ts.from_datetime(this_year)
-        t1 = ts.from_datetime(next_year)
+        t0 = self.timescale_with_cutoff().from_datetime(this_year)
+        t1 = self.timescale_with_cutoff().from_datetime(next_year)
 
         tarikh, nilai = find_discrete(
             t0, t1, self.__iteration_tarikh_matahari_istiwa)
@@ -1675,14 +1655,14 @@ class Takwim:
         kurang daripada 17.18 arka minit.
 
         """
-        ts = load.timescale()
+
         now = self.current_time().astimezone(self.zone)
         this_year = now.replace(
             year=self.year, month=1, day=1, hour=0, minute=0, second=0,
             microsecond=0)
         next_year = this_year + dt.timedelta(days=366)
-        t0 = ts.from_datetime(this_year)
-        t1 = ts.from_datetime(next_year)
+        t0 = self.timescale_with_cutoff().from_datetime(this_year)
+        t1 = self.timescale_with_cutoff().from_datetime(next_year)
 
         tarikh, nilai = find_discrete(t0, t1, self.__iteration_matahari_istiwa)
 
@@ -1725,7 +1705,7 @@ class Takwim:
 
     def waktu_asar(self, time_format='default', kaedah='Syafie'):
         transit_time = self.waktu_istiwa()
-        ts = load.timescale()
+
         self.kaedah = kaedah
 
         zawal = transit_time.astimezone(self.zone)
@@ -1733,8 +1713,8 @@ class Takwim:
         # assuming that asr is more than 1 hour after zawal
         ends = zawal + dt.timedelta(hours=6)
         # assuming that asr is less than 6 hours after zawal
-        t0 = ts.from_datetime(begins)
-        t1 = ts.from_datetime(ends)
+        t0 = self.timescale_with_cutoff().from_datetime(begins)
+        t1 = self.timescale_with_cutoff().from_datetime(ends)
 
         asar, __ = find_discrete(t0, t1, self.__iteration_waktu_asar)
 

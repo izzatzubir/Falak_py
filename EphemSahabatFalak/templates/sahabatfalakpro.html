@@ -6,12 +6,12 @@
 
 <form action="/sahabatfalakpro" method="post">
     <div class="row">
-        <div class="col-6">
-            <label for="tahun">Tahun: </label>
+        <div class="col-md-4">
+            <label for="tahun" class="form-label">Tahun: </label>
             <input class="form-control" type="number" name="tahun" id="tahun" placeholder="2024">
         </div>
-        <div class="col-6">
-            <label for="negeri">Negeri: </label>
+        <div class="col-md-4">
+            <label for="negeri" class="form-label">Negeri: </label>
             <select class="form-select form-select" id="negeri" name="negeri">
                 <option selected value="Tiada">Tidak berkenaan</option>
                 <option value="Penang">Pulau Pinang</option>
@@ -20,24 +20,36 @@
                 <option value="Selangor3">Selangor Zon 3</option> -->
               </select>
         </div>
+        <div class="col-md-4">
+            <label for="timezone" class="form-label">Zon Waktu</label>
+            <select class="form-select form-select" name="timezone" id="timezone">
+                {% if timezone == 'lain' %}
+                <option value="asia_KL">Asia/Kuala_Lumpur</option>
+                <option selected value="lain">Lain-lain</option>
+                {% else %}
+                <option selected value="asia_KL">Asia/Kuala Lumpur</option>
+                <option value="lain">Lain-lain</option>
+                {% endif %}
+            </select>
+        </div>
     </div>
     <div id="coordinates-container">
         <div class="coordinates row pt-2">
             <div class="col-md-3">
-                <label for="titik0">Lokasi:</label>
-                <input type="text" name="titik0" id="titik0" value="Lokasi 1" readonly>
+                <label for="titik0" class="form-label">Lokasi:</label>
+                <input type="text" class="form-control" name="titik0" id="titik0" value="Lokasi 1" readonly>
             </div>
             <div class="col-md-3">
-                <label for="latitude0">Latitud:</label>
-                <input type="text" name="latitude0" id="latitude0" required>
+                <label for="latitude0" class="form-label">Latitud:</label>
+                <input type="text" class="form-control" name="latitude0" id="latitude0" required>
             </div>
             <div class="col-md-3">
-                <label for="longitude0">Longitud:</label>
-                <input type="text" name="longitude0" id="longitude0" required>
+                <label for="longitude0" class="form-label">Longitud:</label>
+                <input type="text" class="form-control" name="longitude0" id="longitude0" required>
             </div>
             <div class="col-md-3">
-                <label for="elevation0">Ketinggian:</label>
-                <input type="text" name="elevation0" id="elevation0" required>
+                <label for="elevation0" class="form-label">Ketinggian:</label>
+                <input type="text" class="form-control" name="elevation0" id="elevation0" required>
             </div>
 
             <!-- <button class="delete-button">Delete</button> -->
@@ -405,6 +417,7 @@
         var latitudeInput = document.getElementById("latitude0");
         var longitudeInput = document.getElementById("longitude0");
         var elevationInput = document.getElementById("elevation0");
+        var timeZone = document.getElementById("timezone")
 
         if (negeri !== "Tiada") {
             latitudeInput.removeAttribute("required");
@@ -413,6 +426,7 @@
             latitudeInput.setAttribute("disabled", "disabled");
             longitudeInput.setAttribute("disabled", "disabled");
             elevationInput.setAttribute("disabled", "disabled");
+            timeZone.setAttribute("disabled", "disabled")
         } else {
             latitudeInput.setAttribute("required", "required");
             longitudeInput.setAttribute("required", "required");
@@ -420,6 +434,7 @@
             latitudeInput.removeAttribute("disabled");
             longitudeInput.removeAttribute("disabled");
             elevationInput.removeAttribute("disabled");
+            timeZone.setAttribute("disabled")
         }
     });
 
