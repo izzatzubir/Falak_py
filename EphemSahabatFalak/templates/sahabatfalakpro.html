@@ -6,6 +6,10 @@
 
 <form action="/sahabatfalakpro" method="post">
     <div class="row">
+        <p>
+            Fungsi ini ditangguhkan kerana melambatkan server. Jika anda ingin
+            menjana takwim waktu solat panca titik bagi kegunaan rasmi, sila hubungi admin.
+        </p>
         <div class="col-md-4">
             <label for="tahun" class="form-label">Tahun: </label>
             <input class="form-control" type="number" name="tahun" id="tahun" placeholder="2024">
@@ -57,7 +61,7 @@
     </div>
     <br>
     <button id="add-button" class="btn btn-secondary">Tambah Lokasi</button>
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <button type="submit" class="btn btn-primary" disabled>Submit</button>
 </form>
 {% if takwim_multipoint is defined %}
 <hr>
