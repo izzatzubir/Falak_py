@@ -1095,11 +1095,11 @@ class Takwim:
                           dt.timedelta(minutes=1, seconds=6))
 
         if time_format == 'datetime':
-            return zohor_datetime.astimezone(self.zone)
+            return zohor_datetime
         elif time_format == 'string':
-            return str(zohor_datetime.astimezone(self.zone))[11:19]
+            return zohor_datetime.strftime('%H:%M:%S')
 
-        return zohor_datetime
+        return self.timescale_with_cutoff().from_datetime(zohor_datetime)
 
     def __iteration_waktu_subuh(self, t):
 
@@ -1717,7 +1717,24 @@ class Takwim:
         t0 = self.timescale_with_cutoff().from_datetime(begins)
         t1 = self.timescale_with_cutoff().from_datetime(ends)
 
-        asar, __ = find_discrete(t0, t1, self.__iteration_waktu_asar)
+        def __iteration_waktu_asar(t):
+            sun_altitude_at_meridian = self.sun_altitude(
+                transit_time).radians
+            sun_altitude_at_asr = degrees(
+                acot(cot(sun_altitude_at_meridian)+1))
+            if 'anafi' in self.kaedah:
+                sun_altitude_at_asr = degrees(
+                    acot(cot(sun_altitude_at_meridian)+2))
+
+            current_sun_altitude = self.sun_altitude(t).degrees
+            find_when_current_altitude_equals_asr = \
+                current_sun_altitude - sun_altitude_at_asr
+
+            return find_when_current_altitude_equals_asr < 0
+
+        __iteration_waktu_asar.step_days = 1/4
+
+        asar, __ = find_discrete(t0, t1, __iteration_waktu_asar)
 
         if time_format == 'datetime':
             return asar[0].astimezone(self.zone)
@@ -1843,10 +1860,10 @@ class Takwim:
                 masa_bayang_searah_kiblat_tamat = masa[1].astimezone(self.zone)
 
             elif time_format == 'string':
-                masa_bayang_searah_kiblat_mula = str(
-                    masa[0].astimezone(self.zone))[11:19]
-                masa_bayang_searah_kiblat_tamat = str(
-                    masa[1].astimezone(self.zone))[11:19]
+                masa_bayang_searah_kiblat_mula = \
+                    masa[0].astimezone(self.zone).strftime('%H:%M:%S')
+                masa_bayang_searah_kiblat_tamat = \
+                    masa[1].astimezone(self.zone).strftime('%H:%M:%S')
 
             else:
                 masa_bayang_searah_kiblat_mula = masa[0]
@@ -4420,6 +4437,13 @@ def main():
     """
     Execute functions here
     """
+    test = Takwim(month=2)
+    # print(test.waktu_subuh(time_format='string'))
+    # print(test.waktu_syuruk(time_format='string'))
+    # print(test.waktu_zohor(time_format='string'))
+    # print(test.waktu_asar(time_format='string'))
+    # print(test.waktu_maghrib(time_format='string'))
+    # print(test.waktu_isyak(time_format='string'))
 
 
 if __name__ == "__main__":
