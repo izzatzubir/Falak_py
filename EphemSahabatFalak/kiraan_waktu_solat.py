@@ -2092,7 +2092,7 @@ class Takwim:
             self, altitud_subuh='default', altitud_syuruk='default',
             altitud_maghrib='default', altitud_isyak='default',
             kaedah_asar='Syafie', kaedah_syuruk_maghrib='Izzat',
-            saat='tidak', directory=None):
+            saat='tidak', directory=None, bayang_kiblat='tidak'):
         '''
         Returns a monthly prayer timetable. \n
         The timetable contains Subuh, Syuruk, Zohor, Asar, Maghrib and Isyak
@@ -2173,24 +2173,30 @@ class Takwim:
             masa = self.current_time(time_format='string')[:11]
             tarikh.append(masa)
 
-            if saat == 'tidak' or saat == 'no':
-                waktu_bayang_searah_kiblat = self.bayang_searah_kiblat(
-                    time_format='datetime')
+            if bayang_kiblat == 'ya':
+                if saat == 'tidak' or saat == 'no':
+                    waktu_bayang_searah_kiblat = self.bayang_searah_kiblat(
+                        time_format='datetime')
 
-                try:
-                    bayang_kiblat_mula.append(self.__round_up(
-                        waktu_bayang_searah_kiblat[0]))
-                    bayang_kiblat_tamat.append(self.__round_down(
-                        waktu_bayang_searah_kiblat[1]))
-                except TypeError:
+                    try:
+                        bayang_kiblat_mula.append(self.__round_up(
+                            waktu_bayang_searah_kiblat[0]))
+                        bayang_kiblat_tamat.append(self.__round_down(
+                            waktu_bayang_searah_kiblat[1]))
+                    except TypeError:
+                        bayang_kiblat_mula.append(
+                            waktu_bayang_searah_kiblat[0])
+                        bayang_kiblat_tamat.append(
+                            waktu_bayang_searah_kiblat[1])
+
+                else:
+                    waktu_bayang_searah_kiblat = self.bayang_searah_kiblat(
+                        time_format='string')
                     bayang_kiblat_mula.append(waktu_bayang_searah_kiblat[0])
                     bayang_kiblat_tamat.append(waktu_bayang_searah_kiblat[1])
-
             else:
-                waktu_bayang_searah_kiblat = self.bayang_searah_kiblat(
-                    time_format='string')
-                bayang_kiblat_mula.append(waktu_bayang_searah_kiblat[0])
-                bayang_kiblat_tamat.append(waktu_bayang_searah_kiblat[1])
+                bayang_kiblat_mula.append('N/A')
+                bayang_kiblat_tamat.append('N/A')
 
             # subuh
             if saat == 'tidak' or saat == 'no':
@@ -2198,59 +2204,49 @@ class Takwim:
                     time_format='datetime', altitude=altitud_subuh)
                 subuh.append(self.__round_up(waktu_subuh))
 
+                waktu_syuruk = self.waktu_syuruk(
+                    time_format='datetime', altitude=altitud_syuruk,
+                    kaedah=kaedah_syuruk_maghrib)
+                syuruk.append(self.__round_down(waktu_syuruk))
+
+                waktu_zohor = self.waktu_zohor(time_format='datetime')
+                zohor.append(self.__round_up(waktu_zohor))
+
+                waktu_asar = self.waktu_asar(
+                    time_format='datetime', kaedah=kaedah_asar)
+                asar.append(self.__round_up(waktu_asar))
+
+                waktu_maghrib = self.waktu_maghrib(
+                    time_format='datetime', altitude=altitud_maghrib,
+                    kaedah=kaedah_syuruk_maghrib)
+                maghrib.append(self.__round_up(waktu_maghrib))
+
+                waktu_isyak = self.waktu_isyak(
+                    time_format='datetime', altitude=altitud_isyak)
+                isyak.append(self.__round_up(waktu_isyak))
+
             else:
                 waktu_subuh = self.waktu_subuh(
                     time_format='string', altitude=altitud_subuh)
                 subuh.append(waktu_subuh)
 
-            # syuruk
-            if saat == 'tidak' or saat == 'no':
-                waktu_syuruk = self.waktu_syuruk(
-                    time_format='datetime', altitude=altitud_syuruk,
-                    kaedah=kaedah_syuruk_maghrib)
-                syuruk.append(self.__round_down(waktu_syuruk))
-            else:
                 waktu_syuruk = self.waktu_syuruk(
                     time_format='string', altitude=altitud_syuruk,
                     kaedah=kaedah_syuruk_maghrib)
                 syuruk.append(waktu_syuruk)
 
-            # zohor
-
-            if saat == 'tidak' or saat == 'no':
-                waktu_zohor = self.waktu_zohor(time_format='datetime')
-                zohor.append(self.__round_up(waktu_zohor))
-            else:
                 waktu_zohor = self.waktu_zohor(time_format='string')
                 zohor.append(waktu_zohor)
 
-            # asar
-            if saat == 'tidak' or saat == 'no':
-                waktu_asar = self.waktu_asar(
-                    time_format='datetime', kaedah=kaedah_asar)
-                asar.append(self.__round_up(waktu_asar))
-            else:
                 waktu_asar = self.waktu_asar(
                     time_format='string', kaedah=kaedah_asar)
                 asar.append(waktu_asar)
 
-            # maghrib
-            if saat == 'tidak' or saat == 'no':
-                waktu_maghrib = self.waktu_maghrib(
-                    time_format='datetime', altitude=altitud_maghrib,
-                    kaedah=kaedah_syuruk_maghrib)
-                maghrib.append(self.__round_up(waktu_maghrib))
-            else:
                 waktu_maghrib = self.waktu_maghrib(
                     time_format='string', altitude=altitud_maghrib,
                     kaedah=kaedah_syuruk_maghrib)
                 maghrib.append(waktu_maghrib)
-            # isyak
-            if saat == 'tidak' or saat == 'no':
-                waktu_isyak = self.waktu_isyak(
-                    time_format='datetime', altitude=altitud_isyak)
-                isyak.append(self.__round_up(waktu_isyak))
-            else:
+
                 waktu_isyak = self.waktu_isyak(
                     time_format='string', altitude=altitud_isyak)
                 isyak.append(waktu_isyak)
@@ -2280,7 +2276,7 @@ class Takwim:
             self, altitud_subuh='default', altitud_syuruk='default',
             altitud_maghrib='default', altitud_isyak='default', saat='tidak',
             kaedah_asar='Syafie', kaedah_syuruk_maghrib='Izzat',
-            directory=None, **kwargs):
+            directory=None, bayang_kiblat='tidak', **kwargs):
 
         tarikh = []
         subuh = []
@@ -2333,24 +2329,30 @@ class Takwim:
             masa = self.current_time(time_format='string')[:11]
             tarikh.append(masa)
 
-            if saat == 'tidak' or saat == 'no':
-                waktu_bayang_searah_kiblat = self.bayang_searah_kiblat(
-                    time_format='datetime')
+            if bayang_kiblat == 'ya':
+                if saat == 'tidak' or saat == 'no':
+                    waktu_bayang_searah_kiblat = self.bayang_searah_kiblat(
+                        time_format='datetime')
 
-                try:
-                    bayang_kiblat_mula.append(self.__round_up(
-                        waktu_bayang_searah_kiblat[0]))
-                    bayang_kiblat_tamat.append(self.__round_down(
-                        waktu_bayang_searah_kiblat[1]))
-                except TypeError:
+                    try:
+                        bayang_kiblat_mula.append(self.__round_up(
+                            waktu_bayang_searah_kiblat[0]))
+                        bayang_kiblat_tamat.append(self.__round_down(
+                            waktu_bayang_searah_kiblat[1]))
+                    except TypeError:
+                        bayang_kiblat_mula.append(
+                            waktu_bayang_searah_kiblat[0])
+                        bayang_kiblat_tamat.append(
+                            waktu_bayang_searah_kiblat[1])
+
+                else:
+                    waktu_bayang_searah_kiblat = self.bayang_searah_kiblat(
+                        time_format='string')
                     bayang_kiblat_mula.append(waktu_bayang_searah_kiblat[0])
                     bayang_kiblat_tamat.append(waktu_bayang_searah_kiblat[1])
-
             else:
-                waktu_bayang_searah_kiblat = self.bayang_searah_kiblat(
-                    time_format='string')
-                bayang_kiblat_mula.append(waktu_bayang_searah_kiblat[0])
-                bayang_kiblat_tamat.append(waktu_bayang_searah_kiblat[1])
+                bayang_kiblat_mula.append('N/A')
+                bayang_kiblat_tamat.append('N/A')
 
             compare_subuh = []
             compare_syuruk = []
@@ -2589,7 +2591,7 @@ class Takwim:
             self, altitud_subuh='default', altitud_syuruk='default',
             altitud_maghrib='default', altitud_isyak='default', saat='ya',
             kaedah_syuruk_maghrib='Izzat', kaedah_asar='Syafie',
-            directory=None, **kwargs):
+            bayang_kiblat='tidak', directory=None, **kwargs):
         tarikh = []
         subuh = []
         bayang_kiblat_mula = []
@@ -2667,38 +2669,49 @@ class Takwim:
                 masa = self.current_time(time_format='string')[:11]
                 tarikh.append(masa)
 
-                if saat == 'tidak' or saat == 'no':
-                    waktu_bayang_searah_kiblat = self.bayang_searah_kiblat(
-                        time_format='datetime')
+                if bayang_kiblat == 'ya':
+                    if saat == 'tidak' or saat == 'no':
+                        waktu_bayang_searah_kiblat = self.bayang_searah_kiblat(
+                            time_format='datetime')
 
-                    try:
-                        bayang_kiblat_mula.append(
-                            self.__round_up(waktu_bayang_searah_kiblat[0]))
-                        bayang_kiblat_tamat.append(
-                            self.__round_down(waktu_bayang_searah_kiblat[1]))
-                    except TypeError:
-                        bayang_kiblat_mula.append(
-                            waktu_bayang_searah_kiblat[0])
-                        bayang_kiblat_tamat.append(
-                            waktu_bayang_searah_kiblat[1])
+                        try:
+                            bayang_kiblat_mula.append(
+                                self.__round_up(
+                                    waktu_bayang_searah_kiblat[0]))
+                            bayang_kiblat_tamat.append(
+                                self.__round_down(
+                                    waktu_bayang_searah_kiblat[1]))
+                        except TypeError:
+                            bayang_kiblat_mula.append(
+                                waktu_bayang_searah_kiblat[0])
+                            bayang_kiblat_tamat.append(
+                                waktu_bayang_searah_kiblat[1])
 
+                    else:
+                        waktu_bayang_searah_kiblat = self.bayang_searah_kiblat(
+                            time_format='datetime')
+                        try:
+                            bayang_kiblat_mula.append(
+                                waktu_bayang_searah_kiblat[0].strftime(
+                                    '%H:%M:%S'))
+                            bayang_kiblat_tamat.append(
+                                waktu_bayang_searah_kiblat[1].strftime(
+                                    '%H:%M:%S'))
+                            bayang_kiblat_mula_tanpa_saat.append(
+                                self.__round_up(waktu_bayang_searah_kiblat[0]))
+                            bayang_kiblat_tamat_tanpa_saat.append(
+                                self.__round_down(
+                                    waktu_bayang_searah_kiblat[1]))
+                        except Exception:
+                            bayang_kiblat_mula.append("Tiada")
+                            bayang_kiblat_tamat.append("Tiada")
+                            bayang_kiblat_mula_tanpa_saat.append("Tiada")
+                            bayang_kiblat_tamat_tanpa_saat.append("Tiada")
                 else:
-                    waktu_bayang_searah_kiblat = self.bayang_searah_kiblat(
-                        time_format='datetime')
-                    try:
-                        bayang_kiblat_mula.append(
-                            waktu_bayang_searah_kiblat[0].strftime('%H:%M:%S'))
-                        bayang_kiblat_tamat.append(
-                            waktu_bayang_searah_kiblat[1].strftime('%H:%M:%S'))
-                        bayang_kiblat_mula_tanpa_saat.append(
-                            self.__round_up(waktu_bayang_searah_kiblat[0]))
-                        bayang_kiblat_tamat_tanpa_saat.append(
-                            self.__round_down(waktu_bayang_searah_kiblat[1]))
-                    except Exception:
-                        bayang_kiblat_mula.append("Tiada")
-                        bayang_kiblat_tamat.append("Tiada")
-                        bayang_kiblat_mula_tanpa_saat.append("Tiada")
-                        bayang_kiblat_tamat_tanpa_saat.append("Tiada")
+                    bayang_kiblat_mula.append('N/A')
+                    bayang_kiblat_tamat.append('N/A')
+                    bayang_kiblat_mula_tanpa_saat.append('N/A')
+                    bayang_kiblat_tamat_tanpa_saat.append('N/A')
 
                 compare_subuh = []
                 compare_syuruk = []
@@ -4437,13 +4450,6 @@ def main():
     """
     Execute functions here
     """
-    test = Takwim(month=2)
-    # print(test.waktu_subuh(time_format='string'))
-    # print(test.waktu_syuruk(time_format='string'))
-    # print(test.waktu_zohor(time_format='string'))
-    # print(test.waktu_asar(time_format='string'))
-    # print(test.waktu_maghrib(time_format='string'))
-    # print(test.waktu_isyak(time_format='string'))
 
 
 if __name__ == "__main__":
