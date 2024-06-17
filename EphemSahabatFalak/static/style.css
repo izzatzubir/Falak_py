@@ -7,7 +7,7 @@
     border-radius: 20px;
 }
 
-.tab_box {
+/* .tab_box {
     width: 100%;
     display: flex;
     padding: 10;
@@ -18,7 +18,7 @@
     font-weight: 600;
     position: relative;
 
-}
+} */
 .tab_box .tab_btn{
     font-size: 18px;
     font-weight: 600;
@@ -54,14 +54,26 @@
     margin-bottom: 10px;
 }
 
+.tab_box {
+    width: 100%;
+    display: flex;
+    padding: 10px; /* Added px to make padding valid */
+    justify-content: space-around;
+    align-items: center;
+    border-bottom: 2px solid rgba(229, 229, 229);
+    font-size: 18px;
+    font-weight: 600;
+    position: relative;
+}
+
 .line {
     position: absolute;
-    top: 62px;
-    left: 140px;
+    bottom: -2px; /* Aligns the line just below the border */
+    left: 140px; /* Center the line horizontally */
     width: 137px;
     height: 5px;
     background-color: #7360ff;
-    border-radius: 10px;
+    border-radius: 5px;
     transition: all .3s ease-in-out;
-
 }
+
