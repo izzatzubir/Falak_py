@@ -1092,7 +1092,7 @@ class Takwim:
     def waktu_zohor(self, time_format='default'):
         istiwa = self.waktu_istiwa()
         zohor_datetime = (istiwa.astimezone(self.zone) +
-                          dt.timedelta(minutes=1, seconds=6))
+                          dt.timedelta(minutes=1, seconds=10))
 
         if time_format == 'datetime':
             return zohor_datetime

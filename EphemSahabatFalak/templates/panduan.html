@@ -58,13 +58,12 @@
         </div>
         <br>
         <hr>
-        <h3 class="text-center">
-            Jenis Data
-        </h3>
-
-
     </div>
+    <h3 class="text-center">
+        Jenis Data
+    </h3>
     <div class="container mb-2">
+
         <div class="tab_box">
             <button class="tab_btn active">Sahabat Falak</button>
             <button class="tab_btn">Sahabat Falak Pro</button>
@@ -196,6 +195,79 @@
             </div>
         </div>
     </div>
+    <br>
+    <hr>
+    <div class="row pt-3">
+        <h3 class="text-center">
+            Parameter Waktu Solat
+        </h3>
+        <div class="col-md">
+            <h4>
+                Waktu Subuh dan Isyak
+            </h4>
+            <p>
+                Waktu Subuh bermula apabila altitud bagi pusat Matahari naik kepada -18.0 darjah, manakala
+                waktu Isyak bermula apabila altitud bagi pusat Matahari jatuh kepada -18.0 darjah.
+            </p>
+        </div>
+        <div class="col-md">
+            <h4>
+                Waktu Zohor
+            </h4>
+            <p>
+                Secara falak, waktu Zohor bermula apabila piring Matahari melepasi garisan meridian tempatan.
+                Waktu Zohor bermula selepas 1 minit 10 saat daripada waktu Istiwa. Ini berbeza dengan kaedah
+                yang digunapakai oleh JAKIM iaitu 1 minit 4 saat. Justifikasi bagi nilai ini ialah kerana saiz semi-diameter
+                Matahari berubah dari sekitar 15.75 arka minit hingga 16.25. Selain itu, deklinasi Matahari yang
+                berbeza sepanjang tahun juga akan melambatkan dan mempercepat 'pergerakan Matahari'. Maka, akan berlaku
+                waktu Zohor yang lebih lewat berbanding 1 minit 4 saat dari waktu Istiwa.
+            </p>
+        </div>
+        <div class="col-md">
+            <h4>
+                Waktu Syuruk dan Maghrib
+            </h4>
+            <p>
+                Waktu Syuruk bermula apabila piring Matahari mencecah ufuk timur, manakala waktu Maghrib bermula apabila
+                piring Matahari hilang dari ufuk barat. Altitud bagi syuruk dan maghrib ini bergantung pada tiga faktor utama
+                iaitu saiz semi-diameter Matahari, ketinggian pencerap dan biasan atmosfera. Ketinggian pencerap menghasilkan 'sudut junaman' yang menyebabkan
+                ufuk lebih rendah dari 0 darjah. Manakala biasan atmosfera pula menyebabkan Matahari masih kelihatan meskipun
+                altitudnya telah jatuh di bawah 0 darjah.
+            </p>
+            <p>
+                Nilai semi-diameter Matahari yang digunakan ialah 16.35 arka minit, manakala sudut junaman dihitung
+                menggunakan formula: $$ \theta = \arccos \left( \frac{R}{R + h} \right) $$ Nilai R merujuk pada
+                jejari Bumi, manakala h ialah ketinggian pemerhati. Nilai R yang digunakan ialah 6378 KM. Nilai biasan yang digunakan berdasarkan
+                rumus 16.4 m/s 106 dari Astronomical Algorithms Edisi Kedua oleh Jean Meeus. Rumus ini adalah seperti berikut:
+                $$ R = \frac{1.02}{\tan\left(h + \frac{10.3}{h + 5.11}\right)} $$ Nilai h ialah hasil tambah sudut junaman dan
+                semi-diameter Matahari.
+            </p>
+        </div>
+        <div class="col-md">
+            <h4>
+                Waktu Asar
+            </h4>
+            <p>
+                Waktu Asar bermula ketika panjang bayang bersamaan dengan panjang objek, ditambah dengan panjang bayang
+                ketika waktu Istiwa. Rumus bagi waktu asar adalah seperti berikut:
+                $$ \theta_{\text{asar}} = \cot^{-1}(\cot(\theta_{\text{istiwa}}) + 1) $$
+                Panjang bayang ketika waktu Istiwa ditentukan berdasarkan altitud Matahari ketika Istiwa.
+            </p>
+        </div>
+        <div class="col-md">
+            <h4>
+                Bayang Searah Kiblat
+            </h4>
+            <p>
+                Waktu bayang searah kiblat ialah waktu ketika azimut Matahari berada pada arah kiblat, atau
+                arah bertentangan dengan kiblat. Jika waktu ini sebelum zohor, maka bayang adalah pada arah kiblat.
+                Jika selepas zohor, maka bayang adalah bertentangan dengan kiblat. Selisih azimut bagi hitungan ini adalah
+                sebanyak 0.3 darjah, iaitu 0.3 darjah ke utara dan 0.3 darjah ke selatan.
+            </p>
+        </div>
+        <br>
+        <hr>
+    </div>
 
 </div>
 <script>
@@ -215,4 +287,6 @@
         })
     })
 </script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 {% endblock %}
