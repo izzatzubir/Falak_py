@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% block title %}{% endblock %}
+{% block content %}
+
+<div class="mt-3">
+    <h3 class="text-center">
+        <u>
+            Panduan Pengguna
+        </u>
+    </h3>
+    <hr>
+    <br>
+    <div class="row">
+        <h3 class="text-center">
+            Parameter Utama
+        </h3>
+        <div class="col-3">
+            <h4>
+                Latitud, Longitud dan Ketinggian
+            </h4>
+            <p>
+                Tiga parameter ini menentukan lokasi rujukan untuk hitungan. Nilai latitud boleh diletakkan antara 90
+                hingga -90, nilai positif bagi utara dan negatif bagi selatan. Longitud pula antara 180 hingga -180,
+                dengan nilai positif bagi timur dan negatif bagi barat. Elevation ialah ketinggian lokasi dari aras laut,
+                dengan unit meter. Nilai ketinggian akan memberi kesan pada tekanan, serta sudut junaman bagi waktu Syuruk
+                dan waktu Maghrib.
+            </p>
+        </div>
+        <div class="col-3">
+            <h4>
+                Suhu dan Tekanan
+            </h4>
+            <p>
+                Parameter suhu dan tekanan ini menentukan kadar pembiasan. Ia memberi kesan pada waktu syuruk dan
+                maghrib. Nilai suhu adalah dalam unit darjah Celcius, manakala tekanan dalam unit milibar. Nilai ini
+                ditetapkan pada 27 darjah Celcius, dan unit tekanan ditetapkan secara automatik berdasarkan ketinggian.
+            </p>
+        </div>
+        <div class="col-3">
+            <h4>
+                Tarikh dan Masa
+            </h4>
+            <p>
+                Tarikh merujuk pada hari, bulan dan tahun. Ini menentukan tarikh waktu solat harian, atau bulanan
+                serta jadual kiblat yang hendak dihitung. Masa merujuk pada jam, minit dan saat. Ini akan menentukan
+                masa bagi jadual kiblat yang hendak dihitung.
+            </p>
+        </div>
+        <div class="col-3">
+            <h4>
+                Zon Waktu
+            </h4>
+            <p>
+                Parameter zon waktu menentukan zon waktu bagi hitungan. Parameter Asia/Kuala_Lumpur adalah bersesuaian
+                bagi hitungan di Malaysia. Jika parameter Lain-lain dipilih, zon waktu akan ditentukan berdasarkan
+                latitud dan longitud yang diberi.
+            </p>
+        </div>
+        <br>
+        <hr>
+        <h3 class="text-center">
+            Jenis Data
+        </h3>
+
+
+    </div>
+    <div class="container mb-2">
+        <div class="tab_box">
+            <button class="tab_btn active">Sahabat Falak</button>
+            <button class="tab_btn">Sahabat Falak Pro</button>
+            <button class="tab_btn">Sahabat Falak Plus</button>
+            <div class="line"></div>
+        </div>
+        <br>
+        <div class="content_box">
+            <div class="content active">
+                <div class="row">
+                    <div class="col-3">
+                        <h4>
+                            Waktu Solat
+                        </h4>
+                        <p>
+                            Jana waktu solat harian berdasarkan lokasi, serta tarikh yang dipilih.
+                        </p>
+                    </div>
+                    <div class="col-3">
+                        <h4>
+                            Kiblat
+                        </h4>
+                        <p>
+                            Jana Azimut kiblat dan jarak ke Kaabah dari lokasi pilihan, serta tempoh waktu bayang searah kiblat
+                            dari lokasi pilihan.
+                        </p>
+                    </div>
+                    <div class="col-3">
+                        <h4>
+                            Jadual Kiblat
+                        </h4>
+                        <p>
+                            Jana jadual azimut matahari setiap minit selama 60 minit dari masa pilihan.
+                        </p>
+                    </div>
+                    <div class="col-3">
+                        <h4>
+                            Waktu Solat Bulanan
+                        </h4>
+                        <p>
+                            Jana waktu solat bulanan berdasarkan bulan dan tahun pilihan.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="content_box">
+            <div class="content">
+                <div class="row">
+                    <div class="col-4">
+                        <h4>
+                            Waktu Solat Panca Titik
+                        </h4>
+                        <p>
+                            Hitungan waktu solat tahunan bagi sesebuah zon menggunakan kaedah panca titik.
+                            Kaedah ini menghitung waktu solat berdasarkan waktu paling lewat daripada titik rujukan
+                            pilihan bagi setiap waktu solat, kecuali syuruk. Bagi waktu syuruk, waktu paling awal
+                            antara titik rujukan akan dipilih.
+                        </p>
+                    </div>
+                    <div class="col-4">
+                        <h4>
+                            Negeri
+                        </h4>
+                        <p>
+                            Pilihan negeri atau zon. Pilihan ini akan menggunakan titik-titik rujukan rasmi yang diberikan
+                            oleh pihak Jabatan Mufti Negeri.
+                        </p>
+                    </div>
+                    <div class="col-4">
+                        <h4>
+                            Tambah Lokasi
+                        </h4>
+                        <p>
+                            Tekan pada butang ini jika ingin menambah titik rujukan. Setiap penambahan titik rujukan akan
+                            menambah masa hitungan sekitar 6-10 minit. Setiap lokasi perlu dimasukkan nilai latitud, longitud,
+                            dan ketinggian.
+                        </p>
+                        <p> Nama bagi setiap lokasi akan ditetapkan dalam bentuk lokasi #. Contohnya:
+                            Lokasi 1, Lokasi 2. Pastikan anda merekodkan nama lokasi serta koordinatnya untuk semakan.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="content_box">
+            <div class="content">
+                <div class="row">
+                    <div class="col-3">
+                        <h4>
+                            Data Hilal Ringkas
+                        </h4>
+                        <p>
+                            Jana data mengenai hilal pada waktu maghrib bagi tarikh yang dipilih. Data yang dihitung
+                            adalah seperti jarak lengkung bulan matahari, altitud bulan dan umur bulan. Dipaparkan juga
+                            kriteria kenampakan seperti kriteria Mabims 2021, serta simulasi langit pada ketika itu.
+                        </p>
+                    </div>
+                    <div class="col-3">
+                        <h4>
+                            Perbandingan Jarak Lengkung dan Fasa Bulan
+                        </h4>
+                        <p>
+                            Data ini membandingkan antara jarak lengkung bulan matahari serta fasa bulan. Data ini
+                            bagi menunjukkan bahawa ketika ijtimak, jarak lengkung bulan matahari tidak semestinya
+                            0, atau minimum.
+                        </p>
+                    </div>
+                    <div class="col-3">
+                        <h4>
+                            Data Hilal Penuh
+                        </h4>
+                        <p>
+                            Jana jadual kedudukan hilal bagi setiap minit dari 60 minit sebelum matahari terbenam,
+                            sehingga bulan terbenam.
+                        </p>
+                    </div>
+                    <div class="col-3">
+                        <h4>
+                            Titik Rujukan
+                        </h4>
+                        <p>
+                            Terdapat dua jenis rujukan bagi data hilal iaitu geosentrik dan toposentrik. Rujukan geosentrik
+                            menghitung data hilal dengan rujukan dari pusat Bumi. Rujukan toposentrik menghitung data hilal
+                            dengan rujukan dari kedudukan pemerhati.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script>
+    const tabs=document.querySelectorAll(".tab_btn");
+    const all_content=document.querySelectorAll(".content");
+
+    tabs.forEach((tab, index)=>{
+        tab.addEventListener('click', (e)=>{
+            tabs.forEach(tab=>{tab.classList.remove('active')});
+            tab.classList.add('active');
+            var line=document.querySelector('.line');
+            line.style.width = e.target.offsetWidth + "px";
+            line.style.left = e.target.offsetLeft + "px";
+
+            all_content.forEach(content=>{content.classList.remove('active')})
+            all_content[index].classList.add('active');
+        })
+    })
+</script>
+{% endblock %}

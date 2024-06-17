@@ -55,7 +55,7 @@
                 {% endif %}
             </div>
             <div class="col-md-4">
-                <label for="elevation" class="form-label">Elevation (m)</label>
+                <label for="elevation" class="form-label">Ketinggian (m)</label>
                 {% if latitud is defined %}
                 <input type="text" class="form-control" id="elevation" name="elevation" placeholder={{elevation}} value="{{elevation}}">
                 {% else %}
@@ -63,7 +63,7 @@
                 {% endif %}
             </div>
             <div class="col-md-4">
-                <label for="datetime" class="form-label">Date and Time:</label>
+                <label for="datetime" class="form-label">Tarikh dan Masa:</label>
                 {% if original_date is defined %}
                 <input type="datetime-local" class="form-control" id="datetime" name="datetime"  step="1" placeholder="{{original_date}}" value="{{original_date}}">
                 {% else %}
@@ -71,7 +71,7 @@
                 {% endif %}
             </div>
             <div class="col-md-4">
-                <label for="temperature" class="form-label">Temperature (°C)</label>
+                <label for="temperature" class="form-label">Suhu (°C)</label>
                 {% if temperature is defined %}
                 <input type="text" class="form-control" id="temperature" name="temperature" placeholder={{temperature}} value="{{temperature}}">
                 {% else %}
@@ -79,7 +79,7 @@
                 {% endif %}
             </div>
             <div class="col-md-4">
-                <label for="pressure" class="form-label">Pressure (mbar)</label>
+                <label for="pressure" class="form-label">Tekanan (mbar)</label>
                 {% if pressure is defined %}
                 <input type="text" class="form-control" id="pressure" name="pressure" placeholder={{pressure}} value="{{pressure}}">
                 {% else %}

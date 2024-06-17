@@ -374,6 +374,11 @@ def sahabatfalakplus():
             "sahabatfalakplus.html")
 
 
+@app.route("/panduan")
+def panduan():
+    return render_template("panduan.html")
+
+
 @app.route("/tentangkami")
 def tentangkami():
     return render_template("tentangkami.html")

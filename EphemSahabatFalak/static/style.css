@@ -1,7 +1,7 @@
 
 .container {
     width: auto;
-    background-color: white;
+    background-color: rgb(50, 43, 43);
     padding: 10px;
     box-shadow: 0 2px 16px gray;
     border-radius: 20px;
