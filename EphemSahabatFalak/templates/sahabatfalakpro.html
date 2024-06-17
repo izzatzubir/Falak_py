@@ -18,11 +18,11 @@
                 <!-- <option value="Selangor1">Selangor Zon 1</option>
                 <option value="Selangor2">Selangor Zon 2</option>
                 <option value="Selangor3">Selangor Zon 3</option> -->
-              </select>
+            </select>
         </div>
         <div class="col-md-4">
             <label for="timezone" class="form-label">Zon Waktu</label>
-            <select class="form-select form-select" name="timezone" id="timezone">
+            <select class="form-select form-select mb-3" name="timezone" id="timezone">
                 {% if timezone == 'lain' %}
                 <option value="asia_KL">Asia/Kuala_Lumpur</option>
                 <option selected value="lain">Lain-lain</option>
@@ -426,7 +426,6 @@
             latitudeInput.setAttribute("disabled", "disabled");
             longitudeInput.setAttribute("disabled", "disabled");
             elevationInput.setAttribute("disabled", "disabled");
-            timeZone.setAttribute("disabled", "disabled")
         } else {
             latitudeInput.setAttribute("required", "required");
             longitudeInput.setAttribute("required", "required");
@@ -434,7 +433,6 @@
             latitudeInput.removeAttribute("disabled");
             longitudeInput.removeAttribute("disabled");
             elevationInput.removeAttribute("disabled");
-            timeZone.setAttribute("disabled")
         }
     });
 
