@@ -32,8 +32,9 @@
             </h4>
             <p>
                 Parameter suhu dan tekanan ini menentukan kadar pembiasan. Ia memberi kesan pada waktu syuruk dan
-                maghrib. Nilai suhu adalah dalam unit darjah Celcius, manakala tekanan dalam unit milibar. Nilai ini
-                ditetapkan pada 27 darjah Celcius, dan unit tekanan ditetapkan secara automatik berdasarkan ketinggian.
+                maghrib. Nilai suhu adalah dalam unit darjah Celcius, manakala tekanan dalam unit milibar.  Nilai suhu
+                ditetapkan pada 27 darjah Celcius. Nilai yang digunakan
+                bagi tekanan ialah 1013.25 milibar, iaitu nilai piawai bagi tekanan pada aras laut.
             </p>
         </div>
         <div class="col-md-3">
@@ -152,7 +153,19 @@
         <div class="content_box">
             <div class="content">
                 <div class="row pt-3">
-                    <div class="col-md-3">
+                    <div class="col-md">
+                        <h4>
+                            Lokasi Rasmi
+                        </h4>
+                        <p>
+                            Pengguna boleh memilih lokasi cerapan rasmi dengan menekan pada pilihan 'Lokasi Rasmi'.
+                            Jika lokasi rasmi dipilih, pengguna tidak perlu memasukkan maklumat latitud, longitud dan ketinggian
+                            kerana telah ditetapkan. Maklumat ini diperoleh dari laman berikut:
+                            <a href="https://archive.data.gov.my/data/en_US/dataset/lokasi-rasmi-cerapan-hilal-malaysia">Lokasi Rasmi</a>
+                            Jika pengguna ingin menghitung pada lokasi lain, pilih Tidak Berkaitan.
+                        </p>
+                    </div>
+                    <div class="col-md">
                         <h4>
                             Data Hilal Ringkas
                         </h4>
@@ -162,7 +175,7 @@
                             kriteria kenampakan seperti kriteria Mabims 2021, serta simulasi langit pada ketika itu.
                         </p>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md">
                         <h4>
                             Perbandingan Jarak Lengkung dan Fasa Bulan
                         </h4>
@@ -172,7 +185,7 @@
                             0, atau minimum.
                         </p>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md">
                         <h4>
                             Data Hilal Penuh
                         </h4>
@@ -181,7 +194,7 @@
                             sehingga bulan terbenam.
                         </p>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md">
                         <h4>
                             Titik Rujukan
                         </h4>

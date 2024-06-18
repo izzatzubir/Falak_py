@@ -83,7 +83,7 @@
                 {% if pressure is defined %}
                 <input type="text" class="form-control" id="pressure" name="pressure" placeholder={{pressure}} value="{{pressure}}">
                 {% else %}
-                <input type="text" class="form-control" id="pressure" name="pressure" placeholder="1013.2">
+                <input type="text" class="form-control" id="pressure" name="pressure" value="1013.2">
                 {% endif %}
             </div>
             <div class="col-md-4">
@@ -96,6 +96,42 @@
                     <option selected value="asia_KL">Asia/Kuala Lumpur</option>
                     <option value="lain">Lain-lain</option>
                     {% endif %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="lokasi_rasmi" class="form-label">Lokasi Rasmi</label>
+                <select class="form-select form-select-lg mb-3" name="lokasi_rasmi" id="lokasi_rasmi">
+                    <option value="PFST">Pusat Falak Sheikh Tahir, Pulau Pinang</option>
+                    <option selected value="Tiada">Tidak Berkaitan</option>
+                    <option value="Malindo">Pantai Malindo, Pulau Pinang (Tidak Rasmi)</option>
+                    <option value="Kuala_Perlis">Menara Pandang Masjid Al-Hussain Kuala Perlis</option>
+                    <option value="Menara_Telekom">Menara Telekom, Alor Setar</option>
+                    <option value="Pulau_Sayak">Kg. Pulau Sayak, Kuala Muda</option>
+                    <option value="Pemandangan_Indah">Pemandangan Indah, Langkawi</option>
+                    <option value="Pasir_Panjang">Pantai Pasir Panjang, Manjung</option>
+                    <option value="BCSelangor">Balai Cerap Selangor, Sabak Bernam</option>
+                    <option value="BKTMalawati">Bukit Malawati, Kuala Selangor</option>
+                    <option value="BKTJugra">Bukit Jugra, Banting</option>
+                    <option value="MenaraKL">Menara Kuala Lumpur</option>
+                    <option value="PICC">Putrajaya International Convention Centre (PICC), Putrajaya</option>
+                    <option value="BCTK">Balai Cerap Teluk Kemang, Port Dickson</option>
+                    <option value="KFAK">Kompleks Falak Al-Khawarizmi, Tg. Bidara</option>
+                    <option value="PontianKecil">Bangunan Sultan Ismail, Pontian Kecil</option>
+                    <option value="BKTTanjungBatu">Bukit Tanjung Batu, Nenasi, Pekan</option>
+                    <option value="BKTPelindung">Bukit Pelindung, Kuantan</option>
+                    <option value="GNGBrinchang">Gunung Brinchang, Cameron Highlands</option>
+                    <option value="BKTGeliga">Bukit Geliga, Kemaman</option>
+                    <option value="BKTBesar">Bukit Besar, Kuala Terengganu</option>
+                    <option value="BCUnisza">Balai Cerap UNISZA, Merang, Setiu</option>
+                    <option value="PPerhentian">Pulau Perhentian, Besut</option>
+                    <option value="SEDC">Menara State Economic Development Corporation (SEDC), Kota Bharu</option>
+                    <option value="BKTPeraksi">Bukit Peraksi, Pasir Puteh</option>
+                    <option value="BKTKGTembeling">Bukit Kampung Tembeling, Kuala Krai</option>
+                    <option value="BCAB">Balai Cerap Al-Biruni, Tg. Dumpil, Putatan</option>
+                    <option value="MUMSabah">Menara Universiti Malaysia Sabah, Kampus Antarabangsa Labuan</option>
+                    <option value="PFM">Pusat Falak Miri (Luak Esplanade, Miri), Miri</option>
+                    <option value="TanjungBatu">Tanjung Batu, Bintulu</option>
+                    <option value="TelukBandung">Teluk Bandung, Kuching</option>
                 </select>
             </div>
             <div class="row pt-3">
@@ -355,6 +391,351 @@
                 pressureContainer.innerHTML = '';
             }
         });
+    });
+    document.getElementById("lokasi_rasmi").addEventListener("change", function() {
+        var lokasi_rasmi = this.value;
+        var latitudeInput = document.getElementById("latitud");
+        var longitudeInput = document.getElementById("longitud");
+        var elevationInput = document.getElementById("elevation");
+
+        if (lokasi_rasmi == "PFST") {
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "5.4114");
+            longitudeInput.setAttribute("value", "100.19672");
+            elevationInput.setAttribute("value", "40");
+        }
+        else if (lokasi_rasmi == "Malindo"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "5.338354");
+            longitudeInput.setAttribute("value", "100.1945");
+            elevationInput.setAttribute("value", "3");
+        }
+        else if (lokasi_rasmi == "Kuala_Perlis"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "6.396389");
+            longitudeInput.setAttribute("value", "100.1275");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "Menara_Telekom"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "6.12430278");
+            longitudeInput.setAttribute("value", "100.3674528");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "Pulau_Sayak"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "5.65491944");
+            longitudeInput.setAttribute("value", "100.3318111");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "Pemandangan_Indah"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "6.33609167");
+            longitudeInput.setAttribute("value", "99.741475");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "Pasir_Panjang"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "6.12430278");
+            longitudeInput.setAttribute("value", "100.3674528");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "BCSelangor"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "3.81893611");
+            longitudeInput.setAttribute("value", "100.8143472");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "BKTMalawati"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "3.34166944");
+            longitudeInput.setAttribute("value", "101.2445917");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "BKTJugra"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "2.83587778");
+            longitudeInput.setAttribute("value", "101.4170583");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "MenaraKL"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "3.152825");
+            longitudeInput.setAttribute("value", "101.7037111");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "PICC"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "2.89449167");
+            longitudeInput.setAttribute("value", "101.6766833");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "BCTK"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "2.44543333");
+            longitudeInput.setAttribute("value", "101.8542028");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "KFAK"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "2.29398611");
+            longitudeInput.setAttribute("value", "102.0834417");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "PontianKecil"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "1.48781389");
+            longitudeInput.setAttribute("value", "103.3872028");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "BKTTanjungBatu"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "3.20582222");
+            longitudeInput.setAttribute("value", "103.4449139");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "BKTPelindung"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "3.83124444");
+            longitudeInput.setAttribute("value", "103.361075");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "GNGBrinchang"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "4.51733889");
+            longitudeInput.setAttribute("value", "101.3825806");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "BKTGeliga"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "4.20641944");
+            longitudeInput.setAttribute("value", "103.4359222");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "BKTBesar"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "5.30681667");
+            longitudeInput.setAttribute("value", "103.1344528");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "BCUnisza"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "5.53542222");
+            longitudeInput.setAttribute("value", "102.9467639");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "PPerhentian"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "5.91522778");
+            longitudeInput.setAttribute("value", "102.7156583");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "SEDC"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "6.12873889");
+            longitudeInput.setAttribute("value", "102.2348222");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "BKTPeraksi"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "5.85749444");
+            longitudeInput.setAttribute("value", "102.4825389");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "BKTKGTembeling"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "5.25456667");
+            longitudeInput.setAttribute("value", "102.2686");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "BCAB"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "5.90428333");
+            longitudeInput.setAttribute("value", "116.0386722");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "MUMSabah"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "5.27851667");
+            longitudeInput.setAttribute("value", "115.1734806");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "PFM"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "4.31610278");
+            longitudeInput.setAttribute("value", "113.9611556");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "TanjungBatu"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "3.21345278");
+            longitudeInput.setAttribute("value", "113.0488194");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "TelukBandung"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "1.75305833");
+            longitudeInput.setAttribute("value", "110.3147444");
+            elevationInput.setAttribute("value", "0");
+        }
+        else {
+            latitudeInput.setAttribute("required", "required");
+            longitudeInput.setAttribute("required", "required");
+            elevationInput.setAttribute("required", "required");
+            latitudeInput.removeAttribute("disabled");
+            longitudeInput.removeAttribute("disabled");
+            elevationInput.removeAttribute("disabled");
+        }
     });
 </script>
 
