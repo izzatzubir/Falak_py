@@ -569,22 +569,16 @@ class Takwim:
         return arcv
 
     def __horizon_dip_refraction_semid(self):
-        surface = Takwim(
-            latitude=self.latitude, longitude=self.longitude,
-            day=self.day, month=self.month, year=self.year,
-            hour=self.hour, minute=self.minute, second=self.second,
-            zone=self.zone_string, temperature=self.temperature,
-            pressure=self.pressure, ephem=self.ephem)
-        surface.elevation = 0
-        radius_at_topo = length_of(surface.location().itrs_xyz.km)
-        moon_radius = 1738.1  # km
-        moon_apparent_radius = degrees(asin(moon_radius/self.moon_distance()))
+        radius_at_topo = 6378
+        moon_apparent_radius = 0.26278
         horizon_depression = degrees(acos(radius_at_topo/(
             radius_at_topo + self.elevation/1000)))
         r = (1.02/60) / tan((-(horizon_depression+moon_apparent_radius) +
                              10.3 / (-(horizon_depression+moon_apparent_radius)
                                      + 5.11)) * 0.017453292519943296)
         d = r * (0.28 * self.pressure / (self.temperature + 273.0))
+        if self.pressure == 1013.25 or self.elevation == 0:
+            return horizon_depression+moon_apparent_radius
 
         return d+horizon_depression+moon_apparent_radius
 
@@ -3955,7 +3949,7 @@ class Takwim:
 
     def gambar_hilal_mabims(
             self, directory=None, criteria='mabims2021', waktu='maghrib',
-            save=True, topo='geo'):
+            save=True, horizon_adjusted=True, topo='geo'):
         """
         This method automatically saves a graphic of the sun and the moon
         during maghrib.
@@ -3971,26 +3965,34 @@ class Takwim:
             moon_az = self.moon_azimuth(t='syuruk', angle_format='degree')
             moon_al = self.moon_altitude(t='syuruk', angle_format='degree',
                                          pressure=0)
-            elon_moon_sun = self.elongation_moon_sun(t='maghrib',
+            elon_moon_sun = self.elongation_moon_sun(t='syuruk',
                                                      angle_format='degree')
 
         else:
-            sun_az = self.sun_azimuth(t='maghrib', angle_format='degree')
-            sun_al = self.sun_altitude(t='maghrib', angle_format='degree',
+            maghrib = self.waktu_maghrib()
+            sun_az = self.sun_azimuth(t=maghrib, angle_format='degree')
+            sun_al = self.sun_altitude(t=maghrib, angle_format='degree',
                                        pressure=0)
-            moon_az = self.moon_azimuth(t='maghrib', angle_format='degree')
-            moon_al = self.moon_altitude(t='maghrib', angle_format='degree',
+            moon_az = self.moon_azimuth(t=maghrib, angle_format='degree')
+            moon_al = self.moon_altitude(t=maghrib, angle_format='degree',
                                          pressure=0)
-            elon_moon_sun = self.elongation_moon_sun(t='maghrib',
+            elon_moon_sun = self.elongation_moon_sun(t=maghrib,
                                                      angle_format='degree')
         # initiate the plot
         fig, ax = plt.subplots(figsize=[16, 9])
+        if horizon_adjusted is False:
+            arcv = 3  # altitud 3 darjah
+            sun_al = -16/60
+            horizon_dip = 0
+        else:
+            horizon_dip = float(self.__horizon_dip_refraction_semid())
+            arcv = 3
+            arcv2 = 3 - horizon_dip
 
         # Logic to draw the altitude = 3. Work it out!
-        horizon_dip = float(self.__horizon_dip_refraction_semid())
         line_a = sun_az
         line_b = sun_az+8+abs(sun_az-moon_az)
-        x_angle = 6.4*np.sin(np.arccos((3+horizon_dip)/6.4))
+        x_angle = 6.4*np.sin(np.arccos((arcv2+horizon_dip-sun_al)/6.4))
         y_init = sun_az-abs(sun_az-moon_az)-8
         b_y = line_b - y_init
         first_min = (line_a-x_angle-y_init)/b_y
@@ -3999,23 +4001,23 @@ class Takwim:
 
         # plot the 'scatter'
         ax.scatter(moon_az, moon_al, ratio_x_y*20, c='gainsboro',
-                   edgecolor='black', linewidth=0.25, zorder=2)
-        ax.scatter(sun_az, sun_al, ratio_x_y*20, c='yellow',
-                   edgecolor='black', linewidth=0.25, zorder=2)
+                   edgecolor='black', linewidth=0.25, zorder=2)  # the mooon
+        ax.scatter(sun_az, -horizon_dip-2*0.26728, ratio_x_y*20, c='yellow',
+                   edgecolor='black', linewidth=0.25, zorder=2)  # the sun
         ax.axhline(
-            y=-horizon_dip+0.25, color='red', linestyle='--')
-        # apparent horizon
+            y=-horizon_dip-0.26728, color='red', linestyle='--')  # Ufuk marie
+        # add 0.26278 to accomodate semi-diameter of the sun.
 
         # mabims 2021
         ax.axhline(
-            y=3, color='green', linestyle=':', xmax=first_min)
+            y=arcv, color='green', linestyle=':', xmax=first_min)
         # 3 degree. always at 3, not arcv
-        ax.axhline(y=3, color='green', linestyle=':', xmin=first_max)
+        ax.axhline(y=arcv, color='green', linestyle=':', xmin=first_max)
 
         theta = np.linspace(
             np.pi/2-(np.arccos(
-                (3+horizon_dip)/6.4)), np.pi/2+(np.arccos((
-                    3+horizon_dip)/6.4)), 100)
+                (arcv2+horizon_dip-sun_al)/6.4)), np.pi/2+(np.arccos((
+                    arcv2+horizon_dip-sun_al)/6.4)), 100)
         # the radius of the circle
         r = 6.4
         # compute x1 and x2
@@ -4043,10 +4045,10 @@ class Takwim:
                 textcoords='offset points', xytext=(moon_az, moon_al), size=10)
 
             ax.annotate(
-                'Mabims 3-6.4', ((sun_az-abs(sun_az-moon_az)-7), 3.1),
+                'Mabims 3-6.4', ((sun_az-abs(sun_az-moon_az)-7), arcv+0.1),
                 c='black', ha='center', va='center',
                 textcoords='offset points',
-                xytext=((sun_az-abs(sun_az-moon_az)-5), 3.1), size=10)
+                xytext=((sun_az-abs(sun_az-moon_az)-5), arcv+0.1), size=10)
             ax.annotate(
                 'Ufuk Mari\'e - Wujudul Hilal Muhammadiyah',
                 ((sun_az-abs(sun_az-moon_az)-5), -horizon_dip+0.35), c='black',
@@ -4083,17 +4085,18 @@ class Takwim:
                         va='center', textcoords='offset points',
                         xytext=(0, moon_al), size=10)
 
-            ax.annotate('Mabims 3-6.4', ((sun_az-abs(sun_az-moon_az)-8), 3.1),
+            ax.annotate('Mabims 3-6.4', ((sun_az-abs(sun_az-moon_az)-8),
+                                         arcv+0.1),
                         c='black', ha='center', va='center',
                         textcoords='offset points',
                         xytext=(
                             (sun_az-abs(sun_az-moon_az)-190), 3.1), size=10)
             ax.annotate('Ufuk Mari\'e - Wujudul Hilal Muhammadiyah',
-                        ((sun_az-abs(sun_az-moon_az)-8), -horizon_dip+0.35),
+                        ((sun_az-abs(sun_az-moon_az)-6), -horizon_dip-0.1628),
                         c='black', ha='center', va='center',
                         textcoords='offset points',
                         xytext=(
-                            (sun_az-abs(sun_az-moon_az)-160), 3.1), size=10)
+                            (sun_az-abs(sun_az-moon_az)-190), 0), size=10)
             ax.set(
                 aspect=1.0,
                 title=('Kedudukan Hilal pada maghrib ' +
@@ -4162,7 +4165,7 @@ class Takwim:
 
     def gambar_hilal_composite(
             self, directory=None, criteria='mabims2021', waktu='maghrib',
-            detail=False, **kwargs):
+            detail=False, arcv_value=False, **kwargs):
         """
         This method returns a composite image of hilal at sunset for a single
         date. Users can add more location to compare
@@ -4185,23 +4188,28 @@ class Takwim:
                 t='maghrib', angle_format='degree')
 
         else:
-            sun_az = self.sun_azimuth(t='maghrib', angle_format='degree')
+            maghrib = self.waktu_maghrib()
+            sun_az = self.sun_azimuth(t=maghrib, angle_format='degree')
             sun_al = self.sun_altitude(
-                t='maghrib', angle_format='degree', pressure=0)
-            moon_az = self.moon_azimuth(t='maghrib', angle_format='degree')
+                t=maghrib, angle_format='degree', pressure=0)
+            moon_az = self.moon_azimuth(t=maghrib, angle_format='degree')
             moon_al = self.moon_altitude(
-                t='maghrib', angle_format='degree', pressure=0)
+                t=maghrib, angle_format='degree', pressure=0)
             elon_moon_sun = self.elongation_moon_sun(
-                t='maghrib', angle_format='degree')
+                t=maghrib, angle_format='degree')
+            arcv = self.arcv(t=maghrib, angle_format='degree')
 
         # initiate the plot
         fig, ax = plt.subplots(figsize=[16, 9])
+
+        if arcv_value is False:
+            arcv = 3
 
         # Logic to draw the altitude = 3. Work it out!
         horizon_dip = float(self.__horizon_dip_refraction_semid())
         line_a = sun_az
         line_b = sun_az+8+abs(sun_az-moon_az)
-        x_angle = 6.4*np.sin(np.arccos((3+horizon_dip)/6.4))
+        x_angle = 6.4*np.sin(np.arccos((arcv+horizon_dip)/6.4))
         y_init = sun_az-abs(sun_az-moon_az)-8
         b_y = line_b - y_init
         first_min = (line_a-x_angle-y_init)/b_y
@@ -4217,13 +4225,13 @@ class Takwim:
         # apparent horizon
 
         # mabims 2021
-        ax.axhline(y=3, color='green', linestyle=':', xmax=first_min)
+        ax.axhline(y=arcv, color='green', linestyle=':', xmax=first_min)
         # 3 degree. always at 3, not arcv
-        ax.axhline(y=3, color='green', linestyle=':', xmin=first_max)
+        ax.axhline(y=arcv, color='green', linestyle=':', xmin=first_max)
 
         theta = np.linspace(
-            np.pi/2-(np.arccos((3+horizon_dip)/6.4)),
-            np.pi/2+(np.arccos((3+horizon_dip)/6.4)), 100)
+            np.pi/2-(np.arccos((arcv+horizon_dip)/6.4)),
+            np.pi/2+(np.arccos((arcv+horizon_dip)/6.4)), 100)
         # the radius of the circle
         r = 6.4
         # compute x1 and x2
