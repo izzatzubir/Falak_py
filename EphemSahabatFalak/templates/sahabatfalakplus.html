@@ -105,6 +105,7 @@
                     <option selected value="Tiada">Tidak Berkaitan</option>
                     <option value="Malindo">Pantai Malindo, Pulau Pinang (Tidak Rasmi)</option>
                     <option value="Kuala_Perlis">Menara Pandang Masjid Al-Hussain Kuala Perlis</option>
+                    <option value="Kuala_Sg_Baru">Kuala Sungai Baru, Simpang Empat, Perlis</option>
                     <option value="Menara_Telekom">Menara Telekom, Alor Setar</option>
                     <option value="Pulau_Sayak">Kg. Pulau Sayak, Kuala Muda</option>
                     <option value="Pemandangan_Indah">Pemandangan Indah, Langkawi</option>
@@ -127,6 +128,7 @@
                     <option value="SEDC">Menara State Economic Development Corporation (SEDC), Kota Bharu</option>
                     <option value="BKTPeraksi">Bukit Peraksi, Pasir Puteh</option>
                     <option value="BKTKGTembeling">Bukit Kampung Tembeling, Kuala Krai</option>
+                    <option value="PantaiMekMas">Pantai Mek Mas</option>
                     <option value="BCAB">Balai Cerap Al-Biruni, Tg. Dumpil, Putatan</option>
                     <option value="MUMSabah">Menara Universiti Malaysia Sabah, Kampus Antarabangsa Labuan</option>
                     <option value="PFM">Pusat Falak Miri (Luak Esplanade, Miri), Miri</option>
@@ -726,6 +728,28 @@
             elevationInput.setAttribute("readonly", "readonly");
             latitudeInput.setAttribute("value", "1.75305833");
             longitudeInput.setAttribute("value", "110.3147444");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "Kuala_Sg_Baru"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "6.328244");
+            longitudeInput.setAttribute("value", "100.156306");
+            elevationInput.setAttribute("value", "0");
+        }
+        else if (lokasi_rasmi == "PantaiMekMas"){
+            latitudeInput.removeAttribute("required");
+            longitudeInput.removeAttribute("required");
+            elevationInput.removeAttribute("required");
+            latitudeInput.setAttribute("readonly", "readonly");
+            longitudeInput.setAttribute("readonly", "readonly");
+            elevationInput.setAttribute("readonly", "readonly");
+            latitudeInput.setAttribute("value", "6.215556");
+            longitudeInput.setAttribute("value", "102.243333");
             elevationInput.setAttribute("value", "0");
         }
         else {
