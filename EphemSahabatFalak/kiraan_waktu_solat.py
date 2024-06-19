@@ -1934,7 +1934,7 @@ class Takwim:
 
             az_objek_list.append(az_objek)
 
-            masa_list.append(str(masa.astimezone(self.zone))[:19])
+            masa_list.append(masa.astimezone(self.zone).strftime('%H:%M:%S'))
 
         efemeris_kiblat = pd.DataFrame(
             az_objek_list, index=masa_list, columns=['Azimut'])
@@ -2072,13 +2072,13 @@ class Takwim:
         return ephem_bulan
 
     def __round_up(self, waktu):
-        rounded_up_waktu = str((waktu + dt.timedelta(minutes=1.0)).replace(
-            second=0))[11:16]
+        rounded_up_waktu = (waktu + dt.timedelta(minutes=1.0)).replace(
+            second=0).strftime('%H:%M')
 
         return rounded_up_waktu
 
     def __round_down(self, waktu):
-        rounded_down_waktu = str((waktu).replace(second=0))[11:16]
+        rounded_down_waktu = (waktu).replace(second=0).strftime('%H:%M:%S')
 
         return rounded_down_waktu
 
@@ -2125,125 +2125,132 @@ class Takwim:
         asar = []
         maghrib = []
         isyak = []
+        iter_range = iter(range(1, 32))
 
-        for i in range(1, 32):
+        while True:
+            try:
+                i = next(iter_range)
 
-            errormessage = "not triggered"
-            if self.month in (2, 4, 6, 9, 11) and i > 30:
-                continue
-            elif self.month == 2 and i > 28:
-                try:
-                    self.day = i
-                    self.current_time()
-                except Exception:
-                    errormessage = "triggered"
-
-            if errormessage == "triggered":
-                continue
-            print('Calculating for day: ' + str(i))
-            if altitud_subuh != 'default' and (
-               altitud_subuh > -4 or altitud_subuh) < -24:
-                raise Exception("Altitude subuh is below 24 degrees, "
-                                "or above 12 degrees")
-
-            if altitud_syuruk != 'default' and (
-               altitud_syuruk > 0 or altitud_subuh) < -4:
-                raise Exception("Altitude syuruk is below -4 degrees, "
-                                "or above 0 degrees")
-
-            if altitud_maghrib != 'default' and (
-               altitud_maghrib > 0 or altitud_maghrib) < -4:
-                raise Exception("Altitude maghrib is below -4 degrees, "
-                                "or above 0 degrees")
-
-            if altitud_isyak != 'default' and (
-               altitud_isyak > -4 or altitud_isyak < -24):
-                raise Exception("Altitude isyak is below -24 degrees, "
-                                "or above -4 degrees")
-
-            self.day = i
-
-            # masa
-            masa = self.current_time(time_format='string')[:11]
-            tarikh.append(masa)
-
-            if bayang_kiblat == 'ya':
-                if saat == 'tidak' or saat == 'no':
-                    waktu_bayang_searah_kiblat = self.bayang_searah_kiblat(
-                        time_format='datetime')
-
+                errormessage = "not triggered"
+                if self.month in (2, 4, 6, 9, 11) and i > 30:
+                    continue
+                elif self.month == 2 and i > 28:
                     try:
-                        bayang_kiblat_mula.append(self.__round_up(
-                            waktu_bayang_searah_kiblat[0]))
-                        bayang_kiblat_tamat.append(self.__round_down(
-                            waktu_bayang_searah_kiblat[1]))
-                    except TypeError:
-                        bayang_kiblat_mula.append(
-                            waktu_bayang_searah_kiblat[0])
-                        bayang_kiblat_tamat.append(
-                            waktu_bayang_searah_kiblat[1])
+                        self.day = i
+                        self.current_time()
+                    except Exception:
+                        errormessage = "triggered"
+
+                if errormessage == "triggered":
+                    continue
+                print('Calculating for day: ' + str(i))
+                if altitud_subuh != 'default' and (
+                   altitud_subuh > -4 or altitud_subuh) < -24:
+                    raise Exception("Altitude subuh is below 24 degrees, "
+                                    "or above 12 degrees")
+
+                if altitud_syuruk != 'default' and (
+                   altitud_syuruk > 0 or altitud_subuh) < -4:
+                    raise Exception("Altitude syuruk is below -4 degrees, "
+                                    "or above 0 degrees")
+
+                if altitud_maghrib != 'default' and (
+                   altitud_maghrib > 0 or altitud_maghrib) < -4:
+                    raise Exception("Altitude maghrib is below -4 degrees, "
+                                    "or above 0 degrees")
+
+                if altitud_isyak != 'default' and (
+                   altitud_isyak > -4 or altitud_isyak < -24):
+                    raise Exception("Altitude isyak is below -24 degrees, "
+                                    "or above -4 degrees")
+
+                self.day = i
+
+                # masa
+                masa = self.current_time(time_format='string')[:11]
+                tarikh.append(masa)
+
+                if bayang_kiblat == 'ya':
+                    if saat == 'tidak' or saat == 'no':
+                        waktu_bayang_searah_kiblat = self.bayang_searah_kiblat(
+                            time_format='datetime')
+
+                        try:
+                            bayang_kiblat_mula.append(self.__round_up(
+                                waktu_bayang_searah_kiblat[0]))
+                            bayang_kiblat_tamat.append(self.__round_down(
+                                waktu_bayang_searah_kiblat[1]))
+                        except TypeError:
+                            bayang_kiblat_mula.append(
+                                waktu_bayang_searah_kiblat[0])
+                            bayang_kiblat_tamat.append(
+                                waktu_bayang_searah_kiblat[1])
+
+                    else:
+                        waktu_bayang_searah_kiblat = self.bayang_searah_kiblat(
+                            time_format='string')
+                        bayang_kiblat_mula.append(waktu_bayang_searah_kiblat[0])
+                        bayang_kiblat_tamat.append(waktu_bayang_searah_kiblat[1])
+                else:
+                    bayang_kiblat_mula.append('N/A')
+                    bayang_kiblat_tamat.append('N/A')
+
+                # subuh
+                if saat == 'tidak' or saat == 'no':
+                    waktu_subuh = self.waktu_subuh(
+                        time_format='datetime', altitude=altitud_subuh)
+                    subuh.append(self.__round_up(waktu_subuh))
+
+                    waktu_syuruk = self.waktu_syuruk(
+                        time_format='datetime', altitude=altitud_syuruk,
+                        kaedah=kaedah_syuruk_maghrib)
+                    syuruk.append(self.__round_down(waktu_syuruk))
+
+                    waktu_zohor = self.waktu_zohor(time_format='datetime')
+                    zohor.append(self.__round_up(waktu_zohor))
+
+                    waktu_asar = self.waktu_asar(
+                        time_format='datetime', kaedah=kaedah_asar)
+                    asar.append(self.__round_up(waktu_asar))
+
+                    waktu_maghrib = self.waktu_maghrib(
+                        time_format='datetime', altitude=altitud_maghrib,
+                        kaedah=kaedah_syuruk_maghrib)
+                    maghrib.append(self.__round_up(waktu_maghrib))
+
+                    waktu_isyak = self.waktu_isyak(
+                        time_format='datetime', altitude=altitud_isyak)
+                    isyak.append(self.__round_up(waktu_isyak))
 
                 else:
-                    waktu_bayang_searah_kiblat = self.bayang_searah_kiblat(
-                        time_format='string')
-                    bayang_kiblat_mula.append(waktu_bayang_searah_kiblat[0])
-                    bayang_kiblat_tamat.append(waktu_bayang_searah_kiblat[1])
-            else:
-                bayang_kiblat_mula.append('N/A')
-                bayang_kiblat_tamat.append('N/A')
+                    waktu_subuh = self.waktu_subuh(
+                        time_format='string', altitude=altitud_subuh)
+                    subuh.append(waktu_subuh)
 
-            # subuh
-            if saat == 'tidak' or saat == 'no':
-                waktu_subuh = self.waktu_subuh(
-                    time_format='datetime', altitude=altitud_subuh)
-                subuh.append(self.__round_up(waktu_subuh))
+                    waktu_syuruk = self.waktu_syuruk(
+                        time_format='string', altitude=altitud_syuruk,
+                        kaedah=kaedah_syuruk_maghrib)
+                    syuruk.append(waktu_syuruk)
 
-                waktu_syuruk = self.waktu_syuruk(
-                    time_format='datetime', altitude=altitud_syuruk,
-                    kaedah=kaedah_syuruk_maghrib)
-                syuruk.append(self.__round_down(waktu_syuruk))
+                    waktu_zohor = self.waktu_zohor(time_format='string')
+                    zohor.append(waktu_zohor)
 
-                waktu_zohor = self.waktu_zohor(time_format='datetime')
-                zohor.append(self.__round_up(waktu_zohor))
+                    waktu_asar = self.waktu_asar(
+                        time_format='string', kaedah=kaedah_asar)
+                    asar.append(waktu_asar)
 
-                waktu_asar = self.waktu_asar(
-                    time_format='datetime', kaedah=kaedah_asar)
-                asar.append(self.__round_up(waktu_asar))
+                    waktu_maghrib = self.waktu_maghrib(
+                        time_format='string', altitude=altitud_maghrib,
+                        kaedah=kaedah_syuruk_maghrib)
+                    maghrib.append(waktu_maghrib)
 
-                waktu_maghrib = self.waktu_maghrib(
-                    time_format='datetime', altitude=altitud_maghrib,
-                    kaedah=kaedah_syuruk_maghrib)
-                maghrib.append(self.__round_up(waktu_maghrib))
-
-                waktu_isyak = self.waktu_isyak(
-                    time_format='datetime', altitude=altitud_isyak)
-                isyak.append(self.__round_up(waktu_isyak))
-
-            else:
-                waktu_subuh = self.waktu_subuh(
-                    time_format='string', altitude=altitud_subuh)
-                subuh.append(waktu_subuh)
-
-                waktu_syuruk = self.waktu_syuruk(
-                    time_format='string', altitude=altitud_syuruk,
-                    kaedah=kaedah_syuruk_maghrib)
-                syuruk.append(waktu_syuruk)
-
-                waktu_zohor = self.waktu_zohor(time_format='string')
-                zohor.append(waktu_zohor)
-
-                waktu_asar = self.waktu_asar(
-                    time_format='string', kaedah=kaedah_asar)
-                asar.append(waktu_asar)
-
-                waktu_maghrib = self.waktu_maghrib(
-                    time_format='string', altitude=altitud_maghrib,
-                    kaedah=kaedah_syuruk_maghrib)
-                maghrib.append(waktu_maghrib)
-
-                waktu_isyak = self.waktu_isyak(
-                    time_format='string', altitude=altitud_isyak)
-                isyak.append(waktu_isyak)
+                    waktu_isyak = self.waktu_isyak(
+                        time_format='string', altitude=altitud_isyak)
+                    isyak.append(waktu_isyak)
+            except StopIteration:
+                break
+        if directory is None:
+            return None
 
         takwim_bulanan = pd.DataFrame(
             list(zip(
@@ -2254,9 +2261,8 @@ class Takwim:
 
         filename = ('../Takwim_Solat_' + str(self.month) +
                     '_' + str(self.year) + '.xlsx')
-        if directory is None:
-            takwim_bulanan.to_excel(filename)
-        elif directory == "web":
+
+        if directory == "web":
             return takwim_bulanan
         else:
             try:
@@ -3283,15 +3289,8 @@ class Takwim:
         maghrib_datetime = maghrib.astimezone(self.zone)
         lag_time = dt.timedelta(days=4/9 * (self.moon_set() - maghrib))
         best_time = lag_time + maghrib_datetime
-        Yallop = Takwim(
-            latitude=self.latitude, longitude=self.longitude,
-            elevation=self.elevation, zone=self.zone_string,
-            temperature=self.temperature, pressure=self.pressure,
-            ephem=self.ephem, year=best_time.year, month=best_time.month,
-            day=best_time.day, hour=best_time.hour, minute=best_time.minute,
-            second=best_time.second)
-        arcv = Yallop.arcv(angle_format='degree')
-        topo_width = Yallop.lunar_crescent_width(angle_format='degree')*60
+        arcv = self.arcv(t=best_time, angle_format='degree')
+        topo_width = self.lunar_crescent_width(t=best_time, angle_format='degree')*60
 
         q_value = (arcv-(
             11.8371-6.3226*topo_width +
@@ -3330,15 +3329,8 @@ class Takwim:
         maghrib_datetime = maghrib.astimezone(self.zone)
         lag_time = dt.timedelta(days=4/9 * (self.moon_set() - maghrib))
         best_time = lag_time + maghrib_datetime
-        Odeh = Takwim(
-            latitude=self.latitude, longitude=self.longitude,
-            elevation=self.elevation, zone=self.zone_string,
-            temperature=self.temperature, pressure=self.pressure,
-            ephem=self.ephem, year=best_time.year, month=best_time.month,
-            day=best_time.day, hour=best_time.hour, minute=best_time.minute,
-            second=best_time.second)
-        arcv = Odeh.arcv(angle_format='degree', topo='topo')
-        topo_width = Odeh.lunar_crescent_width(angle_format='degree')*60
+        arcv = self.arcv(t=best_time, angle_format='degree', topo='topo')
+        topo_width = self.lunar_crescent_width(t=best_time, angle_format='degree')*60
 
         q_value = arcv-(7.1651-6.3226*topo_width +
                         0.7319*topo_width**2-0.1018*topo_width**3)
@@ -3374,15 +3366,8 @@ class Takwim:
                 self.moon_set() - self.waktu_maghrib()))
             best_time = lag_time + self.waktu_maghrib(time_format='datetime')
 
-        mabims_2021 = Takwim(
-            latitude=self.latitude, longitude=self.longitude,
-            elevation=self.elevation, zone=self.zone_string,
-            temperature=self.temperature, pressure=self.pressure,
-            ephem=self.ephem, year=self.year, month=self.month,
-            day=self.day, hour=best_time.hour, minute=best_time.minute,
-            second=best_time.second)
-        elon_topo = mabims_2021.elongation_moon_sun(angle_format='degree')
-        alt_bul_topo = mabims_2021.moon_altitude(angle_format='degree')
+        elon_topo = self.elongation_moon_sun(t=best_time, angle_format='degree')
+        alt_bul_topo = self.moon_altitude(t=best_time, angle_format='degree')
 
         if elon_topo >= 6.4 and alt_bul_topo > 3:
             criteria = 1
@@ -3404,17 +3389,9 @@ class Takwim:
             lag_time = dt.timedelta(
                 days=4/9 * (self.moon_set() - self.waktu_maghrib()))
             best_time = lag_time + self.waktu_maghrib(time_format='datetime')
-
-        mabims_1995 = Takwim(
-            latitude=self.latitude, longitude=self.longitude,
-            elevation=self.elevation, zone=self.zone_string,
-            temperature=self.temperature, pressure=self.pressure,
-            ephem=self.ephem, year=self.year, month=self.month,
-            day=self.day, hour=best_time.hour, minute=best_time.minute,
-            second=best_time.second)
-        elon_topo = mabims_1995.elongation_moon_sun(angle_format='degree')
-        alt_bul_topo = mabims_1995.moon_altitude(angle_format='degree')
-        age_moon = mabims_1995.moon_age(time_format='second')
+        elon_topo = self.elongation_moon_sun(t=best_time, angle_format='degree')
+        alt_bul_topo = self.moon_altitude(t=best_time, angle_format='degree')
+        age_moon = self.moon_age(t=best_time, time_format='second')
 
         if elon_topo >= 3 and alt_bul_topo > 2 or age_moon/3600 > 8:
             criteria = 1
@@ -3437,15 +3414,8 @@ class Takwim:
                 days=4/9 * (self.moon_set() - self.waktu_maghrib()))
             best_time = lag_time + self.waktu_maghrib(time_format='datetime')
 
-        malaysia_2013 = Takwim(
-            latitude=self.latitude, longitude=self.longitude,
-            elevation=self.elevation, zone=self.zone_string,
-            temperature=self.temperature, pressure=self.pressure,
-            ephem=self.ephem, year=self.year, month=self.month,
-            day=self.day, hour=best_time.hour, minute=best_time.minute,
-            second=best_time.second)
-        elon_topo = malaysia_2013.elongation_moon_sun(angle_format='degree')
-        alt_bul_topo = malaysia_2013.moon_altitude(angle_format='degree')
+        elon_topo = self.elongation_moon_sun(t=best_time, angle_format='degree')
+        alt_bul_topo = self.moon_altitude(t=best_time, angle_format='degree')
 
         if elon_topo >= 5 and alt_bul_topo > 3:
             criteria = 1
@@ -3460,10 +3430,11 @@ class Takwim:
             return description
 
     def Istanbul_1978_criteria(self, value='criteria'):
+        maghrib = self.waktu_maghrib()
         elon_topo = self.elongation_moon_sun(
-            t='maghrib', angle_format='degree', topo='geo')
+            t=maghrib, angle_format='degree', topo='geo')
         alt_bul_topo = self.moon_altitude(
-            t='maghrib', angle_format='degree', topo='geo')
+            t=maghrib, angle_format='degree', topo='geo')
 
         if elon_topo >= 8 and alt_bul_topo >= 5:
             criteria = 1
@@ -3479,16 +3450,9 @@ class Takwim:
 
     def Muhammadiyah_wujudul_hilal_criteria(self, value='criteria'):
         best_time = self.waktu_maghrib(time_format='datetime')
-        Muhammadiyah_wujudul_hilal = Takwim(
-            latitude=self.latitude, longitude=self.longitude,
-            elevation=self.elevation, zone=self.zone_string,
-            temperature=self.temperature, pressure=self.pressure,
-            ephem=self.ephem, year=self.year, month=self.month,
-            day=self.day, hour=best_time.hour, minute=best_time.minute,
-            second=best_time.second)
-        alt_bul_topo = Muhammadiyah_wujudul_hilal.moon_altitude(
-            angle_format='degree')
-        age_moon = Muhammadiyah_wujudul_hilal.moon_age(time_format='second')
+        alt_bul_topo = self.moon_altitude(
+            t=best_time, angle_format='degree')
+        age_moon = self.moon_age(t=best_time, time_format='second')
 
         if age_moon > 0 and alt_bul_topo > 0:
             criteria = 1
@@ -4165,7 +4129,7 @@ class Takwim:
 
     def gambar_hilal_composite(
             self, directory=None, criteria='mabims2021', waktu='maghrib',
-            detail=False, arcv_value=False, **kwargs):
+            detail=False, arcv_value=False, horizon_adjusted=True, **kwargs):
         """
         This method returns a composite image of hilal at sunset for a single
         date. Users can add more location to compare
@@ -4202,14 +4166,19 @@ class Takwim:
         # initiate the plot
         fig, ax = plt.subplots(figsize=[16, 9])
 
-        if arcv_value is False:
+        if horizon_adjusted is False:
+            arcv = 3  # altitud 3 darjah
+            sun_al = -16/60
+            horizon_dip = 0
+        else:
+            horizon_dip = float(self.__horizon_dip_refraction_semid())
             arcv = 3
+            arcv2 = 3 - horizon_dip
 
         # Logic to draw the altitude = 3. Work it out!
-        horizon_dip = float(self.__horizon_dip_refraction_semid())
         line_a = sun_az
         line_b = sun_az+8+abs(sun_az-moon_az)
-        x_angle = 6.4*np.sin(np.arccos((arcv+horizon_dip)/6.4))
+        x_angle = 6.4*np.sin(np.arccos((arcv2+horizon_dip-sun_al)/6.4))
         y_init = sun_az-abs(sun_az-moon_az)-8
         b_y = line_b - y_init
         first_min = (line_a-x_angle-y_init)/b_y
@@ -4217,21 +4186,24 @@ class Takwim:
         ratio_x_y = b_y/abs(moon_al-sun_al)+9
 
         # plot the 'scatter'
-        # ax.scatter(moon_az, moon_al, ratio_x_y*20, c='gainsboro',
-        #            edgecolor='black', linewidth=0.25, zorder=2)
-        # ax.scatter(sun_az, sun_al, ratio_x_y*20, c='yellow',
-        #            edgecolor='black', linewidth=0.25, zorder=2)
-        ax.axhline(y=-horizon_dip+0.25, color='red', linestyle='--')
-        # apparent horizon
+        ax.scatter(moon_az, moon_al, ratio_x_y*20, c='gainsboro',
+                   edgecolor='black', linewidth=0.25, zorder=2)  # the mooon
+        ax.scatter(sun_az, -horizon_dip-2*0.26728, ratio_x_y*20, c='yellow',
+                   edgecolor='black', linewidth=0.25, zorder=2)  # the sun
+        ax.axhline(
+            y=-horizon_dip-0.26728, color='red', linestyle='--')  # Ufuk marie
+        # add 0.26278 to accomodate semi-diameter of the sun.
 
         # mabims 2021
-        ax.axhline(y=arcv, color='green', linestyle=':', xmax=first_min)
+        ax.axhline(
+            y=arcv, color='green', linestyle=':', xmax=first_min)
         # 3 degree. always at 3, not arcv
         ax.axhline(y=arcv, color='green', linestyle=':', xmin=first_max)
 
         theta = np.linspace(
-            np.pi/2-(np.arccos((arcv+horizon_dip)/6.4)),
-            np.pi/2+(np.arccos((arcv+horizon_dip)/6.4)), 100)
+            np.pi/2-(np.arccos(
+                (arcv2+horizon_dip-sun_al)/6.4)), np.pi/2+(np.arccos((
+                    arcv2+horizon_dip-sun_al)/6.4)), 100)
         # the radius of the circle
         r = 6.4
         # compute x1 and x2
@@ -4285,19 +4257,6 @@ class Takwim:
 
             )
         else:
-            # ax.annotate('Jarak Lengkung: ' + moon_parameter, (moon_az-8,
-            # moon_al+1.5), c='black', ha='center', va='center',
-            #             textcoords='offset points', xytext=(moon_az-20,
-            # moon_al), size=10)
-            # ax.annotate('Umur Bulan: ' + moon_age, (moon_az-8, moon_al+0.5),
-            # c='black', ha='center', va='center',
-            #                 textcoords='offset points', xytext=(moon_az-20,
-            # moon_al), size=10)
-            # moon_parameter_al = str(format(moon_al, '.2f'))
-            # ax.annotate('Altitud: ' + moon_parameter_al, (moon_az-8,
-            # moon_al+1), c='black', ha='center', va='center',
-            #             textcoords='offset points', xytext=(moon_az-20,
-            # moon_al), size=10)
 
             ax.annotate('Mabims 3-6.4', ((sun_az-abs(sun_az-moon_az)-8), 3.1),
                         c='black', ha='center', va='center',
@@ -4305,10 +4264,10 @@ class Takwim:
                         xytext=((sun_az-abs(sun_az-moon_az)-190), 3.1),
                         size=10)
             ax.annotate('Ufuk Mari\'e - Wujudul Hilal Muhammadiyah',
-                        ((sun_az-abs(sun_az-moon_az)-8), -horizon_dip+0.35),
+                        ((sun_az-abs(sun_az-moon_az)-8), -horizon_dip-0.1628),
                         c='black', ha='center', va='center',
                         textcoords='offset points',
-                        xytext=((sun_az-abs(sun_az-moon_az)-160), 3.1),
+                        xytext=((sun_az-abs(sun_az-moon_az)-160), 0),
                         size=10)
             location_name = (", ".join([f"({nama}, {alt}, {az})" for nama,
                                         (alt, az, __) in kwargs.items()]))
@@ -4361,28 +4320,30 @@ class Takwim:
 
                 # Find moon and sun position
                 if waktu == 'syuruk' or waktu == 'pagi':
+                    syuruk = kawasan_pilihan.waktu_syuruk()
                     sun_az2 = kawasan_pilihan.sun_azimuth(
-                        t='syuruk', angle_format='degree')
+                        t=syuruk, angle_format='degree')
                     sun_al2 = kawasan_pilihan.sun_altitude(
-                        t='syuruk', angle_format='degree', pressure=0)
+                        t=syuruk, angle_format='degree', pressure=0)
                     moon_az2 = kawasan_pilihan.moon_azimuth(
-                        t='syuruk', angle_format='degree')
+                        t=syuruk, angle_format='degree')
                     moon_al2 = kawasan_pilihan.moon_altitude(
-                        t='syuruk', angle_format='degree', pressure=0)
+                        t=syuruk, angle_format='degree', pressure=0)
                     elon_moon_sun2 = kawasan_pilihan.elongation_moon_sun(
-                        t='syuruk', angle_format='degree')
+                        t=syuruk, angle_format='degree')
 
                 else:
+                    maghrib = kawasan_pilihan.waktu_maghrib()
                     sun_az2 = kawasan_pilihan.sun_azimuth(
-                        t='maghrib', angle_format='degree')
+                        t=maghrib, angle_format='degree')
                     sun_al2 = kawasan_pilihan.sun_altitude(
-                        t='maghrib', angle_format='degree', pressure=0)
+                        t=maghrib, angle_format='degree', pressure=0)
                     moon_az2 = kawasan_pilihan.moon_azimuth(
                         t='maghrib', angle_format='degree')
                     moon_al2 = kawasan_pilihan.moon_altitude(
-                        t='maghrib', angle_format='degree', pressure=0)
+                        t=maghrib, angle_format='degree', pressure=0)
                     elon_moon_sun2 = kawasan_pilihan.elongation_moon_sun(
-                        t='maghrib', angle_format='degree')
+                        t=maghrib, angle_format='degree')
 
                 moon_parameter2 = str(format(elon_moon_sun2, '.2f'))
                 moon_age2 = kawasan_pilihan.moon_age()

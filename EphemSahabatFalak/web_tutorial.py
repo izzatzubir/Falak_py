@@ -13,7 +13,6 @@ app = Flask(__name__)
 @app.route("/", methods=["POST", "GET"])
 def home():
     if request.method == "POST":
-        pemerhati = Takwim()
         latitude = 5.41144
         longitude = 100.19672
         elevation = 40.0
