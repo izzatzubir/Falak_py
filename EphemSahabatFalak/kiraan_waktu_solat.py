@@ -554,9 +554,9 @@ class Takwim:
             t = t
 
         moon_alt = self.moon_altitude(
-            t=t, topo=topo, pressure=0, angle_format='degree')
+            t, topo=topo, pressure=0, angle_format='degree')
         sun_alt = self.sun_altitude(
-            t=t, topo=topo, pressure=0, angle_format='degree')
+            t, topo=topo, pressure=0, angle_format='degree')
         arcv = Angle(degrees=abs(moon_alt-sun_alt))
 
         if angle_format not in ('skylib', 'degree'):
@@ -3288,7 +3288,7 @@ class Takwim:
         maghrib = self.waktu_maghrib()
         maghrib_datetime = maghrib.astimezone(self.zone)
         lag_time = dt.timedelta(days=4/9 * (self.moon_set() - maghrib))
-        best_time = lag_time + maghrib_datetime
+        best_time = self.timescale_with_cutoff().from_datetime(best_time)
         arcv = self.arcv(t=best_time, angle_format='degree')
         topo_width = self.lunar_crescent_width(t=best_time, angle_format='degree')*60
 
@@ -3329,6 +3329,7 @@ class Takwim:
         maghrib_datetime = maghrib.astimezone(self.zone)
         lag_time = dt.timedelta(days=4/9 * (self.moon_set() - maghrib))
         best_time = lag_time + maghrib_datetime
+        best_time = self.timescale_with_cutoff().from_datetime(best_time)
         arcv = self.arcv(t=best_time, angle_format='degree', topo='topo')
         topo_width = self.lunar_crescent_width(t=best_time, angle_format='degree')*60
 
@@ -3366,6 +3367,7 @@ class Takwim:
                 self.moon_set() - self.waktu_maghrib()))
             best_time = lag_time + self.waktu_maghrib(time_format='datetime')
 
+        best_time = self.timescale_with_cutoff().from_datetime(best_time)
         elon_topo = self.elongation_moon_sun(t=best_time, angle_format='degree')
         alt_bul_topo = self.moon_altitude(t=best_time, angle_format='degree')
 
@@ -3389,6 +3391,7 @@ class Takwim:
             lag_time = dt.timedelta(
                 days=4/9 * (self.moon_set() - self.waktu_maghrib()))
             best_time = lag_time + self.waktu_maghrib(time_format='datetime')
+        best_time = self.timescale_with_cutoff().from_datetime(best_time)
         elon_topo = self.elongation_moon_sun(t=best_time, angle_format='degree')
         alt_bul_topo = self.moon_altitude(t=best_time, angle_format='degree')
         age_moon = self.moon_age(t=best_time, time_format='second')
@@ -3413,7 +3416,7 @@ class Takwim:
             lag_time = dt.timedelta(
                 days=4/9 * (self.moon_set() - self.waktu_maghrib()))
             best_time = lag_time + self.waktu_maghrib(time_format='datetime')
-
+        best_time = self.timescale_with_cutoff().from_datetime(best_time)
         elon_topo = self.elongation_moon_sun(t=best_time, angle_format='degree')
         alt_bul_topo = self.moon_altitude(t=best_time, angle_format='degree')
 
@@ -3449,7 +3452,7 @@ class Takwim:
             return description
 
     def Muhammadiyah_wujudul_hilal_criteria(self, value='criteria'):
-        best_time = self.waktu_maghrib(time_format='datetime')
+        best_time = self.waktu_maghrib()
         alt_bul_topo = self.moon_altitude(
             t=best_time, angle_format='degree')
         age_moon = self.moon_age(t=best_time, time_format='second')
