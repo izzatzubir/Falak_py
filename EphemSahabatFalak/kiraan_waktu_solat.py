@@ -3285,9 +3285,9 @@ class Takwim:
 
     # visibility criterion
     def Yallop_criteria(self, value='criteria'):
-        maghrib = self.waktu_maghrib()
-        maghrib_datetime = maghrib.astimezone(self.zone)
-        lag_time = dt.timedelta(days=4/9 * (self.moon_set() - maghrib))
+        maghrib = self.waktu_maghrib(time_format='datetime')
+        lag_time = dt.timedelta(days=4/9 * self.lag_time(time_format='sec'))
+        best_time = lag_time + maghrib
         best_time = self.timescale_with_cutoff().from_datetime(best_time)
         arcv = self.arcv(t=best_time, angle_format='degree')
         topo_width = self.lunar_crescent_width(t=best_time, angle_format='degree')*60
@@ -3324,11 +3324,9 @@ class Takwim:
             return description
 
     def Odeh_criteria(self, value='criteria'):
-        maghrib = self.waktu_maghrib()  # Since .waktu_maghrib is used twice,
-        # we save computation time by defining here and using it below
-        maghrib_datetime = maghrib.astimezone(self.zone)
-        lag_time = dt.timedelta(days=4/9 * (self.moon_set() - maghrib))
-        best_time = lag_time + maghrib_datetime
+        maghrib = self.waktu_maghrib(time_format='datetime')
+        lag_time = dt.timedelta(days=4/9 * self.lag_time(time_format='sec'))
+        best_time = lag_time + maghrib
         best_time = self.timescale_with_cutoff().from_datetime(best_time)
         arcv = self.arcv(t=best_time, angle_format='degree', topo='topo')
         topo_width = self.lunar_crescent_width(t=best_time, angle_format='degree')*60
@@ -3359,15 +3357,15 @@ class Takwim:
 
     def Mabims_2021_criteria(self, time_of_calculation='maghrib',
                              value='criteria'):
-
+        maghrib = self.waktu_maghrib()
         if time_of_calculation == 'maghrib':
-            best_time = self.waktu_maghrib(time_format='datetime')
+            best_time = maghrib
         elif time_of_calculation == 'Yallop best time':
             lag_time = dt.timedelta(days=4/9 * (
-                self.moon_set() - self.waktu_maghrib()))
-            best_time = lag_time + self.waktu_maghrib(time_format='datetime')
+                 self.lag_time(time_format='sec')))
+            best_time = lag_time + maghrib  # TODO: Fix maghrib to datetime
+            best_time = self.timescale_with_cutoff().from_datetime(best_time)
 
-        best_time = self.timescale_with_cutoff().from_datetime(best_time)
         elon_topo = self.elongation_moon_sun(t=best_time, angle_format='degree')
         alt_bul_topo = self.moon_altitude(t=best_time, angle_format='degree')
 
@@ -3385,13 +3383,14 @@ class Takwim:
 
     def Mabims_1995_criteria(self, time_of_calculation='maghrib',
                              value='criteria'):
+        maghrib = self.waktu_maghrib()
         if time_of_calculation == 'maghrib':
-            best_time = self.waktu_maghrib(time_format='datetime')
+            best_time = maghrib
         elif time_of_calculation == 'Yallop best time':
-            lag_time = dt.timedelta(
-                days=4/9 * (self.moon_set() - self.waktu_maghrib()))
-            best_time = lag_time + self.waktu_maghrib(time_format='datetime')
-        best_time = self.timescale_with_cutoff().from_datetime(best_time)
+            lag_time = dt.timedelta(days=4/9 * (
+                 self.lag_time(time_format='sec')))
+            best_time = lag_time + maghrib  # TODO: Fix maghrib to datetime
+            best_time = self.timescale_with_cutoff().from_datetime(best_time)
         elon_topo = self.elongation_moon_sun(t=best_time, angle_format='degree')
         alt_bul_topo = self.moon_altitude(t=best_time, angle_format='degree')
         age_moon = self.moon_age(t=best_time, time_format='second')
@@ -3410,13 +3409,14 @@ class Takwim:
 
     def Malaysia_2013_criteria(self, time_of_calculation='maghrib',
                                value='criteria'):
+        maghrib = self.waktu_maghrib()
         if time_of_calculation == 'maghrib':
-            best_time = self.waktu_maghrib(time_format='datetime')
+            best_time = maghrib
         elif time_of_calculation == 'Yallop best time':
-            lag_time = dt.timedelta(
-                days=4/9 * (self.moon_set() - self.waktu_maghrib()))
-            best_time = lag_time + self.waktu_maghrib(time_format='datetime')
-        best_time = self.timescale_with_cutoff().from_datetime(best_time)
+            lag_time = dt.timedelta(days=4/9 * (
+                 self.lag_time(time_format='sec')))
+            best_time = lag_time + maghrib  # TODO: Fix maghrib to datetime
+            best_time = self.timescale_with_cutoff().from_datetime(best_time)
         elon_topo = self.elongation_moon_sun(t=best_time, angle_format='degree')
         alt_bul_topo = self.moon_altitude(t=best_time, angle_format='degree')
 
