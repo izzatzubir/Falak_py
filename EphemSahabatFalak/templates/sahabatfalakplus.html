@@ -278,8 +278,10 @@
             </div>
 
             <div>
+                {% if gambar_Hilal %}
                 <h4>Simulasi Langit</h4>
-                <img src="data:image/png;base64,{{ gambar_Hilal }}" alt="{{ gambar_Hilal }}" class="responsive-img">
+                <img src="data:image/png;base64,{{ gambar_Hilal }}" alt="Simulasi hilal tidak bersesuaian pada tarikh ini" class="responsive-img">
+                {% endif %}
             </div>
         </div>
 

@@ -313,12 +313,16 @@ def sahabatfalakplus():
                 value='description', maghrib_pre_calculated=maghrib_1
             )
             istanbul78 = pemerhati.Istanbul_1978_criteria(value='description', maghrib_pre_calculated=maghrib_1)
-            gambar = pemerhati.gambar_hilal_mabims(save=False, topo=topo)
-            pngImage = io.BytesIO()
-            # gambar.savefig(pngImage, format='png')
-            FigureCanvas(gambar).print_png(pngImage)
-            pngImage.seek(0)
-            img_base64 = base64.b64encode(pngImage.getvalue()).decode('utf-8')
+
+            if "days" not in moon_age:
+                gambar = pemerhati.gambar_hilal_mabims(save=False, topo=topo)
+                pngImage = io.BytesIO()
+                # gambar.savefig(pngImage, format='png')
+                FigureCanvas(gambar).print_png(pngImage)
+                pngImage.seek(0)
+                img_base64 = base64.b64encode(pngImage.getvalue()).decode('utf-8')
+            else:
+                img_base64 = None
 
             return render_template(
                 "sahabatfalakplus.html", maghrib=maghrib, moon_set=moon_set,
