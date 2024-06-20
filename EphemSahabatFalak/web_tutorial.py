@@ -274,12 +274,13 @@ def sahabatfalakplus():
         topo = request.form["topo_pilihan"]
         maghrib_0 = pemerhati.waktu_maghrib
         maghrib_1 = maghrib_0()
+        maghrib_2 = maghrib_0(time_format='datetime')
         maghrib = maghrib_0(time_format='string')
         pilihan = request.form["pilihan"]
         if request.form["pilihan"] == "dataHilalRingkas":
             moon_set = pemerhati.moon_set(time_format='string')
-            ijtimak = pemerhati.moon_conjunction(time_format='string')
-            moon_age = pemerhati.moon_age(topo=topo)
+            ijtimak = pemerhati.moon_conjunction(time_format='string', topo=topo)
+            moon_age = pemerhati.moon_age(t=maghrib_1, topo=topo)
             elongation = pemerhati.elongation_moon_sun(
                 t=maghrib_1, angle_format='degree', topo=topo)
             elongation = str(format(elongation, '.4f')) + "°"
@@ -291,6 +292,8 @@ def sahabatfalakplus():
             altitude = str(format(altitude, '.4f')) + "°"
             illumination = pemerhati.moon_illumination(
                 t=maghrib_1, topo=topo)
+            moon_distance_ratio = pemerhati.moon_distance(t=maghrib_1, topo=topo, compare=True)
+            moon_distance_ratio = str(format(moon_distance_ratio, '.4f'))
             illumination = str(format(illumination, '.4f')) + "%"
             lag_time = pemerhati.lag_time()
             crescent_width = pemerhati.lunar_crescent_width(
@@ -301,15 +304,15 @@ def sahabatfalakplus():
             if 'Moon' in lag_time:
                 odeh, yallop = 'Mudah Kelihatan', 'Mudah Kelihatan'
             else:
-                odeh = pemerhati.Odeh_criteria(value='description')
-                yallop = pemerhati.Yallop_criteria(value='description')
-            mabims2021 = pemerhati.Mabims_2021_criteria(value='description')
+                odeh = pemerhati.Odeh_criteria(value='description', maghrib_pre_calculated=maghrib_2)
+                yallop = pemerhati.Yallop_criteria(value='description', maghrib_pre_calculated=maghrib_2)
+            mabims2021 = pemerhati.Mabims_2021_criteria(value='description', maghrib_pre_calculated=maghrib_1)
             malaysia2013 = pemerhati.Malaysia_2013_criteria(
-                value='description')
+                value='description', maghrib_pre_calculated=maghrib_1)
             muhammadiyah = pemerhati.Muhammadiyah_wujudul_hilal_criteria(
-                value='description'
+                value='description', maghrib_pre_calculated=maghrib_1
             )
-            istanbul78 = pemerhati.Istanbul_1978_criteria(value='description')
+            istanbul78 = pemerhati.Istanbul_1978_criteria(value='description', maghrib_pre_calculated=maghrib_1)
             gambar = pemerhati.gambar_hilal_mabims(save=False, topo=topo)
             pngImage = io.BytesIO()
             # gambar.savefig(pngImage, format='png')
@@ -321,7 +324,7 @@ def sahabatfalakplus():
                 "sahabatfalakplus.html", maghrib=maghrib, moon_set=moon_set,
                 moon_age=moon_age, elongation=elongation, altitude=altitude,
                 azimuth_difference=azimuth_difference, ijtimak=ijtimak,
-                illumination=illumination,
+                illumination=illumination, moon_distance_ratio=moon_distance_ratio,
                 lag_time=lag_time, crescent_width=crescent_width,
                 parsed_date=pemerhati.current_time('string'),
                 odeh=odeh, yallop=yallop,
