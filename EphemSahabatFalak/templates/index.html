@@ -72,6 +72,7 @@
                     <option value="Kiblat">Kiblat</option>
                     <option value="efemerisKiblat">Jadual Kiblat</option>
                     <option value="waktuSolatBulanan">Waktu Solat Bulanan</option>
+                    <option value="DataBulanMatahari">Data Bulan dan Matahari</option>
                   </select>
             </div>
             <div class="pt-2">
@@ -80,7 +81,7 @@
         </div>
     </form>
     <div>
-        {% if maghrib is defined %}
+        {% if pilihan == 'waktu-solat' %}
         <h2>Waktu Solat</h2>
         <div class="p-2">
             <table class="table table-striped-columns">
@@ -118,14 +119,53 @@
                 </tbody>
             </table>
         </div>
-        {% elif azimut is defined %}
+        {% elif pilihan == 'DataBulanMatahari' %}
+        <h2>Waktu Solat</h2>
+        <p>Waktu: {{parsed_date}}</p>
+        <div class="p-2">
+            <table class="table table-striped-columns">
+                <thead>
+                    <tr>
+                        <th scope="col">Parameter</th>
+                        <th scope="col">Data</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Fasa Bulan</td>
+                        <td>{{fasa_bulan}}</td>
+                    </tr>
+                    <tr>
+                        <td>Azimut Bulan</td>
+                        <td>{{azimut_b}}</td>
+                    </tr>
+                    <tr>
+                        <td>Altitud Bulan</td>
+                        <td>{{altitud_b}}</td>
+                    </tr>
+                    <tr>
+                        <td>Azimut Matahari</td>
+                        <td>{{azimut_m}}</td>
+                    </tr>
+                    <tr>
+                        <td>Altitud Bulan</td>
+                        <td>{{altitud_m}}</td>
+                    </tr>
+                    <tr>
+                        <td>Jarak Lengkung Bulan-Matahari</td>
+                        <td>{{jarak_lengkung}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        {% elif pilihan == 'Kiblat' %}
         <h2>Kiblat</h2>
         <p>Azimut Kiblat: {{azimut}} °U</p>
         <p>Jarak ke Kaabah: {{jarak}} km</p>
         <li>Waktu bayang searah kiblat bermula: {{waktu_bayang[0]}}</li>
         <li>Waktu bayang searah kiblat berakhir: {{waktu_bayang[1]}}</li>
         <br>
-        {% elif efemeris_kiblat is defined %}
+        {% elif pilihan == 'efemerisKiblat' %}
         <div class="p-2">
             <table class="table table-striped-columns">
                 <thead>
@@ -144,7 +184,7 @@
                 </tbody>
             </table>
         </div>
-        {% elif takwim_bulanan is defined %}
+        {% elif pilihan == 'waktuSolatBulanan' %}
         <div>
             <table class="table table-striped-columns">
                 <thead>

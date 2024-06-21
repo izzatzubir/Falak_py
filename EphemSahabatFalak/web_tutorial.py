@@ -73,6 +73,7 @@ def home():
             zone=zone
         )
         if request.form["pilihan"] == "waktu-solat":
+            pilihan = "waktu-solat"
             subuh = pemerhati.waktu_subuh(time_format='string')
             syuruk = pemerhati.waktu_syuruk(time_format='string')
             zohor = pemerhati.waktu_zohor(time_format='string')
@@ -85,15 +86,46 @@ def home():
                 longitud=longitude, elevation=elevation,
                 temperature=temperature, pressure=pemerhati.pressure,
                 timezone=timezone,
-                original_date=original_date)
+                original_date=original_date, pilihan=pilihan)
+        elif request.form["pilihan"] == "DataBulanMatahari":
+            pilihan = "DataBulanMatahari"
+            azimut_b = pemerhati.moon_azimuth(angle_format='string')
+            altitud_b = pemerhati.moon_altitude(angle_format='string')
+            fasa_bulan = pemerhati.moon_phase(angle_format='degree')
+            if fasa_bulan <= 80:
+                fasa_bulan = 'Bulan Sabit Muda'
+            elif fasa_bulan > 80 and fasa_bulan <= 100:
+                fasa_bulan = 'Bulan Separa Muda'
+            elif fasa_bulan > 100 and fasa_bulan <= 170:
+                fasa_bulan = 'Bulan Hampir Purnama Muda'
+            elif fasa_bulan > 170 and fasa_bulan <= 190:
+                fasa_bulan = 'Bulan Purnama'
+            elif fasa_bulan > 190 and fasa_bulan <= 260:
+                fasa_bulan = 'Bulan Hampir Purnama Tua'
+            elif fasa_bulan > 260 and fasa_bulan <= 280:
+                fasa_bulan = 'Bulan Separa Tua'
+            else:
+                fasa_bulan = 'Bulan Sabit Tua'
+
+            jarak_lengkung = pemerhati.elongation_moon_sun(angle_format='string')
+            azimut_m = pemerhati.sun_azimuth(angle_format='string')
+            altitud_m = pemerhati.sun_altitude(angle_format='string')
+
+            return render_template(
+                "index.html", pilihan=pilihan, azimut_b=azimut_b, azimut_m=azimut_m,
+                altitud_b=altitud_b, altitud_m=altitud_m, fasa_bulan=fasa_bulan,
+                parsed_date=pemerhati.current_time('string'), jarak_lengkung=jarak_lengkung
+            )
+
         elif request.form["pilihan"] == "Kiblat":
+            pilihan = "Kiblat"
             azimut_degree = float(pemerhati.azimut_kiblat())
             azimut = "{:.2f}".format(azimut_degree)
             jarak_float = float(pemerhati.jarak_kaabah())
             jarak = "{:.2f}".format(jarak_float)
             waktu_bayang = pemerhati.bayang_searah_kiblat(time_format="string")
             return render_template(
-                "index.html", azimut=azimut, jarak=jarak,
+                "index.html", azimut=azimut, jarak=jarak, pilihan=pilihan,
                 waktu_bayang=waktu_bayang, latitud=latitude,
                 longitud=longitude, elevation=elevation,
                 temperature=temperature, pressure=pemerhati.pressure,
@@ -101,14 +133,16 @@ def home():
             )
 
         elif request.form["pilihan"] == "efemerisKiblat":
+            pilihan = "efemerisKiblat"
             efemeris_kiblat = pemerhati.efemeris_kiblat(directory="web")
             return render_template(
                 "index.html", efemeris_kiblat=efemeris_kiblat,
                 latitud=latitude, longitud=longitude, elevation=elevation,
                 temperature=temperature, pressure=pemerhati.pressure,
-                original_date=original_date, timezone=timezone)
+                original_date=original_date, timezone=timezone, pilihan=pilihan)
 
         elif request.form["pilihan"] == "waktuSolatBulanan":
+            pilihan = "waktuSolatBulanan"
             takwim_bulanan = pemerhati.takwim_solat_bulanan(
                 saat="ya", directory="web"
             )
@@ -116,7 +150,7 @@ def home():
                 "index.html", takwim_bulanan=takwim_bulanan, latitud=latitude,
                 longitud=longitude, elevation=elevation,
                 temperature=temperature, pressure=pemerhati.pressure,
-                original_date=original_date, timezone=timezone)
+                original_date=original_date, timezone=timezone, pilihan=pilihan)
 
     else:
         return render_template("index.html")
