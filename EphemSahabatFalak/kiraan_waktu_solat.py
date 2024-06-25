@@ -147,6 +147,9 @@ class Takwim:
             week_day = self.day_of_the_week()
             return now.strftime("%d-%m-%Y %H:%M:%S %z") + f" {week_day}"
 
+        elif time_format == 'calendar':
+            return now.strftime("%d-%m-%Y")
+
         elif time_format == 'datetime':
             return current_time.astimezone(self.zone)
 
@@ -677,7 +680,7 @@ class Takwim:
             if time_format == 'datetime':
                 return moon_set_time[0].astimezone(self.zone)
             elif time_format == 'string':
-                return str(moon_set_time[0].astimezone(self.zone))[11:19]
+                return moon_set_time[0].astimezone(self.zone).strftime("%H:%M:%S")
             return moon_set_time[0]
         except Exception:
             return ("Moon does not set on " + str(self.day) + "-" +
@@ -1041,7 +1044,7 @@ class Takwim:
         if time_format == 'datetime':
             return istiwa.astimezone(self.zone)
         elif time_format == 'string':
-            return str(istiwa.astimezone(self.zone))[11:19]
+            return istiwa.astimezone(self.zone).strftime('%H:%M:%S')
 
         return istiwa
 
@@ -1062,7 +1065,7 @@ class Takwim:
             return zawal_skylibtime.astimezone(self.zone)
 
         elif time_format == 'string':
-            return str(zawal_skylibtime.astimezone(self.zone))[11:19]
+            return zawal_skylibtime.astimezone(self.zone).strftime('%H:%M:%S')
 
         return zawal_skylibtime
 
@@ -1090,7 +1093,7 @@ class Takwim:
             return (zohor_datetime.astimezone(self.zone))
 
         elif time_format == 'string':
-            return str(zohor_datetime.astimezone(self.zone))[11:19]
+            return zohor_datetime.astimezone(self.zone).strftime('%H:%M:%S')
 
         return self.timescale_with_cutoff().from_datetime(zohor_datetime)
 
@@ -2008,6 +2011,7 @@ class Takwim:
             self.hour = hour
             self.minute = minute
             self.second = 0
+            self.time = self.current_time()
 
             # masa
             masa = self.current_time(time_format='string')[11:19]
@@ -2172,6 +2176,7 @@ class Takwim:
                 self.day = i
 
                 # masa
+                self.time = self.current_time()
                 masa = self.current_time(time_format='string')[:11]
                 tarikh.append(masa)
 
@@ -2665,6 +2670,7 @@ class Takwim:
                 self.day = i
 
                 # masa
+                self.time = self.current_time()
                 masa = self.current_time(time_format='string')[:11]
                 tarikh.append(masa)
 
@@ -3762,43 +3768,42 @@ class Takwim:
         bulan_hijri_list = []
         tahun_hijri_list = []
 
-        if year is None:
-            year = self.year
-        if (first_hijri_day is None or first_hijri_month is None
-           or current_hijri_year is None):
-            if self.longitude > 90:
-                takwim_awal_tahun = pd.read_csv(
-                    'EphemSahabatFalak/'
-                    'Tarikh_Hijri_Awal_Tahun_Pulau_Pinang.csv')
-            else:
-                takwim_awal_tahun = pd.read_csv(
-                    'EphemSahabatFalak/'
-                    'Takwim_Madinah_Awal_Bulan_Mabims2021.csv')
-            takwim_tahun_tertentu = takwim_awal_tahun[
-                takwim_awal_tahun['Tarikh_Masihi'] == str(year) + '-1-1']
-            first_hijri_day = int(takwim_tahun_tertentu.iloc[0][3])
-            first_hijri_month = int(takwim_tahun_tertentu.iloc[0][4])
-            current_hijri_year = int(takwim_tahun_tertentu.iloc[0][5])
-            islamic_lunation_day = int(takwim_tahun_tertentu.iloc[0][6])
+        # if year is None:
+        #     year = self.year
+        # if (first_hijri_day is None or first_hijri_month is None
+        #    or current_hijri_year is None):
+            # if self.longitude > 90:
+            #     takwim_awal_tahun = pd.read_csv(
+            #         'EphemSahabatFalak/'
+            #         'Tarikh_Hijri_Awal_Tahun_Pulau_Pinang.csv')
+            # else:
+            #     takwim_awal_tahun = pd.read_csv(
+            #         'EphemSahabatFalak/'
+            #         'Takwim_Madinah_Awal_Bulan_Mabims2021.csv')
+            # takwim_tahun_tertentu = takwim_awal_tahun[
+            #     takwim_awal_tahun['Tarikh_Masihi'] == str(year) + '-1-1']
+            # first_hijri_day = int(takwim_tahun_tertentu.iloc[0][3])
+            # first_hijri_month = int(takwim_tahun_tertentu.iloc[0][4])
+            # current_hijri_year = int(takwim_tahun_tertentu.iloc[0][5])
+            # islamic_lunation_day = int(takwim_tahun_tertentu.iloc[0][6])
 
-        islamic_lunation_day = islamic_lunation_day
-        hari_hijri = first_hijri_day
-        bulan_hijri = first_hijri_month
-        tahun_hijri = current_hijri_year
+        islamic_lunation_day = 1
+        hari_hijri = 1
+        bulan_hijri = 12
+        tahun_hijri = 10
         # first_zulhijjah_10H_in_JD = 1951953  # khamis
         takwim_hijri = Takwim(
-            day=1, month=1, year=year, hour=0, minute=0, second=0,
-            latitude=self.latitude, longitude=self.longitude,
-            elevation=self.elevation, zone=self.zone_string,
+            day=27, month=2, year=632, hour=0, minute=0, second=0,
+            latitude=24.4672, longitude=39.6024,
+            elevation=10, zone='Asia/Riyadh',
             temperature=self.temperature, pressure=self.pressure,
             ephem=self.ephem)
         tarikh_masihi = []
         day_of_the_week = []
         time_in_jd = takwim_hijri.current_time()
         islamic_lunation_day_list = []
-        for i in range(366):
+        for i in range(536119): # 536119 from 27 Feb 632 until 31 dec 2099
             print(i)
-
             islamic_lunation_day_list.append(islamic_lunation_day)
             time_in_datetime = time_in_jd.astimezone(takwim_hijri.zone)
             takwim_hijri.year = time_in_datetime.year
@@ -3806,125 +3811,148 @@ class Takwim:
             takwim_hijri.day = time_in_datetime.day
             time_in_jd += 1
             islamic_lunation_day += 1
-            tarikh_masihi.append(takwim_hijri.current_time('string'))
+            takwim_hijri.time = takwim_hijri.current_time()
+            tarikh_masihi.append(takwim_hijri.current_time('calendar'))
             day_of_the_week.append(takwim_hijri.day_of_the_week())
             hari_hijri_list.append(hari_hijri)
             bulan_hijri_list.append(bulan_hijri)
             tahun_hijri_list.append(tahun_hijri)
             if hari_hijri < 29:  # for each day on every month except 29 and 30
                 hari_hijri += 1
+                continue
 
             elif hari_hijri == 30 and bulan_hijri < 12:
                 # for new months except zulhijjah if 30 days
 
                 hari_hijri = 1
                 bulan_hijri += 1
+                continue
 
             elif hari_hijri == 30 and bulan_hijri == 12:
                 # for 30th day of zulhijjah, if it occurs
                 hari_hijri = 1
                 bulan_hijri = 1
                 tahun_hijri += 1
-            elif hari_hijri == 29:
-
+                continue
+            else:
                 if criteria == 'Odeh':
                     if takwim_hijri.Odeh_criteria() > criteria_value:
                         hari_hijri += 1
+                        continue
 
                     else:
                         if bulan_hijri == 12:
                             hari_hijri = 1
                             bulan_hijri = 1
                             tahun_hijri += 1
+                            continue
                         else:
                             hari_hijri = 1
                             bulan_hijri += 1
+                            continue
                 elif criteria == 'Mabims 1995':
                     if takwim_hijri.Mabims_1995_criteria() > criteria_value:
                         hari_hijri += 1
-
+                        continue
                     else:
                         if bulan_hijri == 12:
                             hari_hijri = 1
                             bulan_hijri = 1
                             tahun_hijri += 1
+                            continue
                         else:
                             hari_hijri = 1
                             bulan_hijri += 1
+                            continue
                 elif criteria == 'Yallop':
                     if takwim_hijri.Yallop_criteria() > criteria_value:
                         hari_hijri += 1
+                        continue
 
                     else:
                         if bulan_hijri == 12:
                             hari_hijri = 1
                             bulan_hijri = 1
                             tahun_hijri += 1
+                            continue
                         else:
                             hari_hijri = 1
                             bulan_hijri += 1
+                            continue
                 elif criteria == 'Muhammadiyah' or criteria == 'Wujudul Hilal':
                     if (takwim_hijri.Muhammadiyah_wujudul_hilal_criteria()
                        > criteria_value):
                         hari_hijri += 1
+                        continue
 
                     else:
                         if bulan_hijri == 12:
                             hari_hijri = 1
                             bulan_hijri = 1
                             tahun_hijri += 1
+                            continue
                         else:
                             hari_hijri = 1
                             bulan_hijri += 1
+                            continue
                 elif criteria == 'Istanbul 1978':
                     if takwim_hijri.Istanbul_1978_criteria() > criteria_value:
                         hari_hijri += 1
+                        continue
 
                     else:
                         if bulan_hijri == 12:
                             hari_hijri = 1
                             bulan_hijri = 1
                             tahun_hijri += 1
+                            continue
                         else:
                             hari_hijri = 1
                             bulan_hijri += 1
+                            continue
                 elif criteria == 'Malaysia 2013':
                     if takwim_hijri.Malaysia_2013_criteria() > criteria_value:
                         hari_hijri += 1
+                        continue
 
                     else:
                         if bulan_hijri == 12:
                             hari_hijri = 1
                             bulan_hijri = 1
                             tahun_hijri += 1
+                            continue
                         else:
                             hari_hijri = 1
                             bulan_hijri += 1
+                            continue
                 else:
                     if takwim_hijri.Mabims_2021_criteria() > criteria_value:
                         hari_hijri += 1
+                        continue
 
                     else:
                         if bulan_hijri == 12:
                             hari_hijri = 1
                             bulan_hijri = 1
                             tahun_hijri += 1
+                            continue
                         else:
                             hari_hijri = 1
                             bulan_hijri += 1
+                            continue
         takwim_tahunan_hijri = pd.DataFrame(
             list(zip(day_of_the_week, hari_hijri_list, bulan_hijri_list,
                      tahun_hijri_list, islamic_lunation_day_list)),
             index=tarikh_masihi, columns=["Hari", "Tarikh", "Bulan", "Tahun",
-                                          "Izzat's Islamic Lunation Number"])
-        filename = '../Takwim_Hijri_' + str(self.year) + '.xlsx'
+                                          "Islamic Lunation Number"])
+        filename = '../Takwim_Hijri_' + str(self.year) + '.csv'
         if directory is None:
             pass
         else:
             try:
-                takwim_tahunan_hijri.to_excel(directory)
+                takwim_tahunan_hijri.to_csv(directory)
             except Exception:
-                takwim_tahunan_hijri.to_excel(filename)
+                takwim_tahunan_hijri.to_csv(filename)
 
         return takwim_tahunan_hijri
 
@@ -4436,6 +4464,9 @@ def main():
     """
     Execute functions here
     """
+    test = Takwim(day=27, month=2, year=632)
+    # test.takwim_hijri_tahunan(directory='')
+    print(test.efemeris_hilal(directory=''))
 
 
 if __name__ == "__main__":

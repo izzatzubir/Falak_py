@@ -214,6 +214,14 @@
                             <td>{{elongation}}</td>
                         </tr>
                         <tr>
+                            <td>Matahari Terbit</td>
+                            <td>{{sun_rise}}</td>
+                        </tr>
+                        <tr>
+                            <td>Bulan Terbit</td>
+                            <td>{{moon_rise}}</td>
+                        </tr>
+                        <tr>
                             <td>Altitud Bulan</td>
                             <td>{{altitude}}</td>
                         </tr>
@@ -339,6 +347,11 @@
         </div>
         {% elif pilihan == 'dataHilalPenuh' %}
         <div>
+            {% if efemeris_hilal == None %}
+            <h2>Efemeris hilal</h2>
+            <p>Efemeris hilal tidak sesuai dijana pada {{parsed_date}}</p>
+            <p>Sila cuba pada hari ijtimak, atau hari selepasnya. Ijtimak berlaku pada: {{ijtimak}}</p>
+            {% else %}
             <h2>Efemeris Hilal</h2>
             <p>Tarikh: {{parsed_date}}</p>
             <p>Rujukan: {{topo}}</p>
@@ -378,6 +391,7 @@
                     </tbody>
                 </table>
             </div>
+            {% endif %}
         </div>
         {% endif %}
     </div>

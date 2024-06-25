@@ -1,4 +1,4 @@
-from flask import (Flask, render_template, request)
+from flask import (Flask, render_template, request, redirect, url_for)
 from kiraan_waktu_solat import Takwim
 from negeri import (Pulau_Pinang)
 from datetime import datetime
@@ -258,37 +258,40 @@ def sahabatfalakplus():
         pressure = None
         original_date = now.strftime("%Y-%m-%dT%H:%M:%S")
 
-        if request.form["latitud"] != "":
-            latitude = float(request.form["latitud"])
+        try:
+            if request.form["latitud"] != "":
+                latitude = float(request.form["latitud"])
 
-        if request.form["longitud"] != "":
-            longitude = float(request.form["longitud"])
+            if request.form["longitud"] != "":
+                longitude = float(request.form["longitud"])
 
-        if request.form["elevation"] != "":
-            elevation = float(request.form["elevation"])
+            if request.form["elevation"] != "":
+                elevation = float(request.form["elevation"])
 
-        if request.form["temperature"] != "":
-            temperature = float(request.form["temperature"])
+            if request.form["temperature"] != "":
+                temperature = float(request.form["temperature"])
 
-        if request.form["pressure"] != "":
-            pressure = float(request.form["pressure"])
+            if request.form["pressure"] != "":
+                pressure = float(request.form["pressure"])
 
-        if request.form['datetime'] != "":
-            original_date = request.form['datetime']
-            try:
-                parsed_date = datetime.strptime(request.form['datetime'],
-                                                "%Y-%m-%dT%H:%M:%S")
-                second = parsed_date.second
-            except Exception:
-                parsed_date = datetime.strptime(request.form['datetime'],
-                                                "%Y-%m-%dT%H:%M")
-                second = 0
-            finally:
-                year = parsed_date.year
-                month = parsed_date.month
-                day = parsed_date.day
-                hour = parsed_date.hour
-                minute = parsed_date.minute
+            if request.form['datetime'] != "":
+                original_date = request.form['datetime']
+                try:
+                    parsed_date = datetime.strptime(request.form['datetime'],
+                                                    "%Y-%m-%dT%H:%M:%S")
+                    second = parsed_date.second
+                except Exception:
+                    parsed_date = datetime.strptime(request.form['datetime'],
+                                                    "%Y-%m-%dT%H:%M")
+                    second = 0
+                finally:
+                    year = parsed_date.year
+                    month = parsed_date.month
+                    day = parsed_date.day
+                    hour = parsed_date.hour
+                    minute = parsed_date.minute
+        except Exception:
+            pass
 
         if request.form['timezone'] == "lain":
             zone = None
@@ -330,6 +333,8 @@ def sahabatfalakplus():
             moon_distance_ratio = str(format(moon_distance_ratio, '.4f'))
             illumination = str(format(illumination, '.4f')) + "%"
             lag_time = pemerhati.lag_time()
+            moon_rise = pemerhati.moon_rise(time_format='string')
+            sun_rise = pemerhati.waktu_syuruk(time_format='string')
             crescent_width = pemerhati.lunar_crescent_width(
                 t=maghrib_1, topo=topo, angle_format='degree'
             )
@@ -372,7 +377,7 @@ def sahabatfalakplus():
                 gambar_Hilal=img_base64, latitud=latitude,
                 longitud=longitude, elevation=elevation,
                 temperature=temperature, pressure=pemerhati.pressure,
-                timezone=timezone)
+                timezone=timezone, moon_rise=moon_rise, sun_rise=sun_rise)
 
         elif request.form["pilihan"] == "PerbandinganElongasi":
             fasa = pemerhati.moon_phase(topo=topo, angle_format='degree')
@@ -400,16 +405,26 @@ def sahabatfalakplus():
                 timezone=timezone)
 
         elif request.form["pilihan"] == "dataHilalPenuh":
-            efemeris_hilal = pemerhati.efemeris_hilal(topo, 'Yes')
-            moon_set = pemerhati.moon_set(time_format='string')
+            moon_age = pemerhati.moon_age(t=maghrib_1, topo=topo)
+            ijtimak = pemerhati.moon_conjunction(time_format='string', topo=topo)
+            if "days" not in moon_age:
+                efemeris_hilal = pemerhati.efemeris_hilal(topo, 'web')
+                moon_set = pemerhati.moon_set(time_format='string')
+                return render_template(
+                    "sahabatfalakplus.html", efemeris_hilal=efemeris_hilal,
+                    topo=topo, parsed_date=pemerhati.current_time('string'),
+                    pilihan=pilihan,
+                    latitud=latitude, longitud=longitude, elevation=elevation,
+                    temperature=temperature, pressure=pemerhati.pressure,
+                    original_date=original_date, maghrib=maghrib,
+                    moon_set=moon_set, timezone=timezone)
             return render_template(
-                "sahabatfalakplus.html", efemeris_hilal=efemeris_hilal,
-                topo=topo, parsed_date=pemerhati.current_time('string'),
-                pilihan=pilihan,
-                latitud=latitude, longitud=longitude, elevation=elevation,
-                temperature=temperature, pressure=pemerhati.pressure,
-                original_date=original_date, maghrib=maghrib,
-                moon_set=moon_set, timezone=timezone)
+                    "sahabatfalakplus.html", efemeris_hilal=None, ijtimak=ijtimak,
+                    topo=topo, parsed_date=pemerhati.current_time('string'),
+                    pilihan=pilihan,
+                    latitud=latitude, longitud=longitude, elevation=elevation,
+                    temperature=temperature, pressure=pemerhati.pressure,
+                    original_date=original_date, maghrib=maghrib, timezone=timezone)
     return render_template(
             "sahabatfalakplus.html")
 
@@ -422,6 +437,17 @@ def panduan():
 @app.route("/tentangkami")
 def tentangkami():
     return render_template("tentangkami.html")
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST':
+        if request.form['username'] != 'admin' or request.form['password'] != 'admin':
+            error = 'Invalid Credentials. Please try again.'
+        else:
+            return redirect(url_for('home'))
+    return render_template('login.html', error=error)
 
 
 if __name__ == "__main__":
