@@ -25,11 +25,13 @@ matplotlib.use('Agg')
 
 
 class Takwim:
+    datetime_now = datetime.now()
+
     def __init__(
             self, latitude=5.41144, longitude=100.19672, elevation=40,
-            year=datetime.now().year, month=datetime.now().month,
-            day=datetime.now().day, hour=datetime.now().hour,
-            minute=datetime.now().minute, second=datetime.now().second,
+            year=datetime_now.year, month=datetime_now.month,
+            day=datetime_now.day, hour=datetime_now.hour,
+            minute=datetime_now.minute, second=datetime_now.second,
             zone='Asia/Kuala_Lumpur', temperature=27,
             pressure=None, ephem='de440s.bsp'):
         self.latitude = latitude
@@ -55,8 +57,13 @@ class Takwim:
         # but seems to agree with many pressure-elevation calculators.
         # Perhaps need to verify?
         if pressure is None:
-            pressure = (
-                1013.25*((288.15-(self.elevation*0.0065))/288.15)**5.2558)
+            P0 = 1013.25   # Sea level standard atmospheric pressure in hPa
+            h0 = 0         # Sea level reference height in meters
+            M = 0.0289644  # Molar mass of air in kg/mol
+            g = 9.80665    # Acceleration due to gravity in m/s^2
+            R = 8.31432    # Universal gas constant in J/(mol·K)
+            exponent = -g * M * (self.elevation - h0) / (R * (self.temperature+273.15))
+            pressure = P0 * np.exp(exponent)
         else:
             pressure = pressure
         self.pressure = pressure
@@ -71,15 +78,14 @@ class Takwim:
         # Skyfield claims to provide a fix through issue #691 but we are not
         # able to fix it.
         if (self.year < 1550 and self.year > 999):
-            self.ephem = 'de441_shortened.bsp'
+            ephem = 'de441_shortened.bsp'
         elif (self.year < 1000):
-            self.ephem = 'de441_shortened_2.bsp'
+            ephem = 'de441_shortened_2.bsp'
         elif (self.year >= 1550 and self.year < 1849):
-            self.ephem = 'de440_part1.bsp'
+            ephem = 'de440_part1.bsp'
         elif (self.year > 2150 and self.year <= 2649):
-            self.ephem = 'de440_part2.bsp'
-        else:
-            self.ephem = ephem
+            ephem = 'de440_part2.bsp'
+        self.ephem = ephem
         self.eph = load(self.ephem)
         self.eph.segments = self.eph.segments[:14]
         self.loc = wgs84.latlon(self.latitude*N, self.longitude*E, self.elevation)
@@ -138,7 +144,8 @@ class Takwim:
         current_time = self.timescale_with_cutoff().from_datetime(now)
 
         if time_format == 'string':
-            return now.strftime("%d-%m-%Y %H:%M:%S %Z %A")
+            week_day = self.day_of_the_week()
+            return now.strftime("%d-%m-%Y %H:%M:%S %z") + f" {week_day}"
 
         elif time_format == 'datetime':
             return current_time.astimezone(self.zone)
@@ -1127,9 +1134,6 @@ class Takwim:
         'default' -> waktu dalam format julian date\n
         'string' -> waktu dalam format hh:mm:ss"""
 
-        eph = load(self.ephem)
-        eph.segments = eph.segments[:14]
-
         now = self.time.astimezone(self.zone)
         midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
         next_midnight = midnight + dt.timedelta(days=1)
@@ -1555,8 +1559,6 @@ class Takwim:
     __iteration_waktu_isya.step_days = 1/4
 
     def waktu_isyak(self, altitude='default', time_format='default'):
-        eph = load(self.ephem)
-        eph.segments = eph.segments[:14]
 
         now = self.time.astimezone(self.zone)
         midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -1873,7 +1875,6 @@ class Takwim:
 
     def __venus_azimuth(self, t=None, angle_format='skylib'):
         eph = load(self.ephem)
-        eph.segments = eph.segments[:14]
         earth, venus = eph['earth'], eph['venus']
         current_topo = earth + self.loc
         if t is None:
@@ -3671,14 +3672,7 @@ class Takwim:
     def day_of_the_week(self, language='Malay'):
         """Returns the day of the week for the class.current_time().\n
         This function calculate the day of the week using julian date mod 7."""
-        observer_day = Takwim(
-            latitude=self.latitude, longitude=self.longitude,
-            elevation=self.elevation, zone=self.zone_string,
-            temperature=self.temperature, pressure=self.pressure,
-            ephem=self.ephem, year=self.year, month=self.month,
-            day=self.day, hour=self.hour, minute=self.minute,
-            second=self.second)
-        jd_observer_plus_one = int(observer_day.current_time().tt) % 7
+        jd_observer_plus_one = int(self.time.tt) % 7
         if jd_observer_plus_one == 3:
             day_of_week = 'Jumaat'
             if language == 'English':
@@ -3709,6 +3703,14 @@ class Takwim:
                 day_of_week = 'Thursday'
 
         return day_of_week
+
+    # TODO: Add function to convert current date to hijri date and vice versa
+    # Possible ways: Use takwim_hijri_tahunan and generate from 10H to some future date 2599?
+    # Use the generated date, and search through it. Might be faster on website since searching through static
+    # indexed data is not heavy (true?)
+    def tukar_ke_tarikh_hijri(self):
+
+        pass
 
     # Takwim hijri
     def takwim_hijri_tahunan(
