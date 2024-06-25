@@ -4464,9 +4464,6 @@ def main():
     """
     Execute functions here
     """
-    test = Takwim(day=27, month=2, year=632)
-    # test.takwim_hijri_tahunan(directory='')
-    print(test.efemeris_hilal(directory=''))
 
 
 if __name__ == "__main__":
