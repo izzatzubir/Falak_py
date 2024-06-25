@@ -898,7 +898,7 @@ class Takwim:
             return new_moon
         elif time_format == 'string':
             week_day = self.day_of_the_week()
-            return now.strftime("%d-%m-%Y %H:%M:%S %z") + f" {week_day}"
+            return new_moon.strftime("%d-%m-%Y %H:%M:%S %z") + f" {week_day}"
         return select_moon_age
 
     def moon_opposition(self, time_format='skyfield', topo='geo'):
