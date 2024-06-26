@@ -20,8 +20,11 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 from timezonefinder import TimezoneFinder
 from wrappers import calculate_time
+from pathlib import Path
+THIS_FOLDER = Path(__file__).parent.resolve()
 matplotlib.use('Agg')
 GREGORIAN_START = 2299161
+
 # endregion
 
 
@@ -3825,12 +3828,10 @@ class Takwim:
            or current_hijri_year is None or islamic_lunation_day is None):
             if self.longitude > 90:
                 takwim_awal_tahun = pd.read_csv(
-                    r'EphemSahabatFalak/'
-                    r'Tarikh_Hijri_Awal_Tahun_Pulau_Pinang.csv')
+                    THIS_FOLDER / "Tarikh_Hijri_Awal_Tahun_Pulau_Pinang.csv")
             else:
                 takwim_awal_tahun = pd.read_csv(
-                    r'EphemSahabatFalak/'
-                    r'Takwim_Madinah_Awal_Bulan_Mabims2021.csv')
+                    THIS_FOLDER / "Takwim_Madinah_Awal_Bulan_Mabims2021.csv")
             takwim_tahun_tertentu = takwim_awal_tahun[
                 takwim_awal_tahun['Tarikh_Masihi'] == str(year) + '-1-1']
             first_hijri_day = int(takwim_tahun_tertentu.iloc[0][3])
@@ -3840,8 +3841,7 @@ class Takwim:
 
         elif current_hijri_year == 10 or year == 632:
             takwim_awal_tahun = pd.read_csv(
-                    r'EphemSahabatFalak/'
-                    r'Takwim_Hijri_632.csv')
+                    THIS_FOLDER / "Takwim_Hijri_632.csv")
             takwim_tahun_tertentu = takwim_awal_tahun[
                 takwim_awal_tahun['Tarikh_Masihi'] == str(year) + '-1-1']
             first_hijri_day = int(takwim_tahun_tertentu.iloc[0][3])
