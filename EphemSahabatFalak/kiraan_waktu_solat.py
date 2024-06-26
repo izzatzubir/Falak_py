@@ -3825,12 +3825,12 @@ class Takwim:
            or current_hijri_year is None or islamic_lunation_day is None):
             if self.longitude > 90:
                 takwim_awal_tahun = pd.read_csv(
-                    'EphemSahabatFalak/'
-                    'Tarikh_Hijri_Awal_Tahun_Pulau_Pinang.csv')
+                    r'EphemSahabatFalak/'
+                    r'Tarikh_Hijri_Awal_Tahun_Pulau_Pinang.csv')
             else:
                 takwim_awal_tahun = pd.read_csv(
-                    'EphemSahabatFalak/'
-                    'Takwim_Madinah_Awal_Bulan_Mabims2021.csv')
+                    r'EphemSahabatFalak/'
+                    r'Takwim_Madinah_Awal_Bulan_Mabims2021.csv')
             takwim_tahun_tertentu = takwim_awal_tahun[
                 takwim_awal_tahun['Tarikh_Masihi'] == str(year) + '-1-1']
             first_hijri_day = int(takwim_tahun_tertentu.iloc[0][3])
@@ -3840,8 +3840,8 @@ class Takwim:
 
         elif current_hijri_year == 10 or year == 632:
             takwim_awal_tahun = pd.read_csv(
-                    'EphemSahabatFalak/'
-                    'Takwim_Hijri_632.csv')
+                    r'EphemSahabatFalak/'
+                    r'Takwim_Hijri_632.csv')
             takwim_tahun_tertentu = takwim_awal_tahun[
                 takwim_awal_tahun['Tarikh_Masihi'] == str(year) + '-1-1']
             first_hijri_day = int(takwim_tahun_tertentu.iloc[0][3])
@@ -4526,8 +4526,6 @@ def main():
     """
     Execute functions here
     """
-    test = Takwim(day=14, month=4, year=1996)
-    print(test.tukar_ke_tarikh_hijri())
 
 
 if __name__ == "__main__":
