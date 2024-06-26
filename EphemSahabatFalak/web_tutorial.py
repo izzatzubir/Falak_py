@@ -45,15 +45,15 @@ def home():
 
             if request.form['datetime'] != "":
                 original_date = request.form['datetime']
-                shortened_date = datetime.strptime(request.form['datetime'],
-                                                   "%d-%m-%Y")
+                shortened_date = datetime.strptime(original_date,
+                                                   "%Y-%m-%dT%H:%M:%S").strftime("%d-%m-%Y")
                 try:
-                    parsed_date = datetime.strptime(request.form['datetime'],
-                                                    "%d-%m-%YT%H:%M:%S")
+                    parsed_date = datetime.strptime(original_date,
+                                                    "%Y-%m-%dT%H:%M:%S")
                     second = parsed_date.second
                 except Exception:
-                    parsed_date = datetime.strptime(request.form['datetime'],
-                                                    "%d-%m-%YT%H:%M")
+                    parsed_date = datetime.strptime(original_date,
+                                                    "%Y-%m-%dT%H:%M")
                     second = 0
                 finally:
                     year = parsed_date.year
@@ -124,7 +124,8 @@ def home():
             return render_template(
                 "index.html", pilihan=pilihan, azimut_b=azimut_b, azimut_m=azimut_m,
                 altitud_b=altitud_b, altitud_m=altitud_m, fasa_bulan=fasa_bulan,
-                parsed_date=pemerhati.current_time('string'), jarak_lengkung=jarak_lengkung
+                parsed_date=pemerhati.current_time('string'), jarak_lengkung=jarak_lengkung,
+                original_date=original_date
             )
 
         elif request.form["pilihan"] == "Kiblat":
@@ -297,12 +298,12 @@ def sahabatfalakplus():
             if request.form['datetime'] != "":
                 original_date = request.form['datetime']
                 try:
-                    parsed_date = datetime.strptime(request.form['datetime'],
-                                                    "%d-%m-%YT%H:%M:%S")
+                    parsed_date = datetime.strptime(original_date,
+                                                    "%Y-%m-%dT%H:%M:%S")
                     second = parsed_date.second
                 except Exception:
-                    parsed_date = datetime.strptime(request.form['datetime'],
-                                                    "%d-%m-%YT%H:%M")
+                    parsed_date = datetime.strptime(original_date,
+                                                    "%Y-%m-%dT%H:%M")
                     second = 0
                 finally:
                     year = parsed_date.year
@@ -310,6 +311,8 @@ def sahabatfalakplus():
                     day = parsed_date.day
                     hour = parsed_date.hour
                     minute = parsed_date.minute
+            else:
+                parsed_date = original_date
         except Exception as err:
             parsed_date = original_date
             print(f"Error: {err}")
