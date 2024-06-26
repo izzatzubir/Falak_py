@@ -23,7 +23,7 @@ def home():
         hour = now.hour
         minute = now.minute
         second = now.second
-        original_date = now.strftime("%Y-%m-%dT%H:%M:%S")
+        original_date = now.strftime("%d-%m-%YT%H:%M:%S")
         temperature = 27.0
         pressure = None
 
@@ -45,13 +45,15 @@ def home():
 
             if request.form['datetime'] != "":
                 original_date = request.form['datetime']
+                shortened_date = datetime.strptime(request.form['datetime'],
+                                                   "%d-%m-%Y")
                 try:
                     parsed_date = datetime.strptime(request.form['datetime'],
-                                                    "%Y-%m-%dT%H:%M:%S")
+                                                    "%d-%m-%YT%H:%M:%S")
                     second = parsed_date.second
                 except Exception:
                     parsed_date = datetime.strptime(request.form['datetime'],
-                                                    "%Y-%m-%dT%H:%M")
+                                                    "%d-%m-%YT%H:%M")
                     second = 0
                 finally:
                     year = parsed_date.year
@@ -61,8 +63,10 @@ def home():
                     minute = parsed_date.minute
             else:
                 parsed_date = original_date
+                shortened_date = now.strftime("%d-%m-%Y")
         except Exception as err:
             parsed_date = original_date
+            shortened_date = now.strftime("%d-%m-%Y")
             print(f"Error: {err}")
 
         if request.form['timezone'] == "lain":
@@ -166,7 +170,7 @@ def home():
                 longitud=longitude, elevation=elevation,
                 temperature=temperature, pressure=pemerhati.pressure,
                 original_date=original_date, timezone=timezone, pilihan=pilihan,
-                parsed_date=now.strftime("%d-%m-%Y"))
+                parsed_date=parsed_date, shortened_date=shortened_date)
 
     else:
         return render_template("index.html")
@@ -272,7 +276,7 @@ def sahabatfalakplus():
         second = now.second
         temperature = 27.0
         pressure = None
-        original_date = now.strftime("%Y-%m-%dT%H:%M:%S")
+        original_date = now.strftime("%d-%m-%YT%H:%M:%S")
 
         try:
             if request.form["latitud"] != "":
@@ -294,11 +298,11 @@ def sahabatfalakplus():
                 original_date = request.form['datetime']
                 try:
                     parsed_date = datetime.strptime(request.form['datetime'],
-                                                    "%Y-%m-%dT%H:%M:%S")
+                                                    "%d-%m-%YT%H:%M:%S")
                     second = parsed_date.second
                 except Exception:
                     parsed_date = datetime.strptime(request.form['datetime'],
-                                                    "%Y-%m-%dT%H:%M")
+                                                    "%d-%m-%YT%H:%M")
                     second = 0
                 finally:
                     year = parsed_date.year
