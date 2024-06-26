@@ -1,6 +1,6 @@
 # region Imports
 from skyfield import almanac
-from skyfield.api import (datetime, wgs84, N, E, load, Angle, GREGORIAN_START)
+from skyfield.api import (datetime, wgs84, N, E, load, Angle)
 from skyfield.toposlib import GeographicPosition
 from skyfield.vectorlib import VectorSum
 from skyfield.functions import length_of
@@ -21,6 +21,7 @@ from matplotlib.colors import LinearSegmentedColormap
 from timezonefinder import TimezoneFinder
 from wrappers import calculate_time
 matplotlib.use('Agg')
+GREGORIAN_START = 2299161
 # endregion
 
 
@@ -155,27 +156,31 @@ class Takwim:
 
         return current_time
 
-    def convert_julian_from_time(self):
+    @staticmethod
+    def convert_gregorian_from_time(time):
         """
-        Return a string value of julian date in yyyy-mm-dd format.
+        Given Julian Calendar, return its proleptic Gregorian Calendar
+        """
+        ts = load.timescale()
+        ts.julian_calendar_cutoff = None
+        current_time_gregorian = ts.tt_jd(time)
+        current_time_gregorian_string = current_time_gregorian.utc_strftime("%d-%m-%Y")
+        return current_time_gregorian_string
+
+    @staticmethod
+    def convert_julian_from_time(time):
+        """
+        Given a proleptic Gregorian Calendar,
+        Return a string value of julian date in dd-mm-yyyy format.
+        If a julian calendar date is passed, it will return the same value.
         Calendar cutoff is at 4 October 1582. \n
         This method will automatically switch to Gregorian calendar
         at 15 October 1582.
         """
         ts = load.timescale()
-        ts.julian_calendar_cutoff = GREGORIAN_START
-        greenwich = Takwim(
-            latitude=51.4934, longitude=0, elevation=self.elevation,
-            day=self.day, month=self.month, year=self.year,
-            hour=12, minute=0, second=0,
-            zone=self.zone_string, temperature=self.temperature,
-            pressure=self.pressure, ephem=self.ephem)
-        greg_time = greenwich.current_time().tt
-        current_time = ts.tai_jd(greg_time)
-
-        current_time_jul = current_time.utc
-        current_time_julian = str(current_time_jul.year) + '-' + \
-            str(current_time_jul.month) + '-' + str(current_time_jul.day)
+        ts.julian_calendar_cutoff = 2299161
+        current_time_jul = ts.tt_jd(time)
+        current_time_julian = current_time_jul.utc_strftime("%d-%m-%Y")
         return current_time_julian
 
     def sun_altitude(self, t=None, angle_format='skylib', temperature=None,
@@ -2336,7 +2341,7 @@ class Takwim:
             self.day = i
 
             # masa
-            masa = self.current_time(time_format='string')[:11]
+            masa = self.current_time(time_format='calendar')
             tarikh.append(masa)
 
             if bayang_kiblat == 'ya':
@@ -3715,15 +3720,61 @@ class Takwim:
     # Possible ways: Use takwim_hijri_tahunan and generate from 10H to some future date 2599?
     # Use the generated date, and search through it. Might be faster on website since searching through static
     # indexed data is not heavy (true?)
+    # another approach: Find the solar year chosen, and find the lunation number of the first day.
+    # find the
     def tukar_ke_tarikh_hijri(self):
+        takwim_tahunan = self.takwim_hijri_tahunan(year=self.year)
+        day_of_the_year = self.current_time(time_format='datetime').strftime('%j')
+        day_of_the_year_int = int(day_of_the_year) - 1
+        first_lunation_of_the_year = int(takwim_tahunan.iloc[0, 4])
+        lunation_day_of_choice = first_lunation_of_the_year + day_of_the_year_int
+        tarikh_pilihan = takwim_tahunan[
+            takwim_tahunan["Islamic Lunation Number"] == lunation_day_of_choice]
+        day = tarikh_pilihan.iloc[0, 1]
+        month = tarikh_pilihan.iloc[0, 2]
+        year = tarikh_pilihan.iloc[0, 3]
+        month = self.nombor_bulan_ke_bulan_hijri(int(month))
+        return day, month, year, lunation_day_of_choice
 
-        pass
+    @staticmethod
+    def nombor_bulan_ke_bulan_hijri(bulan):
+        """
+        Takes in a number between 1 to 12, returns Hijri month in name.
+        """
+        if type(bulan) is not int:
+            raise "Bulan Hijri mesti dalam bentuk integer antara 1 hingga 12"
+        if bulan == 1:
+            return "Muharram"
+        elif bulan == 2:
+            return "Safar"
+        elif bulan == 3:
+            return "Rabi'ul Awwal"
+        elif bulan == 4:
+            return "Rabi'ul Akhir"
+        elif bulan == 5:
+            return "Jamadil Awwal"
+        elif bulan == 6:
+            return "Jamadil Akhir"
+        elif bulan == 7:
+            return "Rejab"
+        elif bulan == 8:
+            return "Sya'ban"
+        elif bulan == 9:
+            return "Ramadan"
+        elif bulan == 10:
+            return "Syawwal"
+        elif bulan == 11:
+            return "Zulkaedah"
+        elif bulan == 12:
+            return "Zulhijjah"
+        else:
+            raise "Bulan Hijri mesti di antara 1 hingga 12 sahaja"
 
     # Takwim hijri
     def takwim_hijri_tahunan(
             self, criteria='Mabims2021', year=None, criteria_value=1,
             first_hijri_day=None, first_hijri_month=None,
-            current_hijri_year=None, directory=None):
+            current_hijri_year=None, islamic_lunation_day=None, directory=None):
         """
         Returns a yearly timetable of Hijri calendar.\n
 
@@ -3768,42 +3819,52 @@ class Takwim:
         bulan_hijri_list = []
         tahun_hijri_list = []
 
-        # if year is None:
-        #     year = self.year
-        # if (first_hijri_day is None or first_hijri_month is None
-        #    or current_hijri_year is None):
-            # if self.longitude > 90:
-            #     takwim_awal_tahun = pd.read_csv(
-            #         'EphemSahabatFalak/'
-            #         'Tarikh_Hijri_Awal_Tahun_Pulau_Pinang.csv')
-            # else:
-            #     takwim_awal_tahun = pd.read_csv(
-            #         'EphemSahabatFalak/'
-            #         'Takwim_Madinah_Awal_Bulan_Mabims2021.csv')
-            # takwim_tahun_tertentu = takwim_awal_tahun[
-            #     takwim_awal_tahun['Tarikh_Masihi'] == str(year) + '-1-1']
-            # first_hijri_day = int(takwim_tahun_tertentu.iloc[0][3])
-            # first_hijri_month = int(takwim_tahun_tertentu.iloc[0][4])
-            # current_hijri_year = int(takwim_tahun_tertentu.iloc[0][5])
-            # islamic_lunation_day = int(takwim_tahun_tertentu.iloc[0][6])
+        if year is None:
+            year = self.year
+        if (first_hijri_day is None or first_hijri_month is None
+           or current_hijri_year is None or islamic_lunation_day is None):
+            if self.longitude > 90:
+                takwim_awal_tahun = pd.read_csv(
+                    'EphemSahabatFalak/'
+                    'Tarikh_Hijri_Awal_Tahun_Pulau_Pinang.csv')
+            else:
+                takwim_awal_tahun = pd.read_csv(
+                    'EphemSahabatFalak/'
+                    'Takwim_Madinah_Awal_Bulan_Mabims2021.csv')
+            takwim_tahun_tertentu = takwim_awal_tahun[
+                takwim_awal_tahun['Tarikh_Masihi'] == str(year) + '-1-1']
+            first_hijri_day = int(takwim_tahun_tertentu.iloc[0][3])
+            first_hijri_month = int(takwim_tahun_tertentu.iloc[0][4])
+            current_hijri_year = int(takwim_tahun_tertentu.iloc[0][5])
+            islamic_lunation_day = int(takwim_tahun_tertentu.iloc[0][6])
 
-        islamic_lunation_day = 1
-        hari_hijri = 1
-        bulan_hijri = 12
-        tahun_hijri = 10
+        elif current_hijri_year == 10 or year == 632:
+            takwim_awal_tahun = pd.read_csv(
+                    'EphemSahabatFalak/'
+                    'Takwim_Hijri_632.csv')
+            takwim_tahun_tertentu = takwim_awal_tahun[
+                takwim_awal_tahun['Tarikh_Masihi'] == str(year) + '-1-1']
+            first_hijri_day = int(takwim_tahun_tertentu.iloc[0][3])
+            first_hijri_month = int(takwim_tahun_tertentu.iloc[0][4])
+            current_hijri_year = int(takwim_tahun_tertentu.iloc[0][5])
+            islamic_lunation_day = int(takwim_tahun_tertentu.iloc[0][6])
+
+        islamic_lunation_day = islamic_lunation_day
+        hari_hijri = first_hijri_day
+        bulan_hijri = first_hijri_month
+        tahun_hijri = current_hijri_year
         # first_zulhijjah_10H_in_JD = 1951953  # khamis
         takwim_hijri = Takwim(
-            day=27, month=2, year=632, hour=0, minute=0, second=0,
-            latitude=24.4672, longitude=39.6024,
-            elevation=10, zone='Asia/Riyadh',
+            day=1, month=1, year=year, hour=0, minute=0, second=0,
+            latitude=self.latitude, longitude=self.longitude,
+            elevation=self.elevation, zone=self.zone_string,
             temperature=self.temperature, pressure=self.pressure,
             ephem=self.ephem)
         tarikh_masihi = []
         day_of_the_week = []
         time_in_jd = takwim_hijri.current_time()
         islamic_lunation_day_list = []
-        for i in range(536119): # 536119 from 27 Feb 632 until 31 dec 2099
-            print(i)
+        for i in range(366):  # 536119 from 27 Feb 632 until 31 dec 2099
             islamic_lunation_day_list.append(islamic_lunation_day)
             time_in_datetime = time_in_jd.astimezone(takwim_hijri.zone)
             takwim_hijri.year = time_in_datetime.year
@@ -3812,7 +3873,8 @@ class Takwim:
             time_in_jd += 1
             islamic_lunation_day += 1
             takwim_hijri.time = takwim_hijri.current_time()
-            tarikh_masihi.append(takwim_hijri.current_time('calendar'))
+            tarikh = takwim_hijri.current_time('calendar')
+            tarikh_masihi.append(tarikh)
             day_of_the_week.append(takwim_hijri.day_of_the_week())
             hari_hijri_list.append(hari_hijri)
             bulan_hijri_list.append(bulan_hijri)
@@ -4464,6 +4526,8 @@ def main():
     """
     Execute functions here
     """
+    test = Takwim(day=14, month=4, year=1996)
+    print(test.tukar_ke_tarikh_hijri())
 
 
 if __name__ == "__main__":

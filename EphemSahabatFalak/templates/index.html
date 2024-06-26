@@ -73,6 +73,7 @@
                     <option value="efemerisKiblat">Jadual Kiblat</option>
                     <option value="waktuSolatBulanan">Waktu Solat Bulanan</option>
                     <option value="DataBulanMatahari">Data Bulan dan Matahari</option>
+                    <option value="TukarKalendar">Tukar ke Tarikh Hijri</option>
                   </select>
             </div>
             <div class="pt-2">
@@ -84,7 +85,7 @@
         {% if pilihan == 'waktu-solat' %}
         <h2>Waktu Solat</h2>
         <div class="p-2">
-            <table class="table table-striped-columns">
+            <table class="table table-bordered table-striped-columns">
                 <thead>
                     <tr>
                         <th scope="col">Solat</th>
@@ -123,7 +124,7 @@
         <h2>Waktu Solat</h2>
         <p>Waktu: {{parsed_date}}</p>
         <div class="p-2">
-            <table class="table table-striped-columns">
+            <table class="table table-bordered table-striped-columns">
                 <thead>
                     <tr>
                         <th scope="col">Parameter</th>
@@ -167,7 +168,7 @@
         <br>
         {% elif pilihan == 'efemerisKiblat' %}
         <div class="p-2">
-            <table class="table table-striped-columns">
+            <table class="table table-bordered table-striped-columns">
                 <thead>
                     <tr>
                         <th scope="col">Masa</th>
@@ -186,7 +187,7 @@
         </div>
         {% elif pilihan == 'waktuSolatBulanan' %}
         <div>
-            <table class="table table-striped-columns">
+            <table class="table table-bordered table-striped-columns">
                 <thead>
                     <tr>
                         <th scope="col">Tarikh</th>
@@ -213,7 +214,34 @@
                 </tbody>
             </table>
         </div>
-
+        {% elif pilihan == 'TukarKalendar' %}
+        <div class="row">
+            <h2>Tukar ke Tarikh Hijri</h2>
+            <p>Nombor Hijri ialah bilangan hari sejak 1 Zulhijjah 10H</p>
+            <p>Tukaran Tarikh Hijri ini berdasarkan kriteria Mabims 2021</p>
+            <div class="col-6">
+                <table class="table table-bordered table-striped-columns">
+                    <thead>
+                        <tr>
+                            <th scope="col">Tarikh Masihi</th>
+                            <th scope="col">Hari Hijri</th>
+                            <th scope="col">Bulan Hijri</th>
+                            <th scope="col">Tahun Hijri</th>
+                            <th scope="col">Nombor Hijri</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{parsed_date}}</td>
+                            <td>{{tukar_tarikh[0]}}</td>
+                            <td>{{tukar_tarikh[1]}}</td>
+                            <td>{{tukar_tarikh[2]}}</td>
+                            <td>{{tukar_tarikh[3]}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
         {% endif %}
 
     </div>

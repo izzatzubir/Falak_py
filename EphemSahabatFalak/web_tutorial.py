@@ -27,37 +27,43 @@ def home():
         temperature = 27.0
         pressure = None
 
-        if request.form["latitud"] != "":
-            latitude = float(request.form["latitud"])
+        try:
+            if request.form["latitud"] != "":
+                latitude = float(request.form["latitud"])
 
-        if request.form["longitud"] != "":
-            longitude = float(request.form["longitud"])
+            if request.form["longitud"] != "":
+                longitude = float(request.form["longitud"])
 
-        if request.form["elevation"] != "":
-            elevation = float(request.form["elevation"])
+            if request.form["elevation"] != "":
+                elevation = float(request.form["elevation"])
 
-        if request.form["temperature"] != "":
-            temperature = float(request.form["temperature"])
+            if request.form["temperature"] != "":
+                temperature = float(request.form["temperature"])
 
-        if request.form["pressure"] != "None":
-            pressure = float(request.form["pressure"])
+            if request.form["pressure"] != "":
+                pressure = float(request.form["pressure"])
 
-        if request.form['datetime'] != "":
-            original_date = request.form['datetime']
-            try:
-                parsed_date = datetime.strptime(request.form['datetime'],
-                                                "%Y-%m-%dT%H:%M:%S")
-                second = parsed_date.second
-            except Exception:
-                parsed_date = datetime.strptime(request.form['datetime'],
-                                                "%Y-%m-%dT%H:%M")
-                second = 0
-            finally:
-                year = parsed_date.year
-                month = parsed_date.month
-                day = parsed_date.day
-                hour = parsed_date.hour
-                minute = parsed_date.minute
+            if request.form['datetime'] != "":
+                original_date = request.form['datetime']
+                try:
+                    parsed_date = datetime.strptime(request.form['datetime'],
+                                                    "%Y-%m-%dT%H:%M:%S")
+                    second = parsed_date.second
+                except Exception:
+                    parsed_date = datetime.strptime(request.form['datetime'],
+                                                    "%Y-%m-%dT%H:%M")
+                    second = 0
+                finally:
+                    year = parsed_date.year
+                    month = parsed_date.month
+                    day = parsed_date.day
+                    hour = parsed_date.hour
+                    minute = parsed_date.minute
+            else:
+                parsed_date = original_date
+        except Exception as err:
+            parsed_date = original_date
+            print(f"Error: {err}")
 
         if request.form['timezone'] == "lain":
             zone = None
@@ -151,6 +157,16 @@ def home():
                 longitud=longitude, elevation=elevation,
                 temperature=temperature, pressure=pemerhati.pressure,
                 original_date=original_date, timezone=timezone, pilihan=pilihan)
+
+        elif request.form["pilihan"] == "TukarKalendar":
+            pilihan = "TukarKalendar"
+            tukar_tarikh = pemerhati.tukar_ke_tarikh_hijri()
+            return render_template(
+                "index.html", tukar_tarikh=tukar_tarikh, latitud=latitude,
+                longitud=longitude, elevation=elevation,
+                temperature=temperature, pressure=pemerhati.pressure,
+                original_date=original_date, timezone=timezone, pilihan=pilihan,
+                parsed_date=now.strftime("%d-%m-%Y"))
 
     else:
         return render_template("index.html")
@@ -290,8 +306,9 @@ def sahabatfalakplus():
                     day = parsed_date.day
                     hour = parsed_date.hour
                     minute = parsed_date.minute
-        except Exception:
-            pass
+        except Exception as err:
+            parsed_date = original_date
+            print(f"Error: {err}")
 
         if request.form['timezone'] == "lain":
             zone = None
