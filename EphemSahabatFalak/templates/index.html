@@ -15,7 +15,7 @@
             </div>
             <div class="col-md-4">
                 <label for="longitud" class="form-label">Longitud (°T)</label>
-                {% if latitud is defined %}
+                {% if longitud is defined %}
                 <input type="text" class="form-control" id="longitud" name="longitud" placeholder={{longitud}} value="{{longitud}}">
                 {% else %}
                 <input type="text" class="form-control" id="longitud" name="longitud" placeholder="100.19672" >
@@ -23,7 +23,7 @@
             </div>
             <div class="col-md-4">
                 <label for="elevation" class="form-label">Ketinggian (m)</label>
-                {% if latitud is defined %}
+                {% if longitud is defined %}
                 <input type="text" class="form-control" id="elevation" name="elevation" placeholder={{elevation}} value="{{elevation}}">
                 {% else %}
                 <input type="text" class="form-control" id="elevation" name="elevation" placeholder="40">
@@ -81,6 +81,8 @@
             </div>
         </div>
     </form>
+    <button onclick="getLocation()">Get Location</button>
+    <div id="locationResult"></div>
     <hr>
     <br>
     <div>
@@ -264,9 +266,41 @@
             all_content[index].classList.add('active');
         })
     })
+</script>
+<script>
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition, showError);
+        } else {
+            document.getElementById("locationResult").innerHTML = "Geolocation is not supported by this browser.";
+        }
+    }
 
+    function showPosition(position) {
+        var latitude = position.coords.latitude;
+        var longitude = position.coords.longitude;
+        document.getElementById("latitud").value = latitude;
+        document.getElementById("longitud").value = longitude;
+        document.getElementById("locationResult").innerHTML =
+            "Latitude: " + latitude + "<br>Longitude: " + longitude;
+    }
 
-
+    function showError(error) {
+        switch (error.code) {
+            case error.PERMISSION_DENIED:
+                document.getElementById("locationResult").innerHTML = "User denied the request for Geolocation.";
+                break;
+            case error.POSITION_UNAVAILABLE:
+                document.getElementById("locationResult").innerHTML = "Location information is unavailable.";
+                break;
+            case error.TIMEOUT:
+                document.getElementById("locationResult").innerHTML = "The request to get user location timed out.";
+                break;
+            case error.UNKNOWN_ERROR:
+                document.getElementById("locationResult").innerHTML = "An unknown error occurred.";
+                break;
+        }
+    }
 </script>
 {% endblock %}
 
