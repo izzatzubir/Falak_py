@@ -21,13 +21,16 @@
                 <input type="text" class="form-control" id="longitud" name="longitud" placeholder="100.19672" >
                 {% endif %}
             </div>
-            <div class="col-md-4">
+            <div class="col-md-2">
                 <label for="elevation" class="form-label">Ketinggian (m)</label>
                 {% if longitud is defined %}
                 <input type="text" class="form-control" id="elevation" name="elevation" placeholder={{elevation}} value="{{elevation}}">
                 {% else %}
                 <input type="text" class="form-control" id="elevation" name="elevation" placeholder="40">
                 {% endif %}
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-info" onclick="getLocation()">Get Location</button>
             </div>
             <div class="col-md-4">
                 <label for="datetime" class="form-label">Tarikh dan Masa:</label>
@@ -81,7 +84,7 @@
             </div>
         </div>
     </form>
-    <button type="button" onclick="getLocation()">Get Location</button>
+    <button type="button" class="btn btn-info" onclick="getLocation()">Get Location</button>
     <div id="locationResult"></div>
     <hr>
     <br>
@@ -284,7 +287,7 @@
         document.getElementById("longitud").value = longitude;
         document.getElementById("elevation").value = elevation;
         document.getElementById("locationResult").innerHTML =
-            "Latitude: " + latitude + "<br>Longitude: " + longitude;
+            "Latitude: " + latitude + "<br>Longitude: " + longitude + "<br>Altitud: " + elevation;
     }
 
     function showError(error) {
