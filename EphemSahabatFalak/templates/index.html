@@ -21,7 +21,7 @@
                 <input type="text" class="form-control" id="longitud" name="longitud" placeholder="100.19672" >
                 {% endif %}
             </div>
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <label for="elevation" class="form-label">Ketinggian (m)</label>
                 {% if longitud is defined %}
                 <input type="text" class="form-control" id="elevation" name="elevation" placeholder={{elevation}} value="{{elevation}}">
@@ -29,8 +29,9 @@
                 <input type="text" class="form-control" id="elevation" name="elevation" placeholder="40">
                 {% endif %}
             </div>
-            <div class="col-md-2">
-                <button type="button" class="btn btn-info" onclick="getLocation()">Get Location</button>
+            <div class="col-md-1 pt-2">
+                <label for="locationbutton" class="form-label">Lokasi GPS</label>
+                <button type="button" name="locationbutton" class="btn btn-info" onclick="getLocation()">Lokasi</button>
             </div>
             <div class="col-md-4">
                 <label for="datetime" class="form-label">Tarikh dan Masa:</label>
@@ -84,7 +85,6 @@
             </div>
         </div>
     </form>
-    <button type="button" class="btn btn-info" onclick="getLocation()">Get Location</button>
     <div id="locationResult"></div>
     <hr>
     <br>
