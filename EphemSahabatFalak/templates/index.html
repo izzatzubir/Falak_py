@@ -282,10 +282,10 @@
     function showPosition(position) {
         var latitude = position.coords.latitude;
         var longitude = position.coords.longitude;
-        var longitude = position.coords.coords.altitude;
+        var altitud = position.coords.coords.altitude;
         document.getElementById("latitud").value = latitude;
         document.getElementById("longitud").value = longitude;
-        document.getElementById("elevation").value = longitude;
+        document.getElementById("elevation").value = altitud;
         document.getElementById("locationResult").innerHTML =
             "Latitude: " + latitude + "<br>Longitude: " + longitude;
     }
