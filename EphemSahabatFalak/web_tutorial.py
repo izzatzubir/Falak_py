@@ -98,27 +98,49 @@ def home():
                 original_date=original_date, pilihan=pilihan)
         elif request.form["pilihan"] == "DataBulanMatahari":
             pilihan = "DataBulanMatahari"
-            azimut_b = pemerhati.moon_azimuth(angle_format='string')
-            altitud_b = pemerhati.moon_altitude(angle_format='string')
-            fasa_bulan = pemerhati.moon_phase(angle_format='degree')
-            if fasa_bulan <= 80:
-                fasa_bulan = 'Bulan Sabit Muda'
-            elif fasa_bulan > 80 and fasa_bulan <= 100:
-                fasa_bulan = 'Bulan Separa Muda'
-            elif fasa_bulan > 100 and fasa_bulan <= 170:
-                fasa_bulan = 'Bulan Hampir Purnama Muda'
-            elif fasa_bulan > 170 and fasa_bulan <= 190:
-                fasa_bulan = 'Bulan Purnama'
-            elif fasa_bulan > 190 and fasa_bulan <= 260:
-                fasa_bulan = 'Bulan Hampir Purnama Tua'
-            elif fasa_bulan > 260 and fasa_bulan <= 280:
-                fasa_bulan = 'Bulan Separa Tua'
-            else:
-                fasa_bulan = 'Bulan Sabit Tua'
+            azimut_b = pemerhati.moon_azimuth(angle_format='skylib')
+            azimut_degree = azimut_b.degrees
+            azimut_string = azimut_b.dstr(format=u'{0}{1}° {2:02}′ {3:02}.{4:0{5}}″')
 
-            jarak_lengkung = pemerhati.elongation_moon_sun(angle_format='string')
-            azimut_m = pemerhati.sun_azimuth(angle_format='string')
-            altitud_m = pemerhati.sun_altitude(angle_format='string')
+            altitud_b = pemerhati.moon_altitude(angle_format='skylib')
+            altitud_degree = altitud_b.degrees
+            altitud_string = altitud_b.dstr(format=u'{0}{1}° {2:02}′ {3:02}.{4:0{5}}″')
+
+            azimut_b = f"{azimut_string} ({round(azimut_degree,4)})"
+            altitud_b = f"{altitud_string} ({round(altitud_degree,4)})"
+
+            fasa_bulan = pemerhati.moon_phase(angle_format='degree')
+            fasa_bulan_asing = fasa_bulan
+            fasa_bulan_asing = "{:.2f}".format(fasa_bulan_asing)
+            if fasa_bulan <= 75:
+                fasa_bulan = f"{fasa_bulan_asing} (Bulan Sabit Muda)"
+            elif fasa_bulan > 75 and fasa_bulan <= 105:
+                fasa_bulan = f"{fasa_bulan_asing} (Bulan Separa Muda)"
+            elif fasa_bulan > 105 and fasa_bulan <= 165:
+                fasa_bulan = f"{fasa_bulan_asing} (Bulan Hampir Purnama Muda)"
+            elif fasa_bulan > 165 and fasa_bulan <= 195:
+                fasa_bulan = f"{fasa_bulan_asing} (Bulan Purnama)"
+            elif fasa_bulan > 195 and fasa_bulan <= 255:
+                fasa_bulan = f"{fasa_bulan_asing} (Bulan Hampir Purnama Tua)"
+            elif fasa_bulan > 255 and fasa_bulan <= 285:
+                fasa_bulan = f"{fasa_bulan_asing} (Bulan Separa Tua)"
+            else:
+                fasa_bulan = f"{fasa_bulan_asing} (Bulan Sabit Tua)"
+
+            jarak_lengkung = pemerhati.elongation_moon_sun(angle_format='skylib')
+            jarak_lengkung_degree = jarak_lengkung.degrees
+            jarak_lengkung_string = jarak_lengkung.dstr(format=u'{0}{1}° {2:02}′ {3:02}.{4:0{5}}″')
+            jarak_lengkung = f"{jarak_lengkung_string} ({round(jarak_lengkung_degree,4)})"
+
+            azimut_m = pemerhati.sun_azimuth(angle_format='skylib')
+            azimut_degree = azimut_m.degrees
+            azimut_string = azimut_m.dstr(format=u'{0}{1}° {2:02}′ {3:02}.{4:0{5}}″')
+            altitud_m = pemerhati.sun_altitude(angle_format='skylib')
+            altitud_degree = altitud_m.degrees
+            altitud_string = altitud_m.dstr(format=u'{0}{1}° {2:02}′ {3:02}.{4:0{5}}″')
+
+            azimut_m = f"{azimut_string} ({round(azimut_degree,4)})"
+            altitud_m = f"{altitud_string} ({round(altitud_degree,4)})"
 
             return render_template(
                 "index.html", pilihan=pilihan, azimut_b=azimut_b, azimut_m=azimut_m,
@@ -341,28 +363,35 @@ def sahabatfalakplus():
             moon_set = pemerhati.moon_set(time_format='string')
             ijtimak = pemerhati.moon_conjunction(time_format='string', topo=topo)
             moon_age = pemerhati.moon_age(t=maghrib_1, topo=topo)
+
             elongation = pemerhati.elongation_moon_sun(
-                t=maghrib_1, angle_format='degree', topo=topo)
-            elongation = str(format(elongation, '.4f')) + "°"
+                t=maghrib_1, angle_format='skylib', topo=topo)
+            elongation_string = elongation.dstr(format=u'{0}{1}° {2:02}′ {3:02}.{4:0{5}}″')
+            elongation = f"{elongation_string}° ({round(elongation.degrees, 4)}°)"
+
             azimuth_difference = pemerhati.daz(
-                t=maghrib_1, angle_format='degree')
-            azimuth_difference = str(format(azimuth_difference, '.4f')) + "°"
+                t=maghrib_1, angle_format='skylib')
+            azimuth_difference_string = azimuth_difference.dstr(format=u'{0}{1}° {2:02}′ {3:02}.{4:0{5}}″')
+            azimuth_difference = f"{azimuth_difference_string}° ({round(azimuth_difference.degrees,4)})°"
+
             altitude = pemerhati.moon_altitude(
-                t=maghrib_1, angle_format='degree', topo=topo)
-            altitude = str(format(altitude, '.4f')) + "°"
+                t=maghrib_1, angle_format='skylib', topo=topo)
+            altitude_string = altitude.dstr(format=u'{0}{1}° {2:02}′ {3:02}.{4:0{5}}″')
+            altitude = f"{altitude_string}° ({round(altitude.degrees,4)})°"
+
             illumination = pemerhati.moon_illumination(
                 t=maghrib_1, topo=topo)
             moon_distance_ratio = pemerhati.moon_distance(t=maghrib_1, topo=topo, compare=True)
-            moon_distance_ratio = str(format(moon_distance_ratio, '.4f'))
-            illumination = str(format(illumination, '.4f')) + "%"
+            moon_distance_ratio = f"{round(moon_distance_ratio,4)}°"
+            illumination = f"{round(illumination,4)}%"
             lag_time = pemerhati.lag_time()
             moon_rise = pemerhati.moon_rise(time_format='string')
             sun_rise = pemerhati.waktu_syuruk(time_format='string')
             crescent_width = pemerhati.lunar_crescent_width(
-                t=maghrib_1, topo=topo, angle_format='degree'
+                t=maghrib_1, topo=topo, angle_format='skylib'
             )
-            crescent_width = str(format(crescent_width*60, '.3f')) + \
-                "' (arka minit)"
+            crescent_width_string = crescent_width.dstr(format=u'{0}{1}° {2:02}′ {3:02}.{4:0{5}}″')
+            crescent_width = f"{crescent_width_string} ({round(crescent_width.degrees*60, 3)}') (arka minit)"
             if 'Moon' in lag_time:
                 odeh, yallop = 'Mudah Kelihatan', 'Mudah Kelihatan'
             else:

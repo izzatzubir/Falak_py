@@ -247,7 +247,7 @@ class Takwim:
 
         if angle_format not in ('skylib', 'degree'):
             return sun_altitude.dstr(
-                format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
+                format=u'{0}{1}° {2:02}′ {3:02}.{4:0{5}}″')
 
         elif angle_format == 'degree':
             return sun_altitude.degrees
@@ -287,7 +287,7 @@ class Takwim:
 
         if angle_format not in ('skylib', 'degree'):
             return sun_azimuth.dstr(
-                format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
+                format=u'{0}{1}° {2:02}′ {3:02}.{4:0{5}}″')
 
         elif angle_format == 'degree':
             return sun_azimuth.degrees
@@ -430,7 +430,7 @@ class Takwim:
 
         if angle_format not in ('skylib', 'degree'):
             return moon_altitude.dstr(
-                format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
+                format=u'{0}{1}° {2:02}′ {3:02}.{4:0{5}}″')
 
         elif angle_format == 'degree':
             return moon_altitude.degrees
@@ -469,7 +469,7 @@ class Takwim:
 
         if angle_format not in ('skylib', 'degree'):
             return moon_azimuth.dstr(
-                format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
+                format=u'{0}{1}° {2:02}′ {3:02}.{4:0{5}}″')
 
         elif angle_format == 'degree':
             return moon_azimuth.degrees
@@ -553,7 +553,7 @@ class Takwim:
 
         if angle_format not in ('skylib', 'degree'):
             return daz.dstr(
-                format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
+                format=u'{0}{1}° {2:02}′ {3:02}.{4:0{5}}″')
 
         elif angle_format == 'degree':
             return daz.degrees
@@ -578,7 +578,7 @@ class Takwim:
 
         if angle_format not in ('skylib', 'degree'):
             return arcv.dstr(
-                format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
+                format=u'{0}{1}° {2:02}′ {3:02}.{4:0{5}}″')
 
         elif angle_format == 'degree':
             return arcv.degrees
@@ -774,7 +774,7 @@ class Takwim:
 
         if angle_format not in ('skylib', 'degree'):
             return elongation_moon_sun.dstr(
-                format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
+                format=u'{0}{1}° {2:02}′ {3:02}.{4:0{5}}″')
         elif angle_format == 'degree':
             return elongation_moon_sun.degrees
 
@@ -811,7 +811,7 @@ class Takwim:
         moon_phase = Angle(degrees=phase)
         if angle_format not in ('skylib', 'degree'):
             moon_phase = moon_phase.dstr(
-                format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
+                format=u'{0}{1}° {2:02}′ {3:02}.{4:0{5}}″')
 
         elif angle_format == 'degree':
             moon_phase = moon_phase.degrees
@@ -873,7 +873,7 @@ class Takwim:
 
         if angle_format not in ('skylib', 'degree'):
             crescent_width = crescent_width.dstr(
-                format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
+                format=u'{0}{1}° {2:02}′ {3:02}.{4:0{5}}″')
         elif angle_format == 'degree':
             crescent_width = crescent_width.degrees
         return crescent_width
@@ -1908,7 +1908,7 @@ class Takwim:
 
         if angle_format not in ('skylib', 'degree'):
             venus_azimuth = venus_azimuth.dstr(
-                format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
+                format=u'{0}{1}° {2:02}′ {3:02}.{4:0{5}}″')
 
         elif angle_format == 'degree':
             venus_azimuth = venus_azimuth.degrees
@@ -1951,18 +1951,18 @@ class Takwim:
             sun_az = self.sun_azimuth(
                 t=masa, angle_format='skylib')
             az_objek = sun_az.dstr(
-                format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
+                format=u'{0}{1}° {2:02}′ {3:02}.{4:0{5}}″')
             az_degree = sun_az.degrees
 
             if objek == 'bulan':
                 moon_az = self.moon_azimuth(t=masa, angle_format='skylib')
                 az_objek = moon_az.dstr(
-                    format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
+                    format=u'{0}{1}° {2:02}′ {3:02}.{4:0{5}}″')
                 az_degree = moon_az.degrees
             elif objek == 'venus' or objek == 'zuhrah':
                 venus_az = self.__venus_azimuth(t=masa, angle_format='skylib')
                 az_objek = venus_az.dstr(
-                    format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
+                    format=u'{0}{1}° {2:02}′ {3:02}.{4:0{5}}″')
                 az_degree = venus_az.degrees
 
             az_beza = round(azimut_kiblat - az_degree, 2)

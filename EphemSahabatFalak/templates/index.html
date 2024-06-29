@@ -79,12 +79,36 @@
             <div class="col-md-4">
                 <label for="pilihan" class="form-label">Pilih Jenis Data</label>
                 <select class="form-select form-select-lg mb-3" name="pilihan">
+                    {% if pilihan == 'waktu-solat' %}
                     <option selected value="waktu-solat">Waktu Solat</option>
+                    {% else %}
+                    <option value="waktu-solat">Waktu Solat</option>
+                    {% endif %}
+                    {% if pilihan == 'Kiblat' %}
+                    <option selected value="Kiblat">Kiblat</option>
+                    {% else %}
                     <option value="Kiblat">Kiblat</option>
+                    {% endif %}
+                    {% if pilihan == 'efemerisKiblat' %}
+                    <option selected value="efemerisKiblat">Jadual Kiblat</option>
+                    {% else %}
                     <option value="efemerisKiblat">Jadual Kiblat</option>
+                    {% endif %}
+                    {% if pilihan == 'waktuSolatBulanan' %}
+                    <option selected value="waktuSolatBulanan">Waktu Solat Bulanan</option>
+                    {% else %}
                     <option value="waktuSolatBulanan">Waktu Solat Bulanan</option>
+                    {% endif %}
+                    {% if pilihan == 'DataBulanMatahari' %}
+                    <option selected value="DataBulanMatahari">Data Bulan dan Matahari</option>
+                    {% else %}
                     <option value="DataBulanMatahari">Data Bulan dan Matahari</option>
+                    {% endif %}
+                    {% if pilihan == 'TukarKalendar' %}
+                    <option selected value="TukarKalendar">Tukar ke Tarikh Hijri</option>
+                    {% else %}
                     <option value="TukarKalendar">Tukar ke Tarikh Hijri</option>
+                    {% endif %}
                   </select>
             </div>
             <div class="pt-2">
@@ -134,7 +158,7 @@
             </table>
         </div>
         {% elif pilihan == 'DataBulanMatahari' %}
-        <h2>Waktu Solat</h2>
+        <h2>Data Bulan dan Matahari</h2>
         <p>Waktu: {{parsed_date}}</p>
         <div class="p-2">
             <table class="table table-bordered table-striped-columns">
@@ -253,7 +277,7 @@
             </div>
         </div>
         {% elif pilihan == 'waktuSolatBulanan' %}
-        <div>
+        <div class="table-responsive-lg">
             <table class="table table-bordered table-striped-columns">
                 <thead>
                     <tr>
@@ -388,5 +412,7 @@
         }
     }
 </script>
+
+
 {% endblock %}
 
