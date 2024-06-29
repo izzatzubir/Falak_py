@@ -344,12 +344,30 @@
         var elevation = position.coords.altitude.toFixed(1);;
         var accuracy = position.coords.accuracy.toFixed(1);
         var timestamp = position.timestamp;
+
+        var newtimestamp = parseInt(timestamp, 10);
+
+        // Convert milliseconds to a Date object
+        var date = new Date(newtimestamp);
+
+        // Format the date to YYYY-MM-DDTHH:MM:SS (datetime-local input format)
+        var year = date.getFullYear();
+        var month = ('0' + (date.getMonth() + 1)).slice(-2);
+        var day = ('0' + date.getDate()).slice(-2);
+        var hours = ('0' + date.getHours()).slice(-2);
+        var minutes = ('0' + date.getMinutes()).slice(-2);
+        var seconds = ('0' + date.getSeconds()).slice(-2);
+
+        var formattedDate = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+
+        // Set the value of the datetime-local input
+        document.getElementById("datetime").value = formattedDate;
+
         document.getElementById("latitud").value = latitude;
         document.getElementById("longitud").value = longitude;
         document.getElementById("elevation").value = elevation;
-        document.getElementById("datetime").value = timestamp;
         document.getElementById("ketepatanlokasi").value =
-            "Ketepatan(m): " + timestamp;
+            "Ketepatan(m): " + accuracy;
     }
 
     function showError(error) {
