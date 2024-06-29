@@ -2012,8 +2012,6 @@ class Takwim:
         Desktop folder.
         '''
         alt_bulan_list = []
-        alt_mat = []
-        azm_mat = []
         azm_bul = []
         elon_bulanMat = []
         illumination_bulan = []
@@ -2054,15 +2052,6 @@ class Takwim:
             azimut_bulan = self.moon_azimuth(angle_format='string')
             azm_bul.append(azimut_bulan)
 
-            # altitud matahari
-            altitud_matahari = self.sun_altitude(
-                angle_format='string', topo=topo)
-            alt_mat.append(altitud_matahari)
-
-            # azimut matahari
-            azimut_matahari = self.sun_azimuth(angle_format='string')
-            azm_mat.append(azimut_matahari)
-
             # elongasi bulan matahari
             elongasi_bulan_matahari = self.elongation_moon_sun(
                 angle_format='string', topo=topo)
@@ -2088,11 +2077,10 @@ class Takwim:
 
         ephem_bulan = pd.DataFrame(
             list(zip(
-                elon_bulanMat, alt_bulan_list, azm_bul, alt_mat, azm_mat,
+                elon_bulanMat, alt_bulan_list, azm_bul,
                 illumination_bulan, lebar_sabit, az_diff, arc_vision)),
             index=tarikh,
             columns=["Elongasi", "Alt Bulan", "Az Bulan",
-                     "Alt Matahari", "Az Matahari",
                      "Illuminasi bulan(%)", "Lebar Hilal",
                      "DAZ", "ARCV"])
 

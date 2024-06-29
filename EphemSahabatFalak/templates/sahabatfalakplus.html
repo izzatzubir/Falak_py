@@ -367,40 +367,84 @@
             <p>Rujukan: {{topo}}</p>
             <p>Maghrib: {{maghrib}}</p>
             <p>Bulan Terbenam: {{moon_set}}</p>
-            <div class="table-responsive-lg pt-2">
-                <table class="table table-bordered table-striped-columns">
-                    <thead>
-                        <tr>
-                            <th scope="col">Waktu</th>
-                            <th scope="col">Jarak Lengkung(°)</th>
-                            <th scope="col">Alt Bulan(°)</th>
-                            <th scope="col">Az Bulan(°)</th>
-                            <th scope="col">Alt Matahari(°)</th>
-                            <th scope="col">Az Matahari(°)</th>
-                            <th scope="col">Kecerahan (%)</th>
-                            <th scope="col">Lebar Hilal (')</th>
-                            <th scope="col">Beza Altitud(°)</th>
-                            <th scope="col">ARCV (°)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for i in range(efemeris_hilal|length) %}
-                        <tr>
-                            <td>{{efemeris_hilal.index[i]}}</td>
-                            <td>{{efemeris_hilal["Elongasi"][i]}}</td>
-                            <td>{{efemeris_hilal["Alt Bulan"][i]}}</td>
-                            <td>{{efemeris_hilal["Az Bulan"][i]}}</td>
-                            <td>{{efemeris_hilal["Alt Matahari"][i]}}</td>
-                            <td>{{efemeris_hilal["Az Matahari"][i]}}</td>
-                            <td>{{efemeris_hilal["Illuminasi bulan(%)"][i]}}</td>
-                            <td>{{efemeris_hilal["Lebar Hilal"][i]}}</td>
-                            <td>{{efemeris_hilal["DAZ"][i]}}</td>
-                            <td>{{efemeris_hilal["ARCV"][i]}}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="container mb-2">
+                <div class="tab_box">
+                    <button class="tab_btn">Posisi</button>
+                    <button class="tab_btn active">Saiz</button>
+                    <button class="tab_btn">Beza Sudut</button>
+                    <div class="line"></div>
+                </div>
+                <br>
+                <div class="content_box">
+                    <div class="content table-responsive-lg">
+                        <table class="table table-bordered table-striped-columns">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Waktu</th>
+                                    <th scope="col">Jarak Lengkung</th>
+                                    <th scope="col">Alt Bulan</th>
+                                    <th scope="col">Az Bulan(°)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in range(efemeris_hilal|length) %}
+                                <tr>
+                                    <td>{{efemeris_hilal.index[i]}}</td>
+                                    <td>{{efemeris_hilal["Elongasi"][i]}}</td>
+                                    <td>{{efemeris_hilal["Alt Bulan"][i]}}</td>
+                                    <td>{{efemeris_hilal["Az Bulan"][i]}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="content_box">
+                    <div class="content active table-responsive-lg">
+                        <table class="table table-bordered table-striped-columns">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Waktu</th>
+                                    <th scope="col">Kecerahan (%)</th>
+                                    <th scope="col">Lebar Hilal (')</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in range(efemeris_hilal|length) %}
+                                <tr>
+                                    <td>{{efemeris_hilal.index[i]}}</td>
+                                    <td>{{efemeris_hilal["Illuminasi bulan(%)"][i]}}</td>
+                                    <td>{{efemeris_hilal["Lebar Hilal"][i]}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="content_box">
+                    <div class="content table-responsive-lg">
+                        <table class="table table-bordered table-striped-columns">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Waktu</th>
+                                    <th scope="col">Beza Altitud(°)</th>
+                                    <th scope="col">ARCV (°)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in range(efemeris_hilal|length) %}
+                                <tr>
+                                    <td>{{efemeris_hilal.index[i]}}</td>
+                                    <td>{{efemeris_hilal["DAZ"][i]}}</td>
+                                    <td>{{efemeris_hilal["ARCV"][i]}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
+
             {% else %}
             <h2>Efemeris hilal</h2>
             <p>Efemeris hilal tidak sesuai dijana pada {{parsed_date}}</p>
