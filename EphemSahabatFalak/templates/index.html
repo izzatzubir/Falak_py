@@ -343,11 +343,13 @@
         var longitude = position.coords.longitude.toFixed(4);;
         var elevation = position.coords.altitude.toFixed(1);;
         var accuracy = position.coords.accuracy.toFixed(1);
+        var timestamp = position.timestamp;
         document.getElementById("latitud").value = latitude;
         document.getElementById("longitud").value = longitude;
         document.getElementById("elevation").value = elevation;
+        document.getElementById("datetime").value = timestamp;
         document.getElementById("ketepatanlokasi").value =
-            "Ketepatan(m): " + accuracy;
+            "Ketepatan(m): " + timestamp;
     }
 
     function showError(error) {
