@@ -48,23 +48,30 @@
             </div>
             <div class="col-md-4">
                 <label for="longitud" class="form-label">Longitud (°T)</label>
-                {% if latitud is defined %}
+                {% if longitud is defined %}
                 <input type="text" class="form-control" id="longitud" name="longitud" placeholder={{longitud}} value="{{longitud}}">
                 {% else %}
                 <input type="text" class="form-control" id="longitud" name="longitud" placeholder="100.19672" >
                 {% endif %}
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <label for="elevation" class="form-label">Ketinggian (m)</label>
-                {% if latitud is defined %}
+                {% if elevation is defined %}
                 <input type="text" class="form-control" id="elevation" name="elevation" placeholder={{elevation}} value="{{elevation}}">
                 {% else %}
                 <input type="text" class="form-control" id="elevation" name="elevation" placeholder="40">
                 {% endif %}
             </div>
-            <div class="col-md-1 pt-2">
-                <label for="locationbutton" class="form-label">Lokasi GPS</label>
-                <button type="button" name="locationbutton" class="btn btn-info" onclick="getLocation()">Lokasi</button>
+            <div class="col-md-2">
+                <label for="ketepatanlokasi" class="form-label">Lokasi GPS</label>
+                <div class="row">
+                    <div class="col">
+                        <button type="button" name="locationbutton" class="btn btn-info" onclick="getLocation()">Lokasi</button>
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control" id="ketepatanlokasi" name="ketepatanlokasi" placeholder="Ketepatan" readonly>
+                    </div>
+                </div>
             </div>
             <div class="col-md-4">
                 <label for="datetime" class="form-label">Tarikh dan Masa:</label>
@@ -794,34 +801,36 @@
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(showPosition, showError);
         } else {
-            document.getElementById("locationResult").innerHTML = "Geolocation is not supported by this browser.";
+            document.getElementById("ketepatanlokasi").value = "Geolocation is not supported by this browser.";
         }
     }
 
     function showPosition(position) {
-        var latitude = position.coords.latitude;
-        var longitude = position.coords.longitude;
-        var elevation = position.coords.altitude;
+        var latitude = position.coords.latitude.toFixed(4);;
+        var longitude = position.coords.longitude.toFixed(4);;
+        var elevation = position.coords.altitude.toFixed(1);;
+        var accuracy = position.coords.accuracy.toFixed(1);
+        var altitudeAccuracy = position.coords.altitudeAccuracy.toFixed(1);
         document.getElementById("latitud").value = latitude;
         document.getElementById("longitud").value = longitude;
         document.getElementById("elevation").value = elevation;
-        document.getElementById("locationResult").innerHTML =
-            "Latitude: " + latitude + "<br>Longitude: " + longitude + "<br>Altitud: " + elevation;
+        document.getElementById("ketepatanlokasi").value =
+            "Ketepatan Lokasi (m): " + accuracy + "<br>Ketepatan tinggi: " + altitudeAccuracy;
     }
 
     function showError(error) {
         switch (error.code) {
             case error.PERMISSION_DENIED:
-                document.getElementById("locationResult").innerHTML = "User denied the request for Geolocation.";
+                document.getElementById("ketepatanlokasi").value = "User denied the request for Geolocation.";
                 break;
             case error.POSITION_UNAVAILABLE:
-                document.getElementById("locationResult").innerHTML = "Location information is unavailable.";
+                document.getElementById("ketepatanlokasi").value = "Location information is unavailable.";
                 break;
             case error.TIMEOUT:
-                document.getElementById("locationResult").innerHTML = "The request to get user location timed out.";
+                document.getElementById("ketepatanlokasi").value = "The request to get user location timed out.";
                 break;
             case error.UNKNOWN_ERROR:
-                document.getElementById("locationResult").innerHTML = "An unknown error occurred.";
+                document.getElementById("ketepatanlokasi").value = "An unknown error occurred.";
                 break;
         }
     }
