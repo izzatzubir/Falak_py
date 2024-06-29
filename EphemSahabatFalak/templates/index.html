@@ -180,23 +180,76 @@
         <li>Waktu bayang searah kiblat berakhir: {{waktu_bayang[1]}}</li>
         <br>
         {% elif pilihan == 'efemerisKiblat' %}
-        <div class="p-2">
-            <table class="table table-bordered table-striped-columns">
-                <thead>
-                    <tr>
-                        <th scope="col">Masa</th>
-                        <th scope="col">Azimut</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for i in range(efemeris_kiblat|length) %}
-                    <tr>
-                        <td>{{efemeris_kiblat.index[i]}}</td>
-                        <td>{{efemeris_kiblat["Azimut"][i]}}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <h2>Jadual Kiblat</h2>
+        <p>Azimut Kiblat: {{azimut}} °U</p>
+        <div class="container mb-2">
+            <div class="tab_box">
+                <button class="tab_btn active">Azimut(°)</button>
+                <button class="tab_btn">Azimut perpuluhan(°)</button>
+                <button class="tab_btn">Beza Azimut-Kiblat(°)</button>
+                <div class="line"></div>
+            </div>
+            <br>
+            <div class="content_box">
+                <div class="content active">
+                    <table class="table table-bordered table-striped-columns">
+                        <thead>
+                            <tr>
+                                <th scope="col">Masa</th>
+                                <th scope="col">Azimut(°)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in range(efemeris_kiblat|length) %}
+                            <tr>
+                                <td>{{efemeris_kiblat.index[i]}}</td>
+                                <td>{{efemeris_kiblat["Azimut"][i]}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="content_box">
+                <div class="content">
+                    <table class="table table-bordered table-striped-columns">
+                        <thead>
+                            <tr>
+                                <th scope="col">Masa</th>
+                                <th scope="col">Azimut perpuluhan(°)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in range(efemeris_kiblat|length) %}
+                            <tr>
+                                <td>{{efemeris_kiblat.index[i]}}</td>
+                                <td>{{efemeris_kiblat["Azimut_Perpuluhan"][i]}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="content_box">
+                <div class="content">
+                    <table class="table table-bordered table-striped-columns">
+                        <thead>
+                            <tr>
+                                <th scope="col">Masa</th>
+                                <th scope="col">Beza Azimut-Kiblat(°)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in range(efemeris_kiblat|length) %}
+                            <tr>
+                                <td>{{efemeris_kiblat.index[i]}}</td>
+                                <td>{{efemeris_kiblat["Beza Sudut Kiblat"][i]}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
         {% elif pilihan == 'waktuSolatBulanan' %}
         <div>

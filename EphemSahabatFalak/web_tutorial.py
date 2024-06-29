@@ -144,9 +144,11 @@ def home():
 
         elif request.form["pilihan"] == "efemerisKiblat":
             pilihan = "efemerisKiblat"
+            azimut_degree = float(pemerhati.azimut_kiblat())
+            azimut = "{:.2f}".format(azimut_degree)
             efemeris_kiblat = pemerhati.efemeris_kiblat(directory="web")
             return render_template(
-                "index.html", efemeris_kiblat=efemeris_kiblat,
+                "index.html", azimut=azimut, efemeris_kiblat=efemeris_kiblat,
                 latitud=latitude, longitud=longitude, elevation=elevation,
                 temperature=temperature, pressure=pemerhati.pressure,
                 original_date=original_date, timezone=timezone, pilihan=pilihan)

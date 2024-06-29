@@ -1940,25 +1940,41 @@ class Takwim:
         Desktop folder.
         """
         az_objek_list = []
+        az_degree_list = []
+        az_beza_kiblat = []
         masa_list = []
         self.second = 0
         masa_sekarang = self.time
+        azimut_kiblat = self.azimut_kiblat()
         for i in range(60):
             masa = masa_sekarang+dt.timedelta(minutes=i)
-            az_objek = self.sun_azimuth(
-                t=masa, angle_format='string')
+            sun_az = self.sun_azimuth(
+                t=masa, angle_format='skylib')
+            az_objek = sun_az.dstr(
+                format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
+            az_degree = sun_az.degrees
 
             if objek == 'bulan':
-                az_objek = self.moon_azimuth(t=masa, angle_format='string')
+                moon_az = self.moon_azimuth(t=masa, angle_format='skylib')
+                az_objek = moon_az.dstr(
+                    format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
+                az_degree = moon_az.degrees
             elif objek == 'venus' or objek == 'zuhrah':
-                az_objek = self.__venus_azimuth(t=masa, angle_format='string')
+                venus_az = self.__venus_azimuth(t=masa, angle_format='skylib')
+                az_objek = venus_az.dstr(
+                    format=u'{0}{1}°{2:02}′{3:02}.{4:0{5}}″')
+                az_degree = venus_az.degrees
 
+            az_beza = round(azimut_kiblat - az_degree, 2)
             az_objek_list.append(az_objek)
+            az_degree_list.append(round(az_degree, 2))
+            az_beza_kiblat.append(az_beza)
 
             masa_list.append(masa.astimezone(self.zone).strftime('%H:%M:%S'))
 
         efemeris_kiblat = pd.DataFrame(
-            az_objek_list, index=masa_list, columns=['Azimut'])
+            list(zip(az_objek_list, az_degree_list, az_beza_kiblat)),
+            index=masa_list, columns=['Azimut', 'Azimut_Perpuluhan', 'Beza Sudut Kiblat'])
         filename = ('../Efemeris_Kiblat_' + str(self.hour) +
                     '_' + str(self.minute) + '.xlsx')
         if directory is None:
