@@ -433,16 +433,20 @@ def sahabatfalakplus():
             if "days" not in moon_age:
                 efemeris_hilal = pemerhati.efemeris_hilal(topo, 'web')
                 moon_set = pemerhati.moon_set(time_format='string')
+                efemeris_hilal_present = True
                 return render_template(
                     "sahabatfalakplus.html", efemeris_hilal=efemeris_hilal,
+                    efemeris_hilal_present=efemeris_hilal_present,
                     topo=topo, parsed_date=pemerhati.current_time('string'),
                     pilihan=pilihan,
                     latitud=latitude, longitud=longitude, elevation=elevation,
                     temperature=temperature, pressure=pemerhati.pressure,
                     original_date=original_date, maghrib=maghrib,
                     moon_set=moon_set, timezone=timezone)
+            efemeris_hilal_present = False
             return render_template(
                     "sahabatfalakplus.html", efemeris_hilal=None, ijtimak=ijtimak,
+                    efemeris_hilal_present=efemeris_hilal_present,
                     topo=topo, parsed_date=pemerhati.current_time('string'),
                     pilihan=pilihan,
                     latitud=latitude, longitud=longitude, elevation=elevation,

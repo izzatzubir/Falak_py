@@ -356,7 +356,7 @@
         var day = ('0' + date.getDate()).slice(-2);
         var hours = ('0' + date.getHours()).slice(-2);
         var minutes = ('0' + date.getMinutes()).slice(-2);
-        var seconds = '00';
+        var seconds = ('00' + date.getSeconds()).slice(-2);
 
         var formattedDate = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
 
@@ -367,7 +367,7 @@
         document.getElementById("longitud").value = longitude;
         document.getElementById("elevation").value = elevation;
         document.getElementById("ketepatanlokasi").value =
-            "Ketepatan(m): " + accuracy;
+            "Ketepatan: " + accuracy + " m";
     }
 
     function showError(error) {

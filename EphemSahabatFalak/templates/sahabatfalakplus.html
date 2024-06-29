@@ -361,11 +361,7 @@
         </div>
         {% elif pilihan == 'dataHilalPenuh' %}
         <div>
-            {% if efemeris_hilal == None %}
-            <h2>Efemeris hilal</h2>
-            <p>Efemeris hilal tidak sesuai dijana pada {{parsed_date}}</p>
-            <p>Sila cuba pada hari ijtimak, atau hari selepasnya. Ijtimak berlaku pada: {{ijtimak}}</p>
-            {% else %}
+            {% if efemeris_hilal_present %}
             <h2>Efemeris Hilal</h2>
             <p>Tarikh: {{parsed_date}}</p>
             <p>Rujukan: {{topo}}</p>
@@ -405,6 +401,11 @@
                     </tbody>
                 </table>
             </div>
+            {% else %}
+            <h2>Efemeris hilal</h2>
+            <p>Efemeris hilal tidak sesuai dijana pada {{parsed_date}}</p>
+            <p>Sila cuba pada hari ijtimak, atau hari selepasnya. Ijtimak berlaku pada: {{ijtimak}}</p>
+
             {% endif %}
         </div>
         {% endif %}
