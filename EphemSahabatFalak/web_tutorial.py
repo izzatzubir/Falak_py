@@ -166,6 +166,8 @@ def home():
 
         elif request.form["pilihan"] == "efemerisKiblat":
             pilihan = "efemerisKiblat"
+            pemerhati.second = 0
+            pemerhati.time = pemerhati.current_time()
             azimut_degree = float(pemerhati.azimut_kiblat())
             azimut = "{:.2f}".format(azimut_degree)
             efemeris_kiblat = pemerhati.efemeris_kiblat(directory="web")
