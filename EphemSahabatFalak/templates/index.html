@@ -81,11 +81,11 @@
                   </select>
             </div>
             <div class="pt-2">
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" class="btn btn-primary">Hitung</button>
             </div>
         </div>
     </form>
-    <div id="locationResult" hidden></div>
+    <div id="locationResult"></div>
     <hr>
     <br>
     <div>
@@ -283,11 +283,13 @@
         var latitude = position.coords.latitude;
         var longitude = position.coords.longitude;
         var elevation = position.coords.altitude;
+        var accuracy = position.coords.accuracy;
+        var altitudeAccuracy = position.coords.altitudeAccuracy;
         document.getElementById("latitud").value = latitude;
         document.getElementById("longitud").value = longitude;
         document.getElementById("elevation").value = elevation;
         document.getElementById("locationResult").innerHTML =
-            "Latitude: " + latitude + "<br>Longitude: " + longitude + "<br>Altitud: " + elevation;
+            "Accuracy: " + accuracy + "<br>Altitud Accuracy: " + altitudeAccuracy;
     }
 
     function showError(error) {

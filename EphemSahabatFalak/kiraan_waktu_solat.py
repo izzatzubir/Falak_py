@@ -1301,8 +1301,11 @@ class Takwim:
 
         if altitude == 'default':
             sun_apparent_radius = degrees(0.00475602221)
-            horizon_depression = degrees(
-                acos(6378/(6378 + self.elevation/1000)))
+            if self.elevation < 0:
+                horizon_depression = 0
+            else:
+                horizon_depression = degrees(
+                    acos(6378/(6378 + self.elevation/1000)))
             r = (1.02/60) / tan(
                 (-(horizon_depression+sun_apparent_radius) + 10.3 /
                  (-(horizon_depression+sun_apparent_radius) + 5.11))
@@ -1500,10 +1503,12 @@ class Takwim:
                 radius_at_topo = self.radius_at_location()
                 sun_apparent_radius = degrees(
                     asin(695508/self.sun_distance()))
-
-            horizon_depression = degrees(
-                acos(radius_at_topo/(
-                    radius_at_topo + self.elevation/1000)))
+            if self.elevation < 0:
+                horizon_depression = 0
+            else:
+                horizon_depression = degrees(
+                    acos(radius_at_topo/(
+                        radius_at_topo + self.elevation/1000)))
             r = (1.02/60) / tan(
                 (-(horizon_depression+sun_apparent_radius) + 10.3 /
                     (-(horizon_depression+sun_apparent_radius) + 5.11))
