@@ -19,6 +19,12 @@
     position: relative;
 
 } */
+
+#map {
+    height: 50vh; /* Set map height to 80% of the viewport height */
+    width: 90%;
+}
+
 .tab_box .tab_btn{
     font-size: 18px;
     font-weight: 600;
