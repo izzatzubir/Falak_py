@@ -420,7 +420,6 @@
     // Predefined Point A coordinates
     var map = null;
     var pointA = [21.4225, 39.8262]; // Change to your predetermined coordinates
-    var markerA = L.marker(pointA).addTo(map).bindPopup('Point A').openPopup();
 
     var lineLayer = null;
     var markerB = null;
@@ -444,19 +443,31 @@
             }).addTo(map);
 
             // Add marker for Point A
-            L.marker(pointA).addTo(map).bindPopup('Point A').openPopup();
+            L.marker(pointA).addTo(map).bindPopup('Kaabah').openPopup();
         }
 
     function updateMap() {
         var lat = parseFloat(document.getElementById('latitud').value);
         var lng = parseFloat(document.getElementById('longitud').value);
         var pointB = [lat, lng];
+        var pointC = [lat+0.0000, lng+0.001]
+        var pointD = [lat-0.0001, lng+0.001]
+        var pointE = [lat-0.0002, lng+0.001]
+        var pointF = [lat-0.0003, lng+0.001]
+        var pointG = [lat-0.0004, lng+0.001]
+        var pointH = [lat-0.0005, lng+0.001]
         initializeMap();
 
-        var markerB = L.marker(pointB).addTo(map).bindPopup('Point B').openPopup();
+        var markerB = L.marker(pointB).addTo(map).bindPopup('Lat: ' + lat + ' Long: ' + lng).openPopup();
 
         // Draw a line between Point A and Point B
-        lineLayer = L.polyline([pointA, pointB], { color: 'red' }).addTo(map);
+        lineLayer = L.polyline([pointA, pointB], { color: 'red'}).addTo(map);
+        lineLayer = L.polyline([pointA, pointC], { color: 'blue', opacity: 0.3 }).addTo(map);
+        lineLayer = L.polyline([pointA, pointD], { color: 'blue', opacity: 0.3 }).addTo(map);
+        lineLayer = L.polyline([pointA, pointE], { color: 'blue', opacity: 0.3 }).addTo(map);
+        lineLayer = L.polyline([pointA, pointF], { color: 'blue', opacity: 0.3 }).addTo(map);
+        lineLayer = L.polyline([pointA, pointG], { color: 'blue', opacity: 0.3 }).addTo(map);
+        lineLayer = L.polyline([pointA, pointH], { color: 'blue', opacity: 0.3 }).addTo(map);
 
         // Adjust map view to focus on Point B with a zoom level of 15
         map.setView(pointB, 30);
