@@ -389,7 +389,7 @@ def sahabatfalakplus():
             illumination = pemerhati.moon_illumination(
                 t=maghrib_1, topo=topo)
             moon_distance_ratio = pemerhati.moon_distance(t=maghrib_1, topo=topo, compare=True)
-            moon_distance_ratio = f"{round(moon_distance_ratio,4)}°"
+            moon_distance_ratio = f"{round(moon_distance_ratio,4)}"
             illumination = f"{round(illumination,4)}%"
             lag_time = pemerhati.lag_time()
             moon_rise = pemerhati.moon_rise(time_format='string')

@@ -3322,23 +3322,23 @@ class Takwim:
 
         if q_value > 0.216:
             criteria = 1
-            description = 'Mudah kelihatan dengan mata kasar'
+            description = 'Mudah kelihatan dengan mata kasar (A)'
         elif q_value <= 0.216 and q_value > -0.014:
             criteria = 2
             description = ('Mungkin kelihatan dengan mata kasar pada keadaan '
-                           'terbaik')
+                           'terbaik (B)')
         elif q_value <= 0.014 and q_value > -0.160:
             criteria = 3
-            description = 'Sukar kelihatan dengan mata kasar'
+            description = 'Sukar kelihatan dengan mata kasar (C)'
         elif q_value <= -0.160 and q_value > -0.232:
             criteria = 4
-            description = 'Perlukan bantuan optik untuk kelihatan'
+            description = 'Perlukan bantuan optik untuk kelihatan (D)'
         elif q_value <= -0.232 and q_value > -0.293:
             criteria = 5
-            description = 'Tidak mungkin kelihatan dengan bantuan optik'
+            description = 'Tidak mungkin kelihatan dengan bantuan optik (E)'
         elif q_value <= -0.293:
             criteria = 6
-            description = 'Tidak mungkin kelihatan dengan bantuan optik'
+            description = 'Tidak mungkin kelihatan dengan bantuan optik (F)'
 
         if value == 'criteria':
             return criteria
