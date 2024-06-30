@@ -4,7 +4,11 @@ from negeri import (Pulau_Pinang)
 from datetime import datetime
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import io
+import os
 import base64
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 app = Flask(__name__)
@@ -13,6 +17,8 @@ app = Flask(__name__)
 @app.route("/", methods=["POST", "GET"])
 def home():
     if request.method == "POST":
+        mapbox_access_token = os.getenv('MAPBOX_ACCESS_TOKEN')
+        print(mapbox_access_token)
         latitude = 5.41144
         longitude = 100.19672
         elevation = 40.0
@@ -161,7 +167,7 @@ def home():
                 waktu_bayang=waktu_bayang, latitud=latitude,
                 longitud=longitude, elevation=elevation,
                 temperature=temperature, pressure=pemerhati.pressure,
-                original_date=original_date, timezone=timezone
+                original_date=original_date, timezone=timezone, mapbox_access_token=mapbox_access_token
             )
 
         elif request.form["pilihan"] == "efemerisKiblat":
