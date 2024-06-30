@@ -73,6 +73,22 @@
                     </div>
                 </div>
             </div>
+            <div name="toggleDiv" class="col-md-4" hidden>
+                <label for="temperature" class="form-label">Suhu (°C)</label>
+                {% if temperature is defined %}
+                <input type="text" class="form-control" id="temperature" name="temperature" placeholder={{temperature}} value="{{temperature}}">
+                {% else %}
+                <input type="text" class="form-control" id="temperature" name="temperature" placeholder="27.0">
+                {% endif %}
+            </div>
+            <div name="toggleDiv" class="col-md-4" hidden>
+                <label for="pressure" class="form-label">Tekanan (mbar)</label>
+                {% if pressure is defined %}
+                <input type="text" class="form-control" id="pressure" name="pressure" placeholder={{pressure}} value="{{pressure}}">
+                {% else %}
+                <input type="text" class="form-control" id="pressure" name="pressure" value="1013.25">
+                {% endif %}
+            </div>
             <div class="col-md-4">
                 <label for="datetime" class="form-label">Tarikh dan Masa:</label>
                 {% if original_date is defined %}
@@ -81,7 +97,7 @@
                 <input type="datetime-local" class="form-control" id="datetime" name="datetime"  step="1" required>
                 {% endif %}
             </div>
-            <div class="col-md-4" hidden>
+            <div name="toggleDiv" class="col-md-4" hidden>
                 <label for="timezone" class="form-label">Zon Waktu</label>
                 <select class="form-select form-select-lg mb-3" name="timezone" id="timezone">
                     {% if timezone == 'lain' %}
@@ -168,23 +184,10 @@
                 </div>
             </div>
             <div class="pt-2">
+                <button type="button" id="toggleButton" class="btn btn-outline-success">Tambah Parameter</button>
+            </div>
+            <div class="pt-2">
                 <button type="submit" class="btn btn-primary">Hitung</button>
-            </div>
-            <div class="col-md-4" hidden>
-                <label for="temperature" class="form-label">Suhu (°C)</label>
-                {% if temperature is defined %}
-                <input type="text" class="form-control" id="temperature" name="temperature" placeholder={{temperature}} value="{{temperature}}">
-                {% else %}
-                <input type="text" class="form-control" id="temperature" name="temperature" placeholder="27.0">
-                {% endif %}
-            </div>
-            <div class="col-md-4" hidden>
-                <label for="pressure" class="form-label">Tekanan (mbar)</label>
-                {% if pressure is defined %}
-                <input type="text" class="form-control" id="pressure" name="pressure" placeholder={{pressure}} value="{{pressure}}">
-                {% else %}
-                <input type="text" class="form-control" id="pressure" name="pressure" value="1013.25">
-                {% endif %}
             </div>
         </div>
     </form>
@@ -841,6 +844,28 @@
         }
     });
 </script>
+<script>
+    document.getElementById('toggleButton').addEventListener('click', function() {
+        var divs = document.querySelectorAll('div[name="toggleDiv"][hidden]');
+        var button = document.getElementById('toggleButton');
+        var suhu = document.getElementById('temperature')
+        var tekanan = document.getElementById('pressure')
+        if (divs.length > 0) {
+            divs.forEach(function(div) {
+            div.removeAttribute('hidden');
+            });
+            button.textContent = 'Hapus Parameter';
+        } else {
+            var allDivs = document.querySelectorAll('div[name="toggleDiv"]');
+            allDivs.forEach(function(div) {
+            div.setAttribute('hidden', '');
+            });
+            button.textContent = 'Tambah Parameter';
+            suhu.value = 27.0
+            tekanan.value = 1013.25
+        }
+    });
+  </script>
 <script>
     function getLocation() {
         if (navigator.geolocation) {

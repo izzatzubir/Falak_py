@@ -1772,9 +1772,7 @@ class Takwim:
             sin(radians(self.latitude))*cos(lat_kaabah)*cos(delta_lon)
         azimuth_rad = atan2(y, x)
         azimut = degrees(azimuth_rad)
-        if azimut < 0:
-            azimut += 360
-        return azimut
+        return (azimut + 360) % 360
 
     def jarak_kaabah(self):
         """
@@ -2657,7 +2655,7 @@ class Takwim:
                 elif self.month == 2 and i > 28:
                     try:
                         self.day = i
-                        self.time
+                        self.time = self.current_time()
                     except Exception:
                         errormessage = "triggered"
 
@@ -3024,6 +3022,23 @@ class Takwim:
                 analisis_perbandingan_julat_isyak.to_excel(
                     writer, sheet_name="Perbandingan",
                     startcol=perbandingan_julat.shape[1]+7, index=False)
+        elif directory == "sample":
+            takwim_tahunan.to_csv('takwim_tahunan_penang_2024.csv'),
+            lokasi_pilihan.to_csv('lokasi_pilihan_penang_2024.csv'),
+            perbandingan_julat.to_csv('perbandingan_julat_penang_2024.csv'),
+            analisis_subuh.to_csv('analisis_subuh_penang_2024.csv'),
+            analisis_syuruk.to_csv('analisis_syuruk_penang_2024.csv'),
+            analisis_zohor.to_csv('analisis_zohor_penang_2024.csv'),
+            analisis_asar.to_csv('analisis_asar_penang_2024.csv'),
+            analisis_maghrib.to_csv('analisis_maghrib_penang_2024.csv'),
+            analisis_isyak.to_csv('analisis_isyak_penang_2024.csv'),
+            analisis_perbandingan_julat_subuh.to_csv('analisis_perbandingan_julat_subuh_penang_2024.csv'),
+            analisis_perbandingan_julat_syuruk.to_csv('analisis_perbandingan_julat_syuruk_penang_2024.csv'),
+            analisis_perbandingan_julat_zohor.to_csv('analisis_perbandingan_julat_zohor_penang_2024.csv'),
+            analisis_perbandingan_julat_asar.to_csv('analisis_perbandingan_julat_asar_penang_2024.csv'),
+            analisis_perbandingan_julat_maghrib.to_csv('analisis_perbandingan_julat_maghrib_penang_2024.csv'),
+            analisis_perbandingan_julat_isyak.to_csv('analisis_perbandingan_julat_isyak_penang_2024.csv'),
+
         elif directory == "web":
             return (
                 takwim_tahunan, lokasi_pilihan, perbandingan_julat,

@@ -6,7 +6,10 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import io
 import os
 import base64
+import pandas as pd
 from dotenv import load_dotenv
+from pathlib import Path
+THIS_FOLDER = Path(__file__).parent.resolve()
 
 load_dotenv()
 
@@ -209,6 +212,7 @@ def home():
 
 @app.route("/sahabatfalakpro", methods=["POST", "GET"])
 def sahabatfalakpro():
+    running_local = os.getenv("RUNNING_LOCAL")
     if request.method == "POST":
         year = 2024
         lokasi_dic = {}
@@ -289,7 +293,52 @@ def sahabatfalakpro():
             analisis_perbandingan_julat_isyak=multipoint[14],
             timezone=timezone
             )
-    return render_template("sahabatfalakpro.html")
+    lokasi_dic = {
+                    "A": (5.282574, 100.177892, 40),
+                    "B": (5.284480, 100.17720, 40),
+                    "C": (5.142472, 100.502861, 40),
+                    "D": (5.551423, 100.528866, 40),
+                    "E": (5.472839, 100.180822, 40)}
+    takwim_multipoint = pd.read_csv(
+                    THIS_FOLDER / "takwim_tahunan_penang_2024.csv")
+    lokasi_pilihan = pd.read_csv(THIS_FOLDER / 'lokasi_pilihan_penang_2024.csv')
+    perbandingan_julat = pd.read_csv(THIS_FOLDER / 'perbandingan_julat_penang_2024.csv')
+    analisis_subuh = pd.read_csv(THIS_FOLDER / 'analisis_subuh_penang_2024.csv')
+    analisis_syuruk = pd.read_csv(THIS_FOLDER / 'analisis_syuruk_penang_2024.csv')
+    analisis_zohor = pd.read_csv(THIS_FOLDER / 'analisis_zohor_penang_2024.csv')
+    analisis_asar = pd.read_csv(THIS_FOLDER / 'analisis_asar_penang_2024.csv')
+    analisis_maghrib = pd.read_csv(THIS_FOLDER / 'analisis_maghrib_penang_2024.csv')
+    analisis_isyak = pd.read_csv(THIS_FOLDER / 'analisis_isyak_penang_2024.csv')
+    analisis_perbandingan_julat_subuh = pd.read_csv(
+        THIS_FOLDER / 'analisis_perbandingan_julat_subuh_penang_2024.csv')
+    analisis_perbandingan_julat_syuruk = pd.read_csv(
+        THIS_FOLDER / 'analisis_perbandingan_julat_syuruk_penang_2024.csv')
+    analisis_perbandingan_julat_zohor = pd.read_csv(
+        THIS_FOLDER / 'analisis_perbandingan_julat_zohor_penang_2024.csv')
+    analisis_perbandingan_julat_asar = pd.read_csv(
+        THIS_FOLDER / 'analisis_perbandingan_julat_asar_penang_2024.csv')
+    analisis_perbandingan_julat_maghrib = pd.read_csv(
+        THIS_FOLDER / 'analisis_perbandingan_julat_maghrib_penang_2024.csv')
+    analisis_perbandingan_julat_isyak = pd.read_csv(
+        THIS_FOLDER / 'analisis_perbandingan_julat_isyak_penang_2024.csv')
+
+    return render_template(
+        "sahabatfalakpro.html", running_local=running_local, lokasi_dic=lokasi_dic,
+        takwim_multipoint=takwim_multipoint,
+        lokasi_pilihan=lokasi_pilihan,
+        perbandingan_julat=perbandingan_julat,
+        analisis_subuh=analisis_subuh,
+        analisis_syuruk=analisis_syuruk,
+        analisis_zohor=analisis_zohor,
+        analisis_asar=analisis_asar,
+        analisis_maghrib=analisis_maghrib,
+        analisis_isyak=analisis_isyak,
+        analisis_perbandingan_julat_subuh=analisis_perbandingan_julat_subuh,
+        analisis_perbandingan_julat_syuruk=analisis_perbandingan_julat_syuruk,
+        analisis_perbandingan_julat_zohor=analisis_perbandingan_julat_zohor,
+        analisis_perbandingan_julat_asar=analisis_perbandingan_julat_asar,
+        analisis_perbandingan_julat_maghrib=analisis_perbandingan_julat_maghrib,
+        analisis_perbandingan_julat_isyak=analisis_perbandingan_julat_isyak)
 
 
 @app.route("/sahabatfalakplus", methods=["POST", "GET"])

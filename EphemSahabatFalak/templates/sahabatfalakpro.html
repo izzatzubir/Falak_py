@@ -7,6 +7,14 @@
 <form action="/sahabatfalakpro" method="post">
     <div class="row">
         <p>
+            Paparan ini ialah hitungan bagi menghasilkan takwim waktu solat tahunan menggunakan kaedah
+            panca titik (multipoint). Kaedah ini telah diperkenalkan oleh Abdul Majid Abdul Wahid dan
+            telah digunakan di Kedah, Pulau Pinang dan Perak. Waktu Solat sesebuah zon ditentukan dengan
+            memilih beberapa titik rujukan di sekeliling sempadan zon, kemudiannya dibandingkan waktu
+            solat bagi setiap titik. Waktu solat yang dipilih ialah waktu solat yang paling lewat antara
+            titik rujukan, kecuali bagi waktu syuruk, iaitu memilih waktu solat paling awal.
+        </p>
+        <p>
             Fungsi ini dihadkan bagi penggunaan rasmi. Jika anda ingin menghasilkan takwim
             waktu solat menggunakan kaedah panca titik, hubungi saya di:
             <a href="mailto:alum.doing-0u@icloud.com">Hantar Emel</a>
@@ -62,7 +70,11 @@
     </div>
     <br>
     <button id="add-button" class="btn btn-secondary">Tambah Lokasi</button>
+    {% if running_local %}
+    <button type="submit" class="btn btn-primary">Hitung</button>
+    {% else %}
     <button type="submit" class="btn btn-primary" disabled>Hitung</button>
+    {% endif %}
 </form>
 {% if takwim_multipoint is defined %}
 <hr>
@@ -95,7 +107,7 @@
             <div class="line"></div>
         </div>
         <div class="content_box">
-            <div class="content active">
+            <div class="content active table-responsive-lg">
                 <table class="table table-striped-columns">
                     <thead>
                         <tr>
@@ -126,7 +138,7 @@
             </div>
         </div>
         <div class="content_box">
-            <div class="content">
+            <div class="content table-responsive-lg">
                 <table class="table table-striped-columns">
                     <thead>
                         <tr>
@@ -157,7 +169,7 @@
             </div>
         </div>
         <div class="content_box">
-            <div class="content">
+            <div class="content table-responsive-lg">
                 <table class="table table-striped-columns">
                     <thead>
                         <tr>
@@ -188,7 +200,7 @@
             </div>
         </div>
         <div class="content_box">
-            <div class="content">
+            <div class="content table-responsive-lg">
                 <div class="row">
                     <div class="col-2">
                         <table class="table table-striped-columns">
@@ -302,7 +314,7 @@
             </div>
         </div>
         <div class="content_box">
-            <div class="content">
+            <div class="content table-responsive-lg">
                 <table class="table table-striped-columns">
                     <thead>
                         <tr>

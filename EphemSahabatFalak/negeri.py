@@ -1,4 +1,5 @@
 from kiraan_waktu_solat import Takwim
+from wrappers import calculate_time
 
 
 class Pulau_Pinang(Takwim):
@@ -76,3 +77,14 @@ class Selangor(Takwim):
             titik7=(3.247474, 101.928317, 0),
             titik8=(3.607318, 101.808840, 0)
         )
+
+
+@calculate_time
+def main():
+    """
+    Execute functions here
+    """
+
+
+if __name__ == "__main__":
+    main()
