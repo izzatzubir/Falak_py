@@ -48,7 +48,7 @@
                 <input type="datetime-local" class="form-control" id="datetime" name="datetime"  step="1" required>
                 {% endif %}
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4" hidden>
                 <label for="temperature" class="form-label">Suhu (°C)</label>
                 {% if temperature is defined %}
                 <input type="text" class="form-control" id="temperature" name="temperature" placeholder={{temperature}} value="{{temperature}}">
@@ -56,7 +56,7 @@
                 <input type="text" class="form-control" id="temperature" name="temperature" placeholder="27.0">
                 {% endif %}
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4" hidden>
                 <label for="pressure" class="form-label">Tekanan (mbar)</label>
                 {% if pressure is defined %}
                 <input type="text" class="form-control" id="pressure" name="pressure" placeholder={{pressure}} value="{{pressure}}">
@@ -64,7 +64,7 @@
                 <input type="text" class="form-control" id="pressure" name="pressure" value="1013.25">
                 {% endif %}
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4" hidden>
                 <label for="timezone" class="form-label">Zon Waktu</label>
                 <select class="form-select form-select-lg mb-3" name="timezone" id="timezone">
                     {% if timezone == 'lain' %}
@@ -204,13 +204,15 @@
         <li>Waktu bayang searah kiblat berakhir: {{waktu_bayang[1]}}</li>
         <button type="button" id="updatmap" name="updatemap" class="btn btn-info" onclick="updateMap()">Papar Peta</button>
         <div id="map"></div>
+        <div id="compass">N</div>
+        <button id="toggleButton" class="btn btn-secondary">Sedang diUji</button>
         <br>
         {% elif pilihan == 'efemerisKiblat' %}
         <h2>Jadual Kiblat</h2>
         <p>Azimut Kiblat: {{azimut}} °U</p>
         <p>Beza Azimut-Kiblat ialah sudut antara Matahari dan arah kiblat di lokasi tempatan.
             Jika nilai positif, arah kiblat ialah sudut tersebut mengikut arah jam.
-            Jika nilai negatif, arah kiblat sudut tersebut mengikut arah lawan jam.
+            Jika nilai negatif, arah kiblat ialah sudut tersebut mengikut arah lawan jam.
         </p>
         <br>
         <div class="container mb-2">
@@ -343,6 +345,44 @@
 
     </div>
 </div>
+<script>
+    let watching = false;
+    let watchID;
+    const compass = document.getElementById('compass');
+    const toggleButton = document.getElementById('toggleButton');
+
+    toggleButton.addEventListener('click', () => {
+        if (watching) {
+            stopCompass();
+        } else {
+            startCompass();
+        }
+    });
+
+    function startCompass() {
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', handleOrientation);
+            watching = true;
+            toggleButton.textContent = 'Stop Compass';
+        } else {
+            alert('Device Orientation API not supported.');
+        }
+    }
+
+    function stopCompass() {
+        if (window.DeviceOrientationEvent) {
+            window.removeEventListener('deviceorientation', handleOrientation);
+            watching = false;
+            toggleButton.textContent = 'Start Compass';
+            compass.style.transform = 'rotate(0deg)';
+        }
+    }
+
+    function handleOrientation(event) {
+        const alpha = event.alpha; // 0 to 360 degrees
+        compass.style.transform = `rotate(${alpha}deg)`;
+    }
+</script>
 <script>
     const tabs=document.querySelectorAll(".tab_btn");
     const all_content=document.querySelectorAll(".content");

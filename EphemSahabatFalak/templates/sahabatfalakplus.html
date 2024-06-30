@@ -81,23 +81,7 @@
                 <input type="datetime-local" class="form-control" id="datetime" name="datetime"  step="1" required>
                 {% endif %}
             </div>
-            <div class="col-md-4">
-                <label for="temperature" class="form-label">Suhu (°C)</label>
-                {% if temperature is defined %}
-                <input type="text" class="form-control" id="temperature" name="temperature" placeholder={{temperature}} value="{{temperature}}">
-                {% else %}
-                <input type="text" class="form-control" id="temperature" name="temperature" placeholder="27.0">
-                {% endif %}
-            </div>
-            <div class="col-md-4">
-                <label for="pressure" class="form-label">Tekanan (mbar)</label>
-                {% if pressure is defined %}
-                <input type="text" class="form-control" id="pressure" name="pressure" placeholder={{pressure}} value="{{pressure}}">
-                {% else %}
-                <input type="text" class="form-control" id="pressure" name="pressure" value="1013.25">
-                {% endif %}
-            </div>
-            <div class="col-md-4">
+            <div class="col-md-4" hidden>
                 <label for="timezone" class="form-label">Zon Waktu</label>
                 <select class="form-select form-select-lg mb-3" name="timezone" id="timezone">
                     {% if timezone == 'lain' %}
@@ -186,9 +170,25 @@
             <div class="pt-2">
                 <button type="submit" class="btn btn-primary">Hitung</button>
             </div>
-
+            <div class="col-md-4" hidden>
+                <label for="temperature" class="form-label">Suhu (°C)</label>
+                {% if temperature is defined %}
+                <input type="text" class="form-control" id="temperature" name="temperature" placeholder={{temperature}} value="{{temperature}}">
+                {% else %}
+                <input type="text" class="form-control" id="temperature" name="temperature" placeholder="27.0">
+                {% endif %}
+            </div>
+            <div class="col-md-4" hidden>
+                <label for="pressure" class="form-label">Tekanan (mbar)</label>
+                {% if pressure is defined %}
+                <input type="text" class="form-control" id="pressure" name="pressure" placeholder={{pressure}} value="{{pressure}}">
+                {% else %}
+                <input type="text" class="form-control" id="pressure" name="pressure" value="1013.25">
+                {% endif %}
+            </div>
         </div>
     </form>
+
     <div id="locationResult" hidden></div>
     <hr>
     <br>
