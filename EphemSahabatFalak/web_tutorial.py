@@ -300,7 +300,7 @@ def sahabatfalakpro():
                     "D": (5.551423, 100.528866, 40),
                     "E": (5.472839, 100.180822, 40)}
     takwim_multipoint = pd.read_csv(
-                    THIS_FOLDER / "takwim_tahunan_penang_2024.csv")
+                    THIS_FOLDER / "takwim_tahunan_penang_2024.csv", index_col='date')
     lokasi_pilihan = pd.read_csv(THIS_FOLDER / 'lokasi_pilihan_penang_2024.csv')
     perbandingan_julat = pd.read_csv(THIS_FOLDER / 'perbandingan_julat_penang_2024.csv')
     analisis_subuh = pd.read_csv(THIS_FOLDER / 'analisis_subuh_penang_2024.csv')
