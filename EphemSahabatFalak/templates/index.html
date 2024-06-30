@@ -349,6 +349,7 @@
     let watching = false;
     let watchID;
     const compass = document.getElementById('compass');
+    const pointer = document.getElementById('pointer');
     const toggleButton = document.getElementById('toggleButton');
 
     toggleButton.addEventListener('click', () => {
@@ -374,13 +375,13 @@
             window.removeEventListener('deviceorientation', handleOrientation);
             watching = false;
             toggleButton.textContent = 'Start Compass';
-            compass.style.transform = 'rotate(0deg)';
+            pointer.style.transform = 'rotate(0deg)';
         }
     }
 
     function handleOrientation(event) {
         const alpha = event.alpha; // 0 to 360 degrees
-        compass.style.transform = `rotate(${alpha}deg)`;
+        pointer.style.transform = `rotate(${alpha}deg)`;
     }
 </script>
 <script>
