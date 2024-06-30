@@ -18,7 +18,6 @@ app = Flask(__name__)
 def home():
     if request.method == "POST":
         mapbox_access_token = os.getenv('MAPBOX_ACCESS_TOKEN')
-        print(mapbox_access_token)
         latitude = 5.41144
         longitude = 100.19672
         elevation = 40.0
