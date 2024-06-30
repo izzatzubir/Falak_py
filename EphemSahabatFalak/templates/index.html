@@ -204,8 +204,6 @@
         <li>Waktu bayang searah kiblat berakhir: {{waktu_bayang[1]}}</li>
         <button type="button" id="updatmap" name="updatemap" class="btn btn-info" onclick="updateMap()">Papar Peta</button>
         <div id="map"></div>
-        <div id="compass">N</div>
-        <button id="toggleButton" class="btn btn-secondary">Sedang diUji</button>
         <br>
         {% elif pilihan == 'efemerisKiblat' %}
         <h2>Jadual Kiblat</h2>
@@ -345,45 +343,6 @@
 
     </div>
 </div>
-<script>
-    let watching = false;
-    let watchID;
-    const compass = document.getElementById('compass');
-    const pointer = document.getElementById('pointer');
-    const toggleButton = document.getElementById('toggleButton');
-
-    toggleButton.addEventListener('click', () => {
-        if (watching) {
-            stopCompass();
-        } else {
-            startCompass();
-        }
-    });
-
-    function startCompass() {
-        if (window.DeviceOrientationEvent) {
-            window.addEventListener('deviceorientation', handleOrientation);
-            watching = true;
-            toggleButton.textContent = 'Stop Compass';
-        } else {
-            alert('Device Orientation API not supported.');
-        }
-    }
-
-    function stopCompass() {
-        if (window.DeviceOrientationEvent) {
-            window.removeEventListener('deviceorientation', handleOrientation);
-            watching = false;
-            toggleButton.textContent = 'Start Compass';
-            pointer.style.transform = 'rotate(0deg)';
-        }
-    }
-
-    function handleOrientation(event) {
-        const alpha = event.alpha; // 0 to 360 degrees
-        pointer.style.transform = `rotate(${alpha}deg)`;
-    }
-</script>
 <script>
     const tabs=document.querySelectorAll(".tab_btn");
     const all_content=document.querySelectorAll(".content");
