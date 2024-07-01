@@ -212,7 +212,7 @@ def home():
 
 @app.route("/sahabatfalakpro", methods=["POST", "GET"])
 def sahabatfalakpro():
-    running_local = os.getenv("RUNNING_LOCAL")
+    running_remote = os.getenv("RUNNING_REMOTE")
     if request.method == "POST":
         year = 2024
         lokasi_dic = {}
@@ -291,7 +291,7 @@ def sahabatfalakpro():
             analisis_perbandingan_julat_asar=multipoint[12],
             analisis_perbandingan_julat_maghrib=multipoint[13],
             analisis_perbandingan_julat_isyak=multipoint[14],
-            timezone=timezone
+            timezone=timezone, running_remote=running_remote
             )
     lokasi_dic = {
                     "A": (5.282574, 100.177892, 40),
@@ -323,7 +323,7 @@ def sahabatfalakpro():
         THIS_FOLDER / 'analisis_perbandingan_julat_isyak_penang_2024.csv')
 
     return render_template(
-        "sahabatfalakpro.html", running_local=running_local, lokasi_dic=lokasi_dic,
+        "sahabatfalakpro.html", running_remote=running_remote, lokasi_dic=lokasi_dic,
         takwim_multipoint=takwim_multipoint,
         lokasi_pilihan=lokasi_pilihan,
         perbandingan_julat=perbandingan_julat,
