@@ -3403,7 +3403,7 @@ class Takwim:
         maghrib = maghrib_pre_calculated
         if time_of_calculation == 'maghrib':
             best_time = maghrib
-        elif time_of_calculation == 'Yallop best time':
+        else:
             lag_time = dt.timedelta(days=4/9 * (
                  self.lag_time(time_format='sec')))
             best_time = lag_time + maghrib  # TODO: Fix maghrib to datetime
@@ -3921,8 +3921,8 @@ class Takwim:
                 tahun_hijri += 1
                 continue
             else:
-                if criteria == 'Odeh':
-                    if takwim_hijri.Odeh_criteria() > criteria_value:
+                if criteria == 'Mabims2021':
+                    if takwim_hijri.Mabims_2021_criteria() > criteria_value:
                         hari_hijri += 1
                         continue
 
@@ -4012,7 +4012,7 @@ class Takwim:
                             bulan_hijri += 1
                             continue
                 else:
-                    if takwim_hijri.Mabims_2021_criteria() > criteria_value:
+                    if takwim_hijri.Odeh_criteria() > criteria_value:
                         hari_hijri += 1
                         continue
 

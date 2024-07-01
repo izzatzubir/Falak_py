@@ -40,6 +40,26 @@
             <h5>Masukkan nilai-nilai berikut</h5>
             <div class="col-md-4">
                 <label for="latitud" class="form-label">Latitud (°U)</label>
+                <svg data-bs-toggle="modal" data-bs-target="#latitudmodal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                  </svg>
+                  <!-- Modal -->
+                    <div class="modal fade" id="latitudmodal" tabindex="-1" aria-labelledby="latitudModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="latitudModalLabel">Latitud</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                Nilai latitud boleh dimasukkan antara 90 hingga -90, nilai positif bagi utara dan negatif bagi selatan.
+                            </div>
+                            <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
                 {% if latitud is defined %}
                 <input type="text" class="form-control" id="latitud" placeholder={{latitud}} value="{{latitud}}" name="latitud" >
                 {% else %}
@@ -48,6 +68,27 @@
             </div>
             <div class="col-md-4">
                 <label for="longitud" class="form-label">Longitud (°T)</label>
+                <svg data-bs-toggle="modal" data-bs-target="#longitudmodal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                  </svg>
+                  <!-- Modal -->
+                  <div class="modal fade" id="longitudmodal" tabindex="-1" aria-labelledby="longitudModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="longitudModalLabel">Longitud</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Nilai Longitud boleh dimasukkan antara 180 hingga -180,
+                            dengan nilai positif bagi timur dan negatif bagi barat.
+                        </div>
+                        <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                    </div>
+                </div>
                 {% if longitud is defined %}
                 <input type="text" class="form-control" id="longitud" name="longitud" placeholder={{longitud}} value="{{longitud}}">
                 {% else %}
@@ -56,6 +97,28 @@
             </div>
             <div class="col-md-4">
                 <label for="elevation" class="form-label">Ketinggian (m)</label>
+                <svg data-bs-toggle="modal" data-bs-target="#ketinggianModal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                  </svg>
+                  <!-- Modal -->
+                  <div class="modal fade" id="ketinggianModal" tabindex="-1" aria-labelledby="ketinggianModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="ketinggianModalLabel">Ketinggian</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Ketinggian ialah ketinggian lokasi dari aras laut,
+                            dengan unit meter. Nilai ketinggian akan memberi kesan pada tekanan, serta sudut junaman bagi waktu Syuruk
+                            dan waktu Maghrib.
+                        </div>
+                        <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                    </div>
+                </div>
                 {% if elevation is defined %}
                 <input type="text" class="form-control" id="elevation" name="elevation" placeholder={{elevation}} value="{{elevation}}">
                 {% else %}
@@ -75,6 +138,28 @@
             </div>
             <div name="toggleDiv" class="col-md-4" hidden>
                 <label for="temperature" class="form-label">Suhu (°C)</label>
+                <svg data-bs-toggle="modal" data-bs-target="#suhuModal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                  </svg>
+                  <!-- Modal -->
+                  <div class="modal fade" id="suhuModal" tabindex="-1" aria-labelledby="suhuModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="suhuModalLabel">Suhu</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Parameter suhu dan tekanan ini menentukan kadar pembiasan. Ia memberi kesan pada waktu syuruk dan
+                maghrib. Nilai suhu adalah dalam unit darjah Celcius, manakala tekanan dalam unit milibar.  Nilai suhu
+                ditetapkan pada 27 darjah Celcius.
+                        </div>
+                        <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                    </div>
+                </div>
                 {% if temperature is defined %}
                 <input type="text" class="form-control" id="temperature" name="temperature" placeholder={{temperature}} value="{{temperature}}">
                 {% else %}
@@ -83,6 +168,28 @@
             </div>
             <div name="toggleDiv" class="col-md-4" hidden>
                 <label for="pressure" class="form-label">Tekanan (mbar)</label>
+                <svg data-bs-toggle="modal" data-bs-target="#tekananModal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                  </svg>
+                  <!-- Modal -->
+                  <div class="modal fade" id="tekananModal" tabindex="-1" aria-labelledby="tekananModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="tekananModalLabel">Tekanan</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Parameter suhu dan tekanan ini menentukan kadar pembiasan. Ia memberi kesan pada waktu syuruk dan
+                maghrib. Nilai suhu adalah dalam unit darjah Celcius, manakala tekanan dalam unit milibar. Nilai yang digunakan
+                bagi tekanan ialah 1013.25 milibar, iaitu nilai piawai bagi tekanan pada aras laut.
+                        </div>
+                        <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                    </div>
+                </div>
                 {% if pressure is defined %}
                 <input type="text" class="form-control" id="pressure" name="pressure" placeholder={{pressure}} value="{{pressure}}">
                 {% else %}
@@ -91,6 +198,34 @@
             </div>
             <div class="col-md-4">
                 <label for="datetime" class="form-label">Tarikh dan Masa:</label>
+                <svg data-bs-toggle="modal" data-bs-target="#tarikhModal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                  </svg>
+                  <!-- Modal -->
+                  <div class="modal fade" id="tarikhModal" tabindex="-1" aria-labelledby="tarikhModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="tarikhModalLabel">Tarikh dan Masa</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>
+                                Tarikh merujuk pada hari, bulan dan tahun. Ini menentukan tarikh waktu solat harian, atau bulanan
+                serta jadual kiblat yang hendak dihitung. Masa merujuk pada jam, minit dan saat. Ini akan menentukan
+                masa bagi jadual kiblat yang hendak dihitung.
+                            </p>
+                            <p>
+                                Hitungan dalam SahabatFalak ini menggunakan kalendar Julian bagi tarikh pada dan sebelum Khamis 4 Oktober 1582, dan
+                                menggunakan kalendar Gregorian bermula pada dan selepas Jumaat 15 Oktober 1582.
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                    </div>
+                </div>
                 {% if original_date is defined %}
                 <input type="datetime-local" class="form-control" id="datetime" name="datetime"  step="1" placeholder="{{original_date}}" value="{{original_date}}">
                 {% else %}
@@ -99,6 +234,28 @@
             </div>
             <div name="toggleDiv" class="col-md-4" hidden>
                 <label for="timezone" class="form-label">Zon Waktu</label>
+                <svg data-bs-toggle="modal" data-bs-target="#zonwaktuModal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                  </svg>
+                  <!-- Modal -->
+                  <div class="modal fade" id="zonwaktuModal" tabindex="-1" aria-labelledby="zonwaktuModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="zonwaktuModalLabel">Zon Waktu</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Parameter zon waktu menentukan zon waktu bagi hitungan. Parameter Asia/Kuala_Lumpur adalah bersesuaian
+                bagi hitungan di Malaysia. Jika parameter Lain-lain dipilih, zon waktu akan ditentukan berdasarkan
+                latitud dan longitud yang diberi.
+                        </div>
+                        <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                    </div>
+                </div>
                 <select class="form-select form-select-lg mb-3" name="timezone" id="timezone">
                     {% if timezone == 'lain' %}
                     <option value="asia_KL">Asia/Kuala_Lumpur</option>
@@ -111,6 +268,32 @@
             </div>
             <div class="col-md-4">
                 <label for="lokasi_rasmi" class="form-label">Lokasi Rasmi</label>
+                <svg data-bs-toggle="modal" data-bs-target="#lokasirasmiModal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                  </svg>
+                  <!-- Modal -->
+                  <div class="modal fade" id="lokasirasmiModal" tabindex="-1" aria-labelledby="lokasirasmiModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="lokasirasmiModalLabel">Lokasi Rasmi</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>
+                                Pengguna boleh memilih lokasi cerapan rasmi dengan menekan pada pilihan 'Lokasi Rasmi'.
+                                Jika lokasi rasmi dipilih, pengguna tidak perlu memasukkan maklumat latitud, longitud dan ketinggian
+                                kerana telah ditetapkan. Maklumat ini diperoleh dari laman berikut:
+                                <a href="https://archive.data.gov.my/data/en_US/dataset/lokasi-rasmi-cerapan-hilal-malaysia">Lokasi Rasmi</a>
+                                Jika pengguna ingin menghitung pada lokasi lain, pilih Tidak Berkaitan.
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                    </div>
+                </div>
                 <select class="form-select form-select-lg mb-3" name="lokasi_rasmi" id="lokasi_rasmi">
                     <option value="PFST">Pusat Falak Sheikh Tahir, Pulau Pinang</option>
                     <option selected value="Tiada">Tidak Berkaitan</option>
@@ -227,7 +410,28 @@
                             <td>{{moon_age}}</td>
                         </tr>
                         <tr>
-                            <td>Jarak Lengkung</td>
+                            <td>Jarak Lengkung
+                                <svg data-bs-toggle="modal" data-bs-target="#jaraklengkung1-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                  </svg>
+                                <!-- Modal -->
+                                <div class="modal fade" id="jaraklengkung1-Modal" tabindex="-1" aria-labelledby="jaraklengkung1-ModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="jaraklengkung1-ModalLabel">Jarak Lengkung</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Sudut antara Bulan dan Matahari, dari titik rujukan.
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </td>
                             <td>{{elongation}}</td>
                         </tr>
                         <tr>
@@ -330,7 +534,28 @@
                                 <td>{{fasa}}</td>
                             </tr>
                             <tr>
-                                <td>Jarak Lengkung</td>
+                                <td>Jarak Lengkung
+                                    <svg data-bs-toggle="modal" data-bs-target="#jaraklengkung2-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                      </svg>
+                                      <!-- Modal -->
+                                      <div class="modal fade" id="jaraklengkung2-Modal" tabindex="-1" aria-labelledby="jaraklengkung2-ModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="jaraklengkung2-ModalLabel">Jarak Lengkung</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Sudut antara Bulan dan Matahari, dari titik rujukan.
+                                            </div>
+                                            <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                                </td>
                                 <td>{{elong}}</td>
                             </tr>
                             <tr>
@@ -384,7 +609,28 @@
                             <thead>
                                 <tr>
                                     <th scope="col">Waktu</th>
-                                    <th scope="col">Jarak Lengkung</th>
+                                    <th scope="col">Jarak Lengkung
+                                        <svg data-bs-toggle="modal" data-bs-target="#jaraklengkung-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                          </svg>
+                                          <!-- Modal -->
+                                          <div class="modal fade" id="jaraklengkung-Modal" tabindex="-1" aria-labelledby="jaraklengkung-ModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                <h1 class="modal-title fs-5" id="jaraklengkung-ModalLabel">Jarak Lengkung</h1>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Sudut antara Bulan dan Matahari, dari titik rujukan.
+                                                </div>
+                                                <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                            </div>
+                                        </div>
+                                    </th>
                                     <th scope="col">Alt Bulan</th>
                                     <th scope="col">Az Bulan(°)</th>
                                 </tr>
