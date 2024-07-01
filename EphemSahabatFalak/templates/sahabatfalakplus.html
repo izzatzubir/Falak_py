@@ -151,8 +151,8 @@
                         </div>
                         <div class="modal-body">
                             Parameter suhu dan tekanan ini menentukan kadar pembiasan. Ia memberi kesan pada waktu syuruk dan
-                maghrib. Nilai suhu adalah dalam unit darjah Celcius, manakala tekanan dalam unit milibar.  Nilai suhu
-                ditetapkan pada 27 darjah Celcius.
+                maghrib. Nilai suhu adalah dalam unit °Celcius, manakala tekanan dalam unit milibar.  Nilai suhu
+                ditetapkan pada 27 °Celcius.
                         </div>
                         <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -181,7 +181,7 @@
                         </div>
                         <div class="modal-body">
                             Parameter suhu dan tekanan ini menentukan kadar pembiasan. Ia memberi kesan pada waktu syuruk dan
-                maghrib. Nilai suhu adalah dalam unit darjah Celcius, manakala tekanan dalam unit milibar. Nilai yang digunakan
+                maghrib. Nilai suhu adalah dalam unit °Celcius, manakala tekanan dalam unit milibar. Nilai yang digunakan
                 bagi tekanan ialah 1013.25 milibar, iaitu nilai piawai bagi tekanan pada aras laut.
                         </div>
                         <div class="modal-footer">
@@ -355,6 +355,33 @@
                 </div>
                 <div class="col-md-4">
                     <label for="topo_pilihan" class="form-label">Pilih titik rujukan</label>
+                    <svg data-bs-toggle="modal" data-bs-target="#topo_pilihanModal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                      </svg>
+                       <!-- Modal -->
+                        <div class="modal fade" id="topo_pilihanModal" tabindex="-1" aria-labelledby="topo_pilihanModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="topo_pilihanModalLabel">Titik Rujukan</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>
+                                        Rujukan toposentrik menghitung data hilal
+                                        dengan rujukan dari kedudukan pemerhati.
+                                    </p>
+                                    <p>
+                                        Rujukan toposentrik menghitung data hilal
+                                        dengan rujukan dari pusat Bumi.
+                                    </p>
+                                </div>
+                                <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
                     <select class="form-select form-select-lg mb-3" name="topo_pilihan" id="topo_pilihan">
                         {% if topo == 'geocentric' %}
                         <option selected value="geocentric">Geosentrik</option>
@@ -402,11 +429,55 @@
                             <td>{{moon_set}}</td>
                         </tr>
                         <tr>
-                            <td>Ijtimak</td>
+                            <td>Ijtimak
+                                <svg data-bs-toggle="modal" data-bs-target="#ijtimak-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                  </svg>
+                                  <!-- Modal -->
+                                  <div class="modal fade" id="ijtimak-Modal" tabindex="-1" aria-labelledby="ijtimak-ModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="ijtimak-ModalLabel">Ijtimak</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Waktu ketika longitud ekliptik Bulan sama dengan longitud ekliptik Matahari. Nilai ijtimak berbeza
+                                            bagi toposentrik dan geosentrik. Nilai yang biasa digunakan dalam almanak serta perisian astronomi
+                                            ialah ijtimak bagi geosentrik.
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </td>
                             <td>{{ijtimak}}</td>
                         </tr>
                         <tr>
-                            <td>Umur Bulan</td>
+                            <td>Umur Bulan
+                                <svg data-bs-toggle="modal" data-bs-target="#umurbulan-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                  </svg>
+                                  <!-- Modal -->
+                                  <div class="modal fade" id="umurbulan-Modal" tabindex="-1" aria-labelledby="umurbulan-ModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="umurbulan-ModalLabel">Umur Bulan</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Tempoh masa antara ijtimak dan waktu maghrib.
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </td>
                             <td>{{moon_age}}</td>
                         </tr>
                         <tr>
@@ -443,32 +514,165 @@
                             <td>{{moon_rise}}</td>
                         </tr>
                         <tr>
-                            <td>Altitud Bulan</td>
+                            <td>Altitud Bulan
+                                <svg data-bs-toggle="modal" data-bs-target="#altitudbulan-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                  </svg>
+                                  <!-- Modal -->
+                                  <div class="modal fade" id="altitudbulan-Modal" tabindex="-1" aria-labelledby="altitudbulan-ModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="altitudbulan-ModalLabel">Altitud Bulan</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Sudut ketinggian bulan iaitu sudut menegak dari ufuk 0°, ke bulan.
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </td>
                             <td>{{altitude}}</td>
                         </tr>
                         <tr>
-                            <td>Nisbah Jarak Bulan</td>
+                            <td>Nisbah Jarak Bulan
+                                <svg data-bs-toggle="modal" data-bs-target="#nisbahjarak-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                  </svg>
+                                  <!-- Modal -->
+                                  <div class="modal fade" id="nisbahjarak-Modal" tabindex="-1" aria-labelledby="nisbahjarak-ModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="nisbahjarak-ModalLabel">Nisbah Jarak Bulan</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Hasil bahagi antara jarak bulan ke titik rujukan dengan purata jarak bulan ke bumi. Rumusnya ialah:
+                                            $$ \text{Jarak}_{\text{nisbah}} = \frac{\text{Jarak}_{\text{semasa}}}{384000} $$
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </td>
                             <td>{{moon_distance_ratio}}</td>
                         </tr>
                         <tr>
-                            <td>Beza Azimut</td>
+                            <td>Beza Azimut
+                                <svg data-bs-toggle="modal" data-bs-target="#bezaazmiut-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                  </svg>
+                                  <!-- Modal -->
+                                  <div class="modal fade" id="bezaazmiut-Modal" tabindex="-1" aria-labelledby="bezaazmiut-ModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="bezaazmiut-ModalLabel">Beza Azimut</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Beza azimut antara Bulan dan Matahari ketika waktu maghrib. Istilah ini dikenali sebagai
+                                            Arc of Vision (ARCV) dan biasanya digunakan dengan rujukan Geosentrik.
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </td>
                             <td>{{azimuth_difference}}</td>
                         </tr>
                         <tr>
-                            <td>Kecerahan</td>
+                            <td>Kecerahan
+                                <svg data-bs-toggle="modal" data-bs-target="#kecerahan-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                  </svg>
+                                  <!-- Modal -->
+                                  <div class="modal fade" id="kecerahan-Modal" tabindex="-1" aria-labelledby="kecerahan-ModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="kecerahan-ModalLabel">Kecerahan</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Peratus piring Bulan yang memantulkan cahaya Matahari, yang dilihat dari titik rujukan.
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </td>
                             <td>{{illumination}}</td>
                         </tr>
                         <tr>
-                            <td>Tempoh Bulan Terbenam</td>
+                            <td>Tempoh Bulan Terbenam
+                                <svg data-bs-toggle="modal" data-bs-target="#tempohterbenam-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                  </svg>
+                                  <!-- Modal -->
+                                  <div class="modal fade" id="tempohterbenam-Modal" tabindex="-1" aria-labelledby="tempohterbenam-ModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="tempohterbenam-ModalLabel">Tempoh Bulan Terbenam</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Tempoh antara waktu maghrib, dan bulan terbenam.
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </td>
                             <td>{{lag_time}}</td>
                         </tr>
                         <tr>
-                            <td>Lebar Hilal</td>
+                            <td>Lebar Hilal
+                                <svg data-bs-toggle="modal" data-bs-target="#lebarhilal-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                  </svg>
+                                  <!-- Modal -->
+                                  <div class="modal fade" id="lebarhilal-Modal" tabindex="-1" aria-labelledby="lebarhilal-ModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="lebarhilal-ModalLabel">Lebar Hilal</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Lebar hilal ialah sudut terbesar bagi kawasan hilal yang memantulkan cahaya matahari.
+                                            Lebar Hilal biasanya dihitung dengan rujukan toposentrik, kecuali bagi kriteria sebelum 1997 (sebelum Yallop 1997).
+                                            Ketika bulan purnama, 'lebar hilal' ialah sekitar 0.53° atau 32 arka minit. Pengiraan
+                                            lebar hilal dalam Sahabat Falak menggunakan formula berikut:
+                                            <a href="https://www.researchgate.net/publication/343219170_Moon's_crescent_width">Lebar Hilal</a>
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </td>
                             <td>{{crescent_width}}</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+            {% if gambar_Hilal %}
             <div class="col-md-6">
                 <table class="table table-bordered table-striped-columns">
                     <thead>
@@ -479,27 +683,170 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Odeh 2004</td>
+                            <td>Odeh 2004
+                                <svg data-bs-toggle="modal" data-bs-target="#odeh-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                  </svg>
+                                  <!-- Modal -->
+                                  <div class="modal fade" id="odeh-Modal" tabindex="-1" aria-labelledby="odeh-ModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="odeh-ModalLabel">Odeh 2004</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Kriteria kenampakan oleh Mohammad Shawkat Odeh, berdasarkan rumus dalam <a href="https://astronomycenter.net/pdf/2006_cri.pdf">kertas ini</a>.
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </td>
                             <td>{{odeh}}</td>
                         </tr>
                         <tr>
-                            <td>Yallop 1997</td>
+                            <td>Yallop 1997
+                                <svg data-bs-toggle="modal" data-bs-target="#yallop-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                  </svg>
+                                  <!-- Modal -->
+                                  <div class="modal fade" id="yallop-Modal" tabindex="-1" aria-labelledby="yallop-ModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="yallop-ModalLabel">Yallop 1997</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Kriteria kenampakan oleh BD Yallop, berdasarkan rumus dalam <a href="https://astronomycenter.net/pdf/yallop_1997.pdf">kertas ini</a>.
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </td>
                             <td>{{yallop}}</td>
                         </tr>
                         <tr>
-                            <td>Mabims 2021</td>
+                            <td>MABIMS 2021
+                                <svg data-bs-toggle="modal" data-bs-target="#mabims2021-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                    </svg>
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="mabims2021-Modal" tabindex="-1" aria-labelledby="mabims2021-ModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="mabims2021-ModalLabel">MABIMS 2021</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Kriteria kenampakan berdasarkan dua parameter iaitu jarak lengkung dan altitud.
+                                            Bulan dikira melepasi syarat imkanurrukyah jika jarak lengkung toposentrik Bulan-Matahari melebihi 6°24' (6.4°) DAN
+                                            altitud Bulan melebihi 3° ketika waktu Maghrib.
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </td>
                             <td>{{mabims2021}}</td>
                         </tr>
                         <tr>
-                            <td>Malaysia 2013</td>
+                            <td>Malaysia 2013
+                                <svg data-bs-toggle="modal" data-bs-target="#malaysia2013-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                    </svg>
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="malaysia2013-Modal" tabindex="-1" aria-labelledby="malaysia2013-ModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="malaysia2013-ModalLabel">Malaysia 2013</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Kriteria kenampakan berdasarkan dua parameter iaitu jarak lengkung dan altitud.
+                                            Bulan dikira melepasi syarat imkanurrukyah jika jarak lengkung toposentrik Bulan-Matahari melebihi 5° DAN
+                                            altitud Bulan melebihi 3° ketika waktu Maghrib.
+                                            <p>
+                                                <a href="https://www.scribd.com/document/625929575/KRITERIA-IMKANUR-RUKYAH-TERKINI-1443H-Prof-Dato-Dr-Zambri-WFN">Rujukan</a>.
+                                            </p>
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </td>
                             <td>{{malaysia2013}}</td>
                         </tr>
                         <tr>
-                            <td>Muhammadiyyah</td>
+                            <td>Muhammadiyyah
+                                <svg data-bs-toggle="modal" data-bs-target="#Muhammadiyyah-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                    </svg>
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="Muhammadiyyah-Modal" tabindex="-1" aria-labelledby="Muhammadiyyah-ModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="Muhammadiyyah-ModalLabel">Muhammadiyyah</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Kriteria ini juga dikenali sebagai kriteria wujudul hilal.
+                                            Kriteria ini dihitung berdasarkan dua parameter iaitu umur Bulan dan altitud Bulan.
+                                            Hilal dikira memenuhi syarat wujudul hilal jika umur Bulan melebihi 0 saat DAN altitud Bulan melebihi 0°.
+                                            <p>
+                                                <a href="https://muhammadiyah.or.id/2022/02/hisab-hakiki-wujudul-hilal-apa-dan-bagaimana/">Rujukan</a>.
+                                            </p>
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </td>
                             <td>{{muhammadiyah}}</td>
                         </tr>
                         <tr>
-                            <td>Istanbul 1978</td>
+                            <td>Istanbul 1978
+                                <svg data-bs-toggle="modal" data-bs-target="#istanbul78-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                    </svg>
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="istanbul78-Modal" tabindex="-1" aria-labelledby="istanbul78-ModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="istanbul78-ModalLabel">Istanbul 1978</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Kriteria kenampakan berdasarkan dua parameter iaitu jarak lengkung dan altitud.
+                                            Bulan dikira melepasi syarat imkanurrukyah jika jarak lengkung geosentrik Bulan-Matahari melebihi 8° DAN
+                                            altitud geosentrik Bulan melebihi 5° ketika waktu Maghrib.
+                                            <p>
+                                                <a href="https://eprints.um.edu.my/15587/1/0001.pdf">Rujukan</a>.
+                                            </p>
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </td>
                             <td>{{istanbul78}}</td>
                         </tr>
                     </tbody>
@@ -507,7 +854,7 @@
             </div>
 
             <div>
-                {% if gambar_Hilal %}
+
                 <h4>Simulasi Langit</h4>
                 <img src="data:image/png;base64,{{ gambar_Hilal }}" alt="Simulasi hilal tidak bersesuaian pada tarikh ini" class="responsive-img">
                 {% endif %}
@@ -530,7 +877,30 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td>Fasa Bulan</td>
+                                <td>Fasa Bulan
+                                    <svg data-bs-toggle="modal" data-bs-target="#databulanModal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                      </svg>
+                                       <!-- Modal -->
+                                        <div class="modal fade" id="databulanModal" tabindex="-1" aria-labelledby="databulanModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                <h1 class="modal-title fs-5" id="databulanModalLabel">Fasa Bulan</h1>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>
+                                                        Fasa bulan adalah berdasarkan sudut longitud ekliptik Bulan.
+                                                    </p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                            </div>
+                                        </div>
+                                </td>
                                 <td>{{fasa}}</td>
                             </tr>
                             <tr>
@@ -559,27 +929,155 @@
                                 <td>{{elong}}</td>
                             </tr>
                             <tr>
-                                <td>Jarak Lengkung Minimum (Tarikh)</td>
+                                <td>Jarak Lengkung Minimum (Tarikh)
+                                    <svg data-bs-toggle="modal" data-bs-target="#jaraklengkungminimumtarikh-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                      </svg>
+                                      <!-- Modal -->
+                                      <div class="modal fade" id="jaraklengkungminimumtarikh-Modal" tabindex="-1" aria-labelledby="jaraklengkungminimumtarikh-ModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="jaraklengkungminimumtarikh-ModalLabel">Jarak Lengkung Minimum (Tarikh)</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Tarikh dan Masa ketika Jarak Lengkung Bulan-Matahari adalah minimum.
+                                            </div>
+                                            <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                                </td>
                                 <td>{{elong_min}}</td>
                             </tr>
                             <tr>
-                                <td>Ijtimak</td>
+                                <td>Ijtimak
+                                    <svg data-bs-toggle="modal" data-bs-target="#ijtimak1-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                      </svg>
+                                      <!-- Modal -->
+                                      <div class="modal fade" id="ijtimak1-Modal" tabindex="-1" aria-labelledby="ijtimak1-ModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="ijtimak1-ModalLabel">Ijtimak</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Waktu ketika longitud ekliptik Bulan sama dengan longitud ekliptik Matahari. Nilai ijtimak berbeza
+                                                bagi toposentrik dan geosentrik. Nilai yang biasa digunakan dalam almanak serta perisian astronomi
+                                                ialah ijtimak bagi geosentrik.
+                                            </div>
+                                            <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                                </td>
                                 <td>{{conj}}</td>
                             </tr>
                             <tr>
-                                <td>Jarak Lengkung Maksimum (Tarikh)</td>
+                                <td>Jarak Lengkung Maksimum (Tarikh)
+                                    <svg data-bs-toggle="modal" data-bs-target="#jaraklengkungmaksimumtarikh-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                      </svg>
+                                      <!-- Modal -->
+                                      <div class="modal fade" id="jaraklengkungmaksimumtarikh-Modal" tabindex="-1" aria-labelledby="jaraklengkungmaksimumtarikh-ModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="jaraklengkungmaksimumtarikh-ModalLabel">Jarak Lengkung Maksimum (Tarikh)</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Tarikh dan Masa ketika Jarak Lengkung Bulan-Matahari adalah maksimum.
+                                            </div>
+                                            <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                                </td>
                                 <td>{{elong_max}}</td>
                             </tr>
                             <tr>
-                                <td>Purnama</td>
+                                <td>Purnama
+                                    <svg data-bs-toggle="modal" data-bs-target="#Purnama-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                      </svg>
+                                      <!-- Modal -->
+                                      <div class="modal fade" id="Purnama-Modal" tabindex="-1" aria-labelledby="Purnama-ModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="Purnama-ModalLabel">Purnama</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Tarikh dan Masa ketika sudut longitud ekliptik Bulan adalah 180°.
+                                            </div>
+                                            <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                                </td>
                                 <td>{{opp}}</td>
                             </tr>
                             <tr>
-                                <td>Jarak Lengkung Minimum (Sudut)</td>
+                                <td>Jarak Lengkung Minimum (Sudut)
+                                    <svg data-bs-toggle="modal" data-bs-target="#jaraklengkungminimumsudut-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                      </svg>
+                                      <!-- Modal -->
+                                      <div class="modal fade" id="jaraklengkungminimumsudut-Modal" tabindex="-1" aria-labelledby="jaraklengkungminimumsudut-ModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="jaraklengkungminimumsudut-ModalLabel">Jarak Lengkung Minimum (Sudut)</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Sudut minimum Jarak Lengkung Bulan-Matahari bagi kitaran bulan ini.
+                                            </div>
+                                            <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                                </td>
                                 <td>{{sudut_min}}</td>
                             </tr>
                             <tr>
-                                <td>Jarak Lengkung Maksimum (Sudut)</td>
+                                <td>Jarak Lengkung Maksimum (Sudut)
+                                    <svg data-bs-toggle="modal" data-bs-target="#jaraklengkungmaksimumsudut-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                      </svg>
+                                      <!-- Modal -->
+                                      <div class="modal fade" id="jaraklengkungmaksimumsudut-Modal" tabindex="-1" aria-labelledby="jaraklengkungmaksimumsudut-ModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="jaraklengkungmaksimumsudut-ModalLabel">Jarak Lengkung Maksimum (Sudut)</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Sudut maksimum Jarak Lengkung Bulan-Matahari bagi kitaran bulan ini.
+                                            </div>
+                                            <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                                </td>
                                 <td>{{sudut_max}}</td>
                             </tr>
                         </tbody>
@@ -631,7 +1129,28 @@
                                             </div>
                                         </div>
                                     </th>
-                                    <th scope="col">Alt Bulan</th>
+                                    <th scope="col">Alt Bulan
+                                        <svg data-bs-toggle="modal" data-bs-target="#altitudbulan1-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                          </svg>
+                                          <!-- Modal -->
+                                          <div class="modal fade" id="altitudbulan1-Modal" tabindex="-1" aria-labelledby="altitudbulan1-ModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                <h1 class="modal-title fs-5" id="altitudbulan1-ModalLabel">Altitud Bulan</h1>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Sudut ketinggian bulan iaitu sudut menegak dari ufuk 0°, ke bulan.
+                                                </div>
+                                                <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                            </div>
+                                        </div>
+                                    </th>
                                     <th scope="col">Az Bulan(°)</th>
                                 </tr>
                             </thead>
@@ -654,8 +1173,54 @@
                             <thead>
                                 <tr>
                                     <th scope="col">Waktu</th>
-                                    <th scope="col">Kecerahan (%)</th>
-                                    <th scope="col">Lebar Hilal (')</th>
+                                    <th scope="col">Kecerahan (%)
+                                        <svg data-bs-toggle="modal" data-bs-target="#kecerahan1-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                          </svg>
+                                          <!-- Modal -->
+                                          <div class="modal fade" id="kecerahan1-Modal" tabindex="-1" aria-labelledby="kecerahan1-ModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                <h1 class="modal-title fs-5" id="kecerahan1-ModalLabel">Kecerahan</h1>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Peratus piring Bulan yang memantulkan cahaya Matahari, yang dilihat dari titik rujukan.
+                                                </div>
+                                                <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th scope="col">Lebar Hilal (')
+                                        <svg data-bs-toggle="modal" data-bs-target="#lebarhilal1-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                          </svg>
+                                          <!-- Modal -->
+                                          <div class="modal fade" id="lebarhilal1-Modal" tabindex="-1" aria-labelledby="lebarhilal1-ModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                <h1 class="modal-title fs-5" id="lebarhilal1-ModalLabel">Lebar Hilal</h1>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Lebar hilal ialah sudut terbesar bagi kawasan hilal yang memantulkan cahaya matahari.
+                                                    Lebar Hilal biasanya dihitung dengan rujukan toposentrik, kecuali bagi kriteria sebelum 1997 (sebelum Yallop 1997).
+                                                    Ketika bulan purnama, 'lebar hilal' ialah sekitar 0.53° atau 32 arka minit. Pengiraan
+                                                    lebar hilal dalam Sahabat Falak menggunakan formula berikut:
+                                                    <a href="https://www.researchgate.net/publication/343219170_Moon's_crescent_width">Lebar Hilal</a>
+                                                </div>
+                                                <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                            </div>
+                                        </div>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -676,8 +1241,52 @@
                             <thead>
                                 <tr>
                                     <th scope="col">Waktu</th>
-                                    <th scope="col">Beza Altitud(°)</th>
-                                    <th scope="col">ARCV (°)</th>
+                                    <th scope="col">Beza Azimut(°)
+                                        <svg data-bs-toggle="modal" data-bs-target="#bezaazmiut1-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                          </svg>
+                                          <!-- Modal -->
+                                          <div class="modal fade" id="bezaazmiut1-Modal" tabindex="-1" aria-labelledby="bezaazmiut1-ModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                <h1 class="modal-title fs-5" id="bezaazmiut1-ModalLabel">Beza Azimut</h1>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Beza azimut antara Bulan dan Matahari ketika waktu maghrib. Istilah ini dikenali sebagai
+                                                    Difference of Azimuth (DAZ).
+                                                </div>
+                                                <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th scope="col">ARCV (°)
+                                        <svg data-bs-toggle="modal" data-bs-target="#arcv-Modal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14"/>
+                                          </svg>
+                                          <!-- Modal -->
+                                          <div class="modal fade" id="arcv-Modal" tabindex="-1" aria-labelledby="arcv-ModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                <h1 class="modal-title fs-5" id="arcv-ModalLabel">ARCV</h1>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Beza altitud antara pusat Bulan dan pusat Matahari. Istilah ini dikenali sebagai
+                                                    Arc of Vision (ARCV) dan biasanya digunakan dengan rujukan Geosentrik.
+                                                </div>
+                                                <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                            </div>
+                                        </div>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1170,5 +1779,5 @@
         }
     }
 </script>
-
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 {% endblock %}

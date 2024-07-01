@@ -95,8 +95,123 @@
     </tr>
     {% endfor %}
 </table>
+<hr>
 <br>
 <div>
+    <h5>Info</h5>
+    <ul class="list-group p-2">
+        <li class="list-group-item" data-bs-toggle="modal" data-bs-target="#waktusolat-Modal">
+            Waktu Solat
+              <!-- Modal -->
+              <div class="modal fade" id="waktusolat-Modal" tabindex="-1" aria-labelledby="waktusolat-ModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="waktusolat-ModalLabel">Waktu Solat</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Waktu Solat tahunan berdasarkan kaedah panca titik. Setiap waktu solat pada jadual, ialah waktu solat
+                        paling lewat antara titik rujukan yang dipilih, kecuali bagi waktu syuruk yang berdasarkan waktu solat
+                        paling awal antara titik rujukan yang dipilih.
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </li>
+        <li class="list-group-item" data-bs-toggle="modal" data-bs-target="#pemilihanlokasi-Modal">
+            Pemilihan Lokasi
+              <!-- Modal -->
+              <div class="modal fade" id="pemilihanlokasi-Modal" tabindex="-1" aria-labelledby="pemilihanlokasi-ModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="pemilihanlokasi-ModalLabel">Pemilihan Lokasi</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Lokasi rujukan yang paling lewat waktu solat bagi selain waktu Syuruk dipaparkan. Bagi waktu Syuruk,
+                        lokasi rujukan yang paling awal dipaparkan. Lokasi rujukan paling lewat waktu solat berubah sepanjang
+                        tahun disebabkan kecondongan paksi Bumi dari satah orbit.
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </li>
+        <li class="list-group-item" data-bs-toggle="modal" data-bs-target="#julatWaktu-Modal">
+            Julat Waktu
+              <!-- Modal -->
+              <div class="modal fade" id="julatWaktu-Modal" tabindex="-1" aria-labelledby="julatWaktu-ModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="julatWaktu-ModalLabel">Julat Waktu</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Jadual ini memaparkan julat waktu terbesar antara lokasi waktu solat paling lewat, dan lokasi
+                        waktu solat paling awal, setiap hari sepanjang tahun. Sebagai contoh, jika julat waktu bagi Subuh ialah
+                        120, ini bermakna waktu solat Subuh di titik rujukan paling lewat, ialah 120 saat lebih lewat berbanding waktu
+                        solat Subuh di titik rujukan paling awal.
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </li>
+        <li class="list-group-item" data-bs-toggle="modal" data-bs-target="#analisislokasi-Modal">
+            Analisis Lokasi
+              <!-- Modal -->
+              <div class="modal fade" id="analisislokasi-Modal" tabindex="-1" aria-labelledby="analisislokasi-ModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="analisislokasi-ModalLabel">Pemilihan Lokasi</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Lokasi rujukan yang paling lewat waktu solat bagi selain waktu Syuruk dipaparkan. Bagi waktu Syuruk,
+                        lokasi rujukan yang paling awal dipaparkan.
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </li>
+        <li class="list-group-item" data-bs-toggle="modal" data-bs-target="#analisisjulat-Modal">
+            Analisis Julat
+              <!-- Modal -->
+              <div class="modal fade" id="analisisjulat-Modal" tabindex="-1" aria-labelledby="analisisjulat-ModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="analisisjulat-ModalLabel">Analisis Julat</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Jadual ini memaparkan julat waktu terbesar antara titik rujukan paling lewat, dan titik rujukan
+                        paling awal sepanjang tahun.
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+    <hr>
+    <br>
     <div class="container  mb-2">
         <div class="tab_box table-responsive-lg">
             <button class="tab_btn active">Waktu Solat</button>
