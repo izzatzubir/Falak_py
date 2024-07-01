@@ -213,7 +213,6 @@ def home():
 @app.route("/sahabatfalakpro", methods=["POST", "GET"])
 def sahabatfalakpro():
     running_remote = os.getenv("RUNNING_REMOTE")
-    print(f"Running Remote: {running_remote}")
     if request.method == "POST":
         year = 2024
         lokasi_dic = {}
@@ -256,7 +255,7 @@ def sahabatfalakpro():
                     analisis_perbandingan_julat_asar=multipoint[12],
                     analisis_perbandingan_julat_maghrib=multipoint[13],
                     analisis_perbandingan_julat_isyak=multipoint[14],
-                    timezone=timezone
+                    timezone=timezone, running_remote=running_remote
                     )
 
         pemerhati = Takwim(year=year, zone=zone)

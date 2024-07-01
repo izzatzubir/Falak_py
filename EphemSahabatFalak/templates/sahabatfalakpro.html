@@ -72,8 +72,10 @@
     <button id="add-button" class="btn btn-secondary">Tambah Lokasi</button>
     {% if running_remote == True %}
     <button type="submit" class="btn btn-primary" disabled>Hitung</button>
+    <p>running_remote is : {% running_remote %}</p>
     {% else %}
     <button type="submit" class="btn btn-primary">Hitung</button>
+    <p>running_remote is : {% running_remote %}</p>
     {% endif %}
 </form>
 {% if takwim_multipoint is defined %}
