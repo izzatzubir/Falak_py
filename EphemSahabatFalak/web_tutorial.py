@@ -213,6 +213,7 @@ def home():
 @app.route("/sahabatfalakpro", methods=["POST", "GET"])
 def sahabatfalakpro():
     running_remote = os.getenv("RUNNING_REMOTE")
+    print(f"Running Remote: {running_remote}")
     if request.method == "POST":
         year = 2024
         lokasi_dic = {}
